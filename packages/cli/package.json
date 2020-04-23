@@ -1,0 +1,18 @@
+{
+  "name": "@weflow/cli",
+  "version": "0.0.1",
+  "description": "weflow-cli",
+  "main": "index.js",
+  "bin": {
+    "weflow": "bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "commander": "^5.0.0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "weflow",
+  "version": "0.0.1",
+  "description": "enhanced cli tool for mp deveopers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://git.code.oa.com/wxweb/weflow.git"
+  },
+  "author": "jimmytian",
+  "license": "MIT",
+  "devDependencies": {
+    "lerna": "^3.20.2"
+  }
+}
