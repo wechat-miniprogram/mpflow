@@ -3,8 +3,8 @@ const path = require('path')
 const spawn = require('cross-spawn')
 const rm = require('rimraf').sync
 const repo = require('./repo')
-const success = require('./logger').success
-const error = require('./logger').error
+const success = require('./lib/logger').success
+const error = require('./lib/logger').error
 /**
  * js 和 ts 写两份代码，根据选项执行删除效果
  */
@@ -16,13 +16,14 @@ module.exports = function(projectName, template, language) {
 
     let gitUrl = repo[template].url
     success('开始初始化代码')
-    const {status, error: cloneError} = spawn.sync('git', ['clone','--depth=1', gitUrl])
+    const {status, error: cloneError} = spawn.sync('git', ['clone','--depth=1', gitUrl, projectPath])
     // 根据 template 命名选取不同 git 进行下拉
-    
     if (!cloneError && status === 0) {
         try {
+            process.chdir(projectPath) // 改变当前运行目录
             rm(path.join(projectPath, '.git'))
-            spawn.sync('npm', ['install'])
+            success('npm install')
+            spawn.sync('npm', ['install'],{stdio: 'inherit'})
         } catch (err) {
             error('项目初始化失败，请手动执行： npm install')
         }

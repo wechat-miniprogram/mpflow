@@ -1,18 +1,27 @@
+#!/usr/bin/env node
+
 const program = require('commander')
 const inquirer = require('inquirer')
 const repo = require('../core/repo')
-const error = require('../core/logger').error
+const error = require('../core/lib/logger').error
 
 
 program
   .version(require('../package.json').version, '-v, --version')
-  .usage('<command> [options]');
+  .usage('<command> [options]')
+
+program
+  .command('dev')
+  .option('--config <config>', 'set the name of config file')
+  .action( ({config}) => {
+    require('../core/dev')(config)
+  })
 
 program
   .command('init <projectName>')
   .description('generate a new project of weflow')
   .action( projectName =>{
-    if(projectName) return error('请配置 projectName, init <projectName>')
+    if(!projectName) return error('请配置 projectName, init <projectName>')
 
       return inquirer
         .prompt([
@@ -61,3 +70,6 @@ program
             )
         })
   })
+
+
+program.parse(process.argv)

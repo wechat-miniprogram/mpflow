@@ -12,7 +12,19 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
     "chalk": "^4.0.0",
-    "commander": "^5.0.0"
+    "commander": "^5.0.0",
+    "cross-spawn": "^7.0.2",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-if": "^3.0.0",
+    "gulp-less": "^4.0.1",
+    "gulp-rename": "^2.0.0",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^3.8.3"
   }
 }
