@@ -29,7 +29,8 @@ module.exports = class TaskJobs{
     lessCompile(){
         return () =>{
             return gulp.src('**/*.less', {
-                root: this.src
+                base: this.src,
+                cwd: this.src
             })
             .pipe(gulpif(this.less.sourcemap, sourcemaps.init()))
             .pipe(less({paths: [this.src], compress: true}))
@@ -46,7 +47,8 @@ module.exports = class TaskJobs{
         return () => {
             // 主要是 import 转 require
             return gulp.src('**/*.js', {
-                root: this.src
+                base: this.src,
+                cwd: this.src
             })
             .pipe(gulpif(this.less.sourcemap, sourcemaps.init()))
             .pipe(babel({
@@ -62,7 +64,8 @@ module.exports = class TaskJobs{
             const tsProject = ts.createProject('tsconfig.json');
 
             return gulp.src('**/*.ts', {
-                root: this.src
+                base: this.src,
+                cwd: this.src
             })
             .pipe(tsProject())
             .js
@@ -75,9 +78,8 @@ module.exports = class TaskJobs{
      * 图片压缩
      */
     imgCompile() {
-        return (imgsrc) => {
-            return gulp.src(imgsrc)
-                .pipe(gulp.dest(this.dist))
+        return () => {
+            
         }
         
     }
@@ -86,7 +88,36 @@ module.exports = class TaskJobs{
      * 拷贝 wxss, wxml, json,
      */
     copyFiles() {
-
+        return () => {
+            return gulp.parallel(() => {
+                // copy wxss
+                return gulp.src('**/*.wxss', {
+                    cwd: this.src,
+                    base: this.src
+                })
+                .pipe(gulp.dest(this.dist))
+            }, () => {
+                // copy wxml
+                return gulp.src('**/*.wxml', {
+                    cwd: this.src,
+                    base: this.src
+                })
+                .pipe(gulp.dest(this.dist))
+            }, () => {
+                return gulp.src('**/*.json', {
+                    cwd: this.src,
+                    base: this.src
+                })
+                .pipe(gulp.dest(this.dist))
+            }, () => {
+                return gulp.src('**/*.wxs', {
+                    cwd: this.src,
+                    base: this.src
+                })
+                .pipe(gulp.dest(this.dist))
+            })
+            
+        }
     }
 
     /**
