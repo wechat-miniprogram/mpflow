@@ -1,5 +1,6 @@
 const imagemin = require('imagemin')
 const through = require('through2')
+const path = require('path')
 const warn = require('../lib/logger').warn
 const error = require('../lib/logger').error
 

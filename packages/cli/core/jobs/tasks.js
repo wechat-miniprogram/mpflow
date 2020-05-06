@@ -94,8 +94,8 @@ module.exports = class TaskJobs{
      * 拷贝 wxss, wxml, json,
      */
     copyFiles() {
-        return () => {
-            return gulp.parallel(() => {
+        return (cb) => {
+            gulp.parallel(() => {
                 // copy wxss
                 return gulp.src('**/*.wxss', {
                     cwd: this.src,
@@ -110,7 +110,7 @@ module.exports = class TaskJobs{
                 })
                 .pipe(gulp.dest(this.dist))
             }, () => {
-                return gulp.src('**/*.json', {
+                return gulp.src('**/*.{json,.config.json}', {
                     cwd: this.src,
                     base: this.src
                 })
@@ -121,8 +121,9 @@ module.exports = class TaskJobs{
                     base: this.src
                 })
                 .pipe(gulp.dest(this.dist))
-            })
+            })()
             
+            cb()
         }
     }
 

@@ -27,10 +27,12 @@ module.exports = class {
         gulp.task('compile', gulp.parallel('js', 'less','img'))
 
         gulp.task('dev',gulp.series(
-            'copy',
             'clean',
+            'copy',
             'compile'
         ))
+
+        // watch job
 
         gulp.on('error', console.trace);
         gulp.on('error', err=>{
