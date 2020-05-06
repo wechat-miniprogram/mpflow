@@ -21,10 +21,13 @@ module.exports = class {
         gulp.task('js', this.jobs.jsCompile())
         gulp.task('less', this.jobs.lessCompile())
         gulp.task('clean', this.jobs.clean())
+        gulp.task('img', this.jobs.imgCompile())
+        gulp.task('copy', this.jobs.copyFiles())
 
-        gulp.task('compile', gulp.parallel('js', 'less'))
+        gulp.task('compile', gulp.parallel('js', 'less','img'))
 
         gulp.task('dev',gulp.series(
+            'copy',
             'clean',
             'compile'
         ))

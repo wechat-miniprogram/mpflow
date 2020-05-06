@@ -7,6 +7,7 @@ const babel = require('gulp-babel')
 const sourcemaps = require('gulp-sourcemaps')
 const ts = require('gulp-typescript')
 const rm = require('rimraf').sync
+const imgCompress = require('./img-compress')
 /**
  * 1. 先 run 一遍
  * 2. watch 住对应文件
@@ -19,7 +20,7 @@ module.exports = class TaskJobs{
         this.less = weflowConfig.compiler.less
         this.js = weflowConfig.compiler.js
 
-        this.IMG_EXT = ['png', 'jpg', 'jpeg', 'svg', 'gif',];
+        this.IMG_EXT = ['png', 'jpg', 'jpeg', 'svg', 'gif']
 
     }
 
@@ -79,7 +80,12 @@ module.exports = class TaskJobs{
      */
     imgCompile() {
         return () => {
-            
+            gulp.src(`**/*.{${this.IMG_EXT.join(',')}}`, {
+                cwd: this.src,
+                base: this.src
+            })
+            .pipe(imgCompress())
+            .pipe(gulp.dest(this.dist))
         }
         
     }
