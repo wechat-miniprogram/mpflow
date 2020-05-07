@@ -42,6 +42,8 @@ module.exports = function(config = 'weflow.config.js') {
 
     let compiler = Object.assign({},defaultCompiler, weflowConf.compiler)
 
+    success('开始编译')
+
     /**
      * 初始化任务
      */
