@@ -1,5 +1,6 @@
 const chalk = require('chalk')
 const through = require('through2')
+const path = require('path')
 
 exports.info = function(type, message) {
     console.log(`${chalk.bold.magenta(type)}: ${message}`)
@@ -21,19 +22,19 @@ exports.success = function(message) {
 exports.compileLog = function(opt) {
     let count = 0
     return through.obj( (file,enc, cb) => {
-        let tips = chalk.bgGreenBright(opt.title) + ' ' + chalk.bgGrey ('=>') + ' '
+        let tips = chalk.green(opt.title) + ' ' + chalk.bgGrey ('=>') + ' '
         const fileName = path.relative(file.base, file.path)
-        tips += chalk.gray(fileName) + ' | ' + chalk.bgGreen(file.path) 
+        tips += chalk.gray(fileName) + ' | ' + chalk.green(file.path) 
 
         console.log(tips)
 
         count++
         cb(null,file)
     }, cb => {
-        let tips =  chalk.bgGreenBright(opt.title) + ' ' + chalk.bgGrey ('=>') + ' '
-            + chalk.green(count)
-        console.log(tips)
-        
+        // let tips =  chalk.bgGreenBright(opt.title) + ' ' + chalk.bgGrey ('=>') + ' '
+        //     + chalk.green(count)
+        // console.log(tips)
+
         cb()
     })
 }

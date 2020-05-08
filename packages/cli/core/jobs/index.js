@@ -34,10 +34,11 @@ module.exports = class {
 
         gulp.task('compile', gulp.parallel('js','ts','less','img'))
         gulp.task('watch', gulp.parallel(
-            "watch-ts",
-            "watch-less",
-            "watch-img",
-            "watch-copy",
+            'watch-js',
+            'watch-ts',
+            'watch-less',
+            'watch-img',
+            'watch-copy',
         ))
 
         gulp.task('dev',gulp.series(
@@ -52,7 +53,7 @@ module.exports = class {
 
         gulp.on('error', console.trace);
         gulp.on('error', err=>{
-            error('err')
+            error('编译异常中断')
         });
     }
 }

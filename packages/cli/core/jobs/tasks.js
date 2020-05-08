@@ -41,10 +41,10 @@ module.exports = class TaskJobs{
                 cwd: this.src,
                 delay: this.watchDelay
             })
-            .change(file => {
+            .on('change',file => {
                 return this.compileLess(file)
             })
-            .add( file => {
+            .on('add', file => {
                 return this.compileLess(file)
             })
         }
@@ -81,10 +81,10 @@ module.exports = class TaskJobs{
                 cwd: this.src,
                 delay: this.watchDelay
             })
-            .change(file => {
+            .on('change',file => {
                 return this.compileJs(file)
             })
-            .add( file => {
+            .on('add', file => {
                 return this.compileJs(file)
             })
         }
@@ -131,10 +131,10 @@ module.exports = class TaskJobs{
                 cwd: this.src,
                 delay: this.watchDelay
             })
-            .change(file => {
+            .on('change',file => {
                 return this.compileTs(file)
             })
-            .add( file => {
+            .on('add', file => {
                 return this.compileTs(file)
             })
         }
@@ -156,10 +156,10 @@ module.exports = class TaskJobs{
                 cwd: this.src,
                 delay: this.watchDelay
             })
-            .change(file => {
+            .on('change',file => {
                 return this.compileImg(file)
             })
-            .add( file => {
+            .on('add', file => {
                 return this.compileImg(file)
             })
         }
@@ -197,13 +197,13 @@ module.exports = class TaskJobs{
                 cwd: this.src,
                 delay: this.watchDelay
             })
-            .change(file => {
+            .on('change', file => {
                 return gulp.src(file).pipe(gulp.dest(this.dist))
                 .pipe(logMid({
                     title: 'Copy'
                 }))
             })
-            .add( file => {
+            .on('add', file => {
                 return gulp.src(file).pipe(gulp.dest(this.dist))
                 .pipe(logMid({
                     title: 'Copy'

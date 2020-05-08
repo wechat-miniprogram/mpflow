@@ -55,6 +55,4 @@ module.exports = function(config = 'weflow.config.js') {
 
     tasks.dev()
 
-    success('编译完成')
-
 }
