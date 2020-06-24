@@ -35,6 +35,7 @@ class AppModuleFactory {
     const resolver = this.resolverFactory.get('miniprogram/entry', {})
     const jsResolver = this.resolverFactory.get('miniprogram/javascript', {})
     const jsonResolver = this.resolverFactory.get('miniprogram/json', {})
+    const wxssResolver = this.resolverFactory.get('miniprogram/wxss', {})
 
     const appResourcePath = await new Promise((resolve, reject) => {
       resolver.resolve(data.contextInfo, data.context, dependency.request, {}, (err, res) =>
@@ -57,6 +58,12 @@ class AppModuleFactory {
       )
     })
 
+    const wxssResourcePath = await new Promise((resolve, reject) => {
+      wxssResolver.resolve(data.contextInfo, appContext, './' + appBasename, {}, (err, res) =>
+        err ? reject(err) : resolve(res),
+      )
+    })
+
     return new AppModule(
       data.context,
       [
@@ -65,6 +72,7 @@ class AppModuleFactory {
             './loaders/asset-loader',
           )}?type=config!${jsonResourcePath}`,
         ),
+        new VirtualDependency(`${require.resolve('./loaders/asset-loader')}?type=style!${wxssResourcePath}`),
         new VirtualDependency(jsResourcePath),
       ],
       dependency.request,

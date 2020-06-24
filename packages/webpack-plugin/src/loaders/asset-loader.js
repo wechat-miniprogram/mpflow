@@ -55,6 +55,31 @@ export const pitch = asyncLoaderWrapper(async function pitch(request) {
     // 将直接引用的 wxml 文件作为 Template 依赖
     this._module.addDependency(new AssetDependency('miniprogram/wxml', request, this.context, exports))
     return '// asset'
+  } else if (type === 'style') {
+    // 通过 eval 获取模块运行后的内容
+    const {
+      exports: { imports, exports },
+      compilation,
+    } = await evalModuleBundleCode(loaderName, this)
+
+    // 将 wxss import 的文件单独输出
+    imports.forEach(([id, content, url, outputPath]) => {
+      // const module = findModuleById(compilation.modules, id)
+
+      this.emitFile(outputPath, content)
+
+      // return {
+      //   identifier: module.identifier(),
+      //   context: module.context,
+      //   content,
+      //   url,
+      //   outputPath,
+      // }
+    })
+
+    // 将直接引用的 wxss 文件作为 Template 依赖
+    this._module.addDependency(new AssetDependency('miniprogram/wxss', request, this.context, exports))
+    return '// asset'
   }
 
   return

@@ -105,6 +105,16 @@ class MpResolverPlugin {
           ...resolveOptions,
         }),
       )
+
+      /**
+       * 注册 wxss 文件查找
+       */
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxss').tap(PLUGIN_NAME, resolveOptions =>
+        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
+          extensions: ['.wxss'],
+          ...resolveOptions,
+        }),
+      )
     })
   }
 }

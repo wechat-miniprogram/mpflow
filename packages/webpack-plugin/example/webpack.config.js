@@ -18,6 +18,9 @@ module.exports = {
     rules: [
       {
         test: /\.wxml$/, use: '@weflow/wxml-loader'
+      },
+      {
+        test: /\.wxss$/, use: '@weflow/wxss-loader'
       }
     ]
   },
