@@ -1,26 +1,28 @@
-module.exports = function () {
-  const exportModule = {
-    imports: [],
-    moduleId: null,
-    url: null,
-    outputPath: null,
-    exports: null,
+class WxmlModule {
+  imports: [string, string, string, string][]
+  moduleId: string
+  url: string
+  outputPath: string
+  exports: string
+
+  constructor() {
+    this.imports = []
   }
 
   /**
    * 添加子模块
    */
-  exportModule.i = function (importModule) {
+  i(importModule: WxmlModule) {
     for (const imported of importModule.imports) {
       this.imports.push(imported)
     }
-    this.imports.push([importModule.moduleId, importModule.exports, importModule.url, importModule.outputPath ])
+    this.imports.push([importModule.moduleId, importModule.exports, importModule.url, importModule.outputPath])
   }
 
   /**
-   * 处理 urls
+   * 处理 url
    */
-  exportModule.u = function (url) {
+  u(url: any) {
     url = url && url.__esModule ? url.default : url
 
     if (typeof url === 'object' && url.url !== undefined) {
@@ -34,6 +36,6 @@ module.exports = function () {
 
     return url
   }
-
-  return exportModule
 }
+
+module.exports = () => new WxmlModule()

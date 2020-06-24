@@ -8,23 +8,37 @@ const endTagReg = /^<\/([-A-Za-z0-9_]+)[^>]*>/i
 const attrReg = /([-A-Za-z0-9_:@.#]+)(?:(\s*=\s*)(?:(?:(")((?:\\.|[^"])*)")|(?:(')((?:\\.|[^'])*)')|([^>\s]+)))?/g
 
 // 空元素
-const voidSet = new Set([])
+const voidSet: Set<string> = new Set([])
 
 // 可能包含任意内容的元素
-const rawTextSet = new Set(['wxs'])
+const rawTextSet: Set<string> = new Set(['wxs'])
 
-/**
- * @typedef {object} Position
- * @prop {number} start
- * @prop {number} end
- */
+interface Position {
+  start: number
+  end: number
+}
 
-/**
- * @typedef {object} Attribute
- * @prop {{ val: string, pos: Position }} name
- * @prop {{ val: string, pos: Position }} [value]
- * @prop {Position} pos
- */
+interface Attribute {
+  name: {
+    val: string
+    pos: Position
+  }
+  value?: {
+    val: string
+    pos: Position
+  }
+  pos: Position
+}
+
+class Stack<T> extends Array<T> {
+  constructor(arr: T[] = []) {
+    super(...arr)
+  }
+
+  top() {
+    return this[this.length - 1]
+  }
+}
 
 /**
  * 分词
@@ -34,19 +48,22 @@ const rawTextSet = new Set(['wxs'])
  * @param {(tagName: { val: string, pos: Position }, attrs: Attribute[], unary: boolean, pos: Position) => void} [handler.start]
  * @param {(tagName: { val: string, pos?: Position }, pos?: Position) => void} [handler.end]
  */
-export function tokenize(content, handler) {
-  const stack = []
+export function tokenize(
+  content: string,
+  handler: {
+    text?: (text: string, pos: Position) => void
+    start?: (tagName: { val: string; pos: Position }, attrs: Attribute[], unary: boolean, pos: Position) => void
+    end?: (tagName: { val: string; pos?: Position }, pos?: Position) => void
+  },
+) {
+  const stack = new Stack<string>()
   let last = content
   let start = 0
-
-  stack.last = function () {
-    return this[this.length - 1]
-  }
 
   while (content) {
     let isText = true
 
-    if (!stack.last() || !rawTextSet.has(stack.last())) {
+    if (!stack.top() || !rawTextSet.has(stack.top())) {
       if (content.startsWith('<!--')) {
         // comment
         const index = content.indexOf('-->')
@@ -71,7 +88,7 @@ export function tokenize(content, handler) {
         let match = content.match(startTagReg)
 
         if (match) {
-          parseStartTag(match[0], match[1], match[2], match[3])
+          parseStartTag(match[0], match[1], match[2], !!match[3])
           content = content.substring(match[0].length)
           start += match[0].length
           isText = false
@@ -90,7 +107,7 @@ export function tokenize(content, handler) {
         content = content.substring(text.length)
       }
     } else {
-      const execRes = new RegExp(`</${stack.last()}[^>]*>`).exec(content)
+      const execRes = new RegExp(`</${stack.top()}[^>]*>`).exec(content)
 
       if (execRes) {
         const text = content.substring(0, execRes.index)
@@ -100,7 +117,7 @@ export function tokenize(content, handler) {
         if (text && handler.text) handler.text(text, { start, end: start + execRes.index })
 
         start = start + execRes.index
-        parseEndTag(execRes[0], stack.last())
+        parseEndTag(execRes[0], stack.top())
 
         start = end
         content = content.substring(execRes.index + execRes[0].length)
@@ -114,7 +131,7 @@ export function tokenize(content, handler) {
   // 关闭栈内的标签
   parseEndTag()
 
-  function parseStartTag(tag, tagName, rest, unary) {
+  function parseStartTag(tag: string, tagName: string, rest: string, unary: boolean) {
     unary = voidSet.has(tagName) || !!unary
 
     if (!unary) stack.push(tagName)
@@ -174,7 +191,7 @@ export function tokenize(content, handler) {
     }
   }
 
-  function parseEndTag(tag, tagName) {
+  function parseEndTag(tag?: string, tagName?: string) {
     let pos
 
     if (!tagName) {
@@ -208,8 +225,6 @@ export function tokenize(content, handler) {
               end: start + tag.length,
             },
           )
-        } else {
-          handler.end({ val: tagName }, undefined)
         }
       }
 
@@ -218,41 +233,42 @@ export function tokenize(content, handler) {
   }
 }
 
-/**
- * @typedef {object} WxmlText
- * @prop {'text'} type
- * @prop {string} content
- * @prop {Position} pos
- */
+export type WxmlNode = WxmlText | WxmlComment | WxmlElement
 
-/**
- * @typedef {object} WxmlElement
- * @prop {'element'} type
- * @prop {{ val: string, pos: Position }} tagName
- * @prop {Attribute[]} attrs
- * @prop {boolean} unary
- * @prop {Position} pos
- * @prop {(WxmlElement | WxmlText)[]} children
- */
+export interface WxmlText {
+  type: 'text'
+  content: string
+  pos: Position
+}
+
+export interface WxmlComment {
+  type: 'comment'
+  content: string
+  pos: Position
+}
+
+export interface WxmlElement {
+  type: 'element'
+  tagName: {
+    val: string
+    pos: Position
+  }
+  attrs: Attribute[]
+  unary: boolean
+  pos: Position
+  children: WxmlNode[]
+}
 
 /**
  * 解析
- * @param {string} wxml
- * @return {(WxmlElement | WxmlText)[]}
  */
-export function parse(wxml) {
-  const r = {
-    children: [],
-  }
-  const stack = [r]
-
-  stack.last = function () {
-    return this[this.length - 1]
-  }
+export function parse(wxml: string): WxmlNode[] {
+  const r: { children: WxmlNode[] } = { children: [] }
+  const stack = new Stack<typeof r>([{ children: [] }])
 
   tokenize(wxml, {
     start(tagName, attrs, unary, pos) {
-      const node = {
+      const node: WxmlElement = {
         type: 'element',
         tagName,
         attrs,
@@ -261,7 +277,7 @@ export function parse(wxml) {
         children: [],
       }
 
-      stack.last().children.push(node)
+      stack.top().children.push(node)
 
       if (!unary) {
         stack.push(node)
@@ -274,7 +290,7 @@ export function parse(wxml) {
       content = content.trim()
       if (!content) return
 
-      stack.last().children.push({
+      stack.top().children.push({
         type: 'text',
         content,
         pos,
@@ -287,10 +303,14 @@ export function parse(wxml) {
 
 /**
  * 遍历
- * @param {(WxmlElement | WxmlText)[]} ast
- * @param {{ begin?: (elem: WxmlElement | WxmlText) => void, end?: (elem: WxmlElement | WxmlText) => void }} handler
  */
-export function walk(ast, handler) {
+export function walk(
+  ast: WxmlNode[],
+  handler: {
+    begin?: (elem: WxmlNode) => void
+    end?: (elem: WxmlNode) => void
+  },
+) {
   for (const elem of ast) {
     handler.begin && handler.begin(elem)
     if (elem.type === 'element') walk(elem.children, handler)
@@ -300,10 +320,8 @@ export function walk(ast, handler) {
 
 /**
  * 代码生成
- * @param {(WxmlElement | WxmlText)[]} ast
- * @return {string}
  */
-export function codegen(ast) {
+export function codegen(ast: WxmlNode[]): string {
   let wxml = ''
 
   walk(ast, {

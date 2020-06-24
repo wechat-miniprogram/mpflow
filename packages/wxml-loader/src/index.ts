@@ -1,55 +1,49 @@
+import { loader } from 'webpack'
 import path from 'path'
 import { getOptions, stringifyRequest, isUrlRequest, urlToRequest, interpolateName } from 'loader-utils'
 import * as parser from './wxml-parser'
 
-/**
- * @typedef PluginImportMessage
- * @prop {string} pluginName
- * @prop {'import'} type
- * @prop {object} value
- * @prop {string} value.importName
- * @prop {string} value.url
- */
+interface PluginImportMessage {
+  pluginName: string
+  type: 'import'
+  value: {
+    importName: string
+    url: string
+  }
+}
 
-/**
- * @typedef PluginChildImportMessage
- * @prop {string} pluginName
- * @prop {'child-import'} type
- * @prop {object} value
- * @prop {string} value.importName
- */
+interface PluginChildImportMessage {
+  pluginName: string
+  type: 'child-import'
+  value: {
+    importName: string
+  }
+}
 
-/**
- * @typedef PluginReplaceMessage
- * @prop {string} pluginName
- * @prop {'replacer'} type
- * @prop {object} value
- * @prop {string} value.pattern
- * @prop {string} value.target
- * @prop {string} value.replacementName
- */
+interface PluginReplaceMessage {
+  pluginName: string
+  type: 'replacer'
+  value: {
+    pattern: string | RegExp
+    target: string
+    replacementName: string
+  }
+}
 
-/**
- * @typedef {PluginImportMessage | PluginChildImportMessage | PluginReplaceMessage} PluginMessage
- */
+type PluginMessage = PluginImportMessage | PluginChildImportMessage | PluginReplaceMessage
 
-/**
- * @typedef PluginContext
- * @prop {PluginMessage[]} messages
- */
+interface PluginContext {
+  messages: PluginMessage[]
+}
 
-/**
- * @typedef {(ast: any, context: PluginContext)} Plugin
- */
+interface Plugin {
+  (ast: parser.WxmlNode[], context: PluginContext): void
+}
 
-/**
- * @param {Plugin[]} plugins
- */
-function pluginRunner(plugins) {
+function pluginRunner(plugins: Plugin[]) {
   return {
-    process: ast => {
-      /** @type {PluginContext} */
-      const context = { messages: [] }
+    process: (ast: parser.WxmlNode[]) => {
+      const context: PluginContext = { messages: [] }
 
       for (const plugin of plugins) {
         plugin(ast, context)
@@ -60,7 +54,11 @@ function pluginRunner(plugins) {
   }
 }
 
-function getImportCode(loaderContext, imports, esModule) {
+function getImportCode(
+  loaderContext: loader.LoaderContext,
+  imports: PluginImportMessage['value'][],
+  esModule: boolean,
+) {
   let code = ''
 
   const apiUrl = stringifyRequest(loaderContext, require.resolve('./runtime/api'))
@@ -79,7 +77,14 @@ function getImportCode(loaderContext, imports, esModule) {
   return code
 }
 
-function getModuleCode(ast, childImports, replacers, url, outputPath, esModule) {
+function getModuleCode(
+  ast: parser.WxmlNode[],
+  childImports: PluginChildImportMessage['value'][],
+  replacers: PluginReplaceMessage['value'][],
+  url: string,
+  outputPath: string,
+  esModule: boolean,
+) {
   let code = JSON.stringify(parser.codegen(ast))
   let beforeCode = ''
 
@@ -108,11 +113,17 @@ function getModuleCode(ast, childImports, replacers, url, outputPath, esModule) 
   return `${beforeCode}\nexports.exports = ${code};\n`
 }
 
-function getExportCode(esModule) {
+function getExportCode(esModule: boolean) {
   return esModule ? 'export default exports;\n' : 'module.exports = exports;\n'
 }
 
-const importAttributes = [
+interface ImportAttributes {
+  tag: string
+  attribute: string
+  importChild?: boolean
+}
+
+const defaultImportAttributes: ImportAttributes[] = [
   {
     tag: 'import',
     attribute: 'src',
@@ -129,16 +140,18 @@ const importAttributes = [
   },
 ]
 
-function importPlugin(attributes) {
-  const tagAttrMap = new Map()
+function importPlugin(attributes: ImportAttributes[]): Plugin {
+  const PLUGIN_NAME = 'importPlugin'
+
+  const tagAttrMap = new Map<string, Map<string, ImportAttributes>>()
 
   for (const item of attributes) {
-    const attrSet = tagAttrMap.get(item.tag) || new Map()
+    const attrSet = tagAttrMap.get(item.tag) || new Map<string, ImportAttributes>()
     attrSet.set(item.attribute, item)
     tagAttrMap.set(item.tag, attrSet)
   }
 
-  const findAttribute = elem => {
+  const findAttribute = (elem: parser.WxmlNode) => {
     if (elem.type !== 'element') return
 
     const attrSet = tagAttrMap.get(elem.tagName.val)
@@ -147,7 +160,7 @@ function importPlugin(attributes) {
 
     for (const attr of elem.attrs) {
       const name = attr.name.val
-      if (attrSet.has(name) && attr.value) return { attr, option: attrSet.get(name) }
+      if (attrSet.has(name) && attr.value) return { attr, option: attrSet.get(name)! }
     }
   }
 
@@ -163,9 +176,9 @@ function importPlugin(attributes) {
 
         const { attr, option } = result
 
-        if (!isUrlRequest(attr.value.val)) return
+        if (!isUrlRequest(attr.value!.val)) return
 
-        const importKey = urlToRequest(decodeURIComponent(attr.value.val))
+        const importKey = urlToRequest(decodeURIComponent(attr.value!.val))
         let importName = importsMap.get(importKey)
 
         if (!importName) {
@@ -174,6 +187,7 @@ function importPlugin(attributes) {
 
           context.messages.push({
             type: 'import',
+            pluginName: PLUGIN_NAME,
             value: {
               importName,
               url: importKey,
@@ -185,6 +199,7 @@ function importPlugin(attributes) {
         if (option.importChild) {
           context.messages.push({
             type: 'child-import',
+            pluginName: PLUGIN_NAME,
             value: {
               importName,
             },
@@ -201,6 +216,7 @@ function importPlugin(attributes) {
 
           context.messages.push({
             type: 'replacer',
+            pluginName: PLUGIN_NAME,
             value: {
               pattern: new RegExp(placeholderName, 'g'),
               target: `exports.u(${importName});`,
@@ -210,23 +226,20 @@ function importPlugin(attributes) {
         }
 
         // 将 ast 中的 src 替换
-        attr.value.val = placeholderName
+        attr.value!.val = placeholderName
       },
     })
   }
 }
 
-/**
- * @type {import('webpack').loader.Loader}
- */
-const wxmlLoader = function wxmlLoader(content) {
-  const options = getOptions(this) || {}
+const wxmlLoader: loader.Loader = function wxmlLoader(content) {
+  const options: any = getOptions(this) || {}
 
   // const callback = this.async()
 
-  const ast = parser.parse(content)
+  const ast = parser.parse(typeof content === 'string' ? content : content.toString('utf8'))
 
-  const { messages } = pluginRunner([importPlugin(importAttributes)]).process(ast)
+  const { messages } = pluginRunner([importPlugin(defaultImportAttributes)]).process(ast)
 
   const imports = []
   const childImports = []
