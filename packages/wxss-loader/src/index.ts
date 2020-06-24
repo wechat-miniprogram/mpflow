@@ -150,8 +150,6 @@ const wxssLoader: loader.Loader = function wxssLoader(content) {
       const moduleCode = getModuleCode(result, childImports, replacers, publicPath, outputPath, esModule)
       const exportCode = getExportCode(esModule)
 
-      console.log(`${importCode}${moduleCode}${exportCode}`)
-
       return callback(null, `${importCode}${moduleCode}${exportCode}`)
     })
     .catch(error => {
