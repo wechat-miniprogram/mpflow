@@ -154,11 +154,11 @@ function importPlugin(attributes: ImportAttributes[]): Plugin {
   const findAttribute = (elem: parser.WxmlNode) => {
     if (elem.type !== 'element') return
 
-    const attrSet = tagAttrMap.get(elem.tagName.val)
+    const attrSet = tagAttrMap.get(elem.startToken.tagName.val)
 
     if (!attrSet) return
 
-    for (const attr of elem.attrs) {
+    for (const attr of elem.startToken.attrs) {
       const name = attr.name.val
       if (attrSet.has(name) && attr.value) return { attr, option: attrSet.get(name)! }
     }
@@ -176,9 +176,9 @@ function importPlugin(attributes: ImportAttributes[]): Plugin {
 
         const { attr, option } = result
 
-        if (!isUrlRequest(attr.value!.val)) return
+        if (!attr.value || !isUrlRequest(attr.value.val)) return
 
-        const importKey = urlToRequest(decodeURIComponent(attr.value!.val))
+        const importKey = urlToRequest(decodeURIComponent(attr.value.val))
         let importName = importsMap.get(importKey)
 
         if (!importName) {
@@ -226,7 +226,7 @@ function importPlugin(attributes: ImportAttributes[]): Plugin {
         }
 
         // 将 ast 中的 src 替换
-        attr.value!.val = placeholderName
+        attr.value.val = placeholderName
       },
     })
   }
