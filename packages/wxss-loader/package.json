@@ -1,0 +1,33 @@
+{
+  "name": "@weflow/wxss-loader",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/cjs.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/weflow.git"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel src --extensions '.ts' --config-file ../../babel.config.js -d lib --ignore \"src/**/*.test.js\"",
+    "test": "webpack --config ./example/webpack.config.js",
+    "test-debug": "node --inspect-brk node_modules/.bin/webpack --config ./example/webpack.config.js"
+  },
+  "dependencies": {
+    "loader-utils": "^2.0.0",
+    "postcss": "^7.0.32",
+    "postcss-value-parser": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/webpack": "^4.41.17"
+  }
+}
