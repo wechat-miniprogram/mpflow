@@ -14,6 +14,14 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
   },
 
+  module: {
+    rules: [
+      {
+        test: /\.wxml$/, use: '@weflow/wxml-loader'
+      }
+    ]
+  },
+
   target: MpPlugin.target,
 
   resolve: {

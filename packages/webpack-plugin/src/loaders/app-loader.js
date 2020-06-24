@@ -18,7 +18,7 @@ const appLoader = asyncLoaderWrapper(async function (source) {
     }
   }
 
-  return source
+  return '{}'
 })
 
 export default appLoader

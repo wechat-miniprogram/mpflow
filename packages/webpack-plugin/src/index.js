@@ -1,7 +1,7 @@
 import MpResolverPlugin from './ResolverPlugin'
 import MpAppPlugin from './AppPlugin'
 import MpPagePlugin from './PagePlugin'
-import MpConfigPlugin from './ConfigPlugin'
+import MpAssetPlugin from './AssetPlugin'
 import MpVirtualPlugin from './VirtualPlugin'
 
 class MpPlugin {
@@ -16,7 +16,7 @@ class MpPlugin {
     new MpAppPlugin(options).apply(compiler)
     new MpVirtualPlugin(options).apply(compiler)
     new MpPagePlugin(options).apply(compiler)
-    new MpConfigPlugin(options).apply(compiler)
+    new MpAssetPlugin(options).apply(compiler)
   }
 }
 

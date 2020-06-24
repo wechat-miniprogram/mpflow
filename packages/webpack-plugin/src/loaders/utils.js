@@ -74,7 +74,7 @@ export async function evalModuleBundleCode(loaderName, loaderContext) {
 
       const exports = evalModuleCode(loaderContext, source, resource)
 
-      resolve(exports)
+      resolve({ exports, compilation })
     })
   })
 }
@@ -86,7 +86,7 @@ export function asyncLoaderWrapper(fn) {
   return function (...args) {
     const callback = this.async()
     Promise.resolve(fn.apply(this, args)).then(
-      res => res ? callback(null, res) : callback(),
+      res => (res ? callback(null, res) : callback()),
       err => callback(err),
     )
     return

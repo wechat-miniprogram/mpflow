@@ -30,6 +30,7 @@ class PageModuleFactory {
     const resolver = this.resolverFactory.get('miniprogram/page')
     const jsResolver = this.resolverFactory.get('miniprogram/javascript')
     const jsonResolver = this.resolverFactory.get('miniprogram/json')
+    const wxmlResolver = this.resolverFactory.get('miniprogram/wxml')
 
     const pageResourcePath = await new Promise((resolve, reject) => {
       resolver.resolve(data.contextInfo, data.context, dependency.request, {}, (err, res) =>
@@ -52,6 +53,12 @@ class PageModuleFactory {
       )
     })
 
+    const wxmlResourcePath = await new Promise((resolve, reject) => {
+      wxmlResolver.resolve(data.contextInfo, pageContext, './' + pageBasename, {}, (err, res) =>
+        err ? reject(err) : resolve(res),
+      )
+    })
+
     return new PageModule(
       data.context,
       [
@@ -60,6 +67,7 @@ class PageModuleFactory {
             './loaders/asset-loader',
           )}?type=config!${jsonResourcePath}`,
         ),
+        new VirtualDependency(`${require.resolve('./loaders/asset-loader')}?type=template!${wxmlResourcePath}`),
         new VirtualDependency(jsResourcePath),
       ],
       dependency.request,
