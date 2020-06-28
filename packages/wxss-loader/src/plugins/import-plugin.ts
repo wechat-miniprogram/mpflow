@@ -8,7 +8,7 @@ import { isUrlRequest } from 'loader-utils'
 import { normalizeUrl } from '../utils'
 import { PluginImportMessage, PluginChildImportMessage, PluginReplaceMessage } from './type'
 
-const pluginName = 'postcss-wxml-import-parser'
+const pluginName = 'wxss-import-parser'
 
 export default plugin(
   pluginName,

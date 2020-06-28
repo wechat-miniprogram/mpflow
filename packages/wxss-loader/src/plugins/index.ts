@@ -1,4 +1,4 @@
-import importParser from './postcss-import-parser'
-import urlParser from './postcss-url-parser'
+import importPlugin from './import-plugin'
+import urlPlugin from './url-plugin'
 
-export { importParser, urlParser }
+export { importPlugin, urlPlugin }

@@ -1,9 +1,9 @@
+import { getOptions, interpolateName, isUrlRequest, stringifyRequest } from 'loader-utils'
+import path from 'path'
 import postcss from 'postcss'
 import { loader } from 'webpack'
-import path from 'path'
-import { getOptions, stringifyRequest, isUrlRequest, urlToRequest, interpolateName } from 'loader-utils'
-import { PluginImportMessage, PluginChildImportMessage, PluginReplaceMessage } from './plugins/type'
-import { importParser, urlParser } from './plugins'
+import { importPlugin, urlPlugin } from './plugins'
+import { PluginChildImportMessage, PluginImportMessage, PluginReplaceMessage } from './plugins/type'
 
 class Warning extends Error {
   constructor(warning: postcss.Warning) {
@@ -97,11 +97,11 @@ const wxssLoader: loader.Loader = function wxssLoader(content) {
   // const sourceMap = options.sourceMap || false
 
   postcss([
-    importParser({
+    importPlugin({
       filter: url => isUrlRequest(url, this.rootContext),
       // urlHandler: url => stringifyRequest(this, url),
     }),
-    urlParser({
+    urlPlugin({
       filter: url => isUrlRequest(url, this.rootContext),
       // urlHandler: url => stringifyRequest(this, url),
     }),

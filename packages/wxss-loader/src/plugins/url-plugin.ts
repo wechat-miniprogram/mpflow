@@ -8,7 +8,7 @@ import valueParser, { ParsedValue, Node, FunctionNode } from 'postcss-value-pars
 import { normalizeUrl } from '../utils'
 import { PluginImportMessage, PluginReplaceMessage } from './type'
 
-const pluginName = 'postcss-wxml-url-parser'
+const pluginName = 'wxss-url-parser'
 
 const isUrlFunc = /url/i
 const isImageSetFunc = /^(?:-webkit-)?image-set$/i
