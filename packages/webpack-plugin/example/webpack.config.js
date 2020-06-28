@@ -2,13 +2,13 @@ const path = require('path')
 const MpPlugin = require('../lib/index').default
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
 
   context: __dirname,
 
-  entry: {
-    app: './app',
-  },
+  entry: `${require.resolve('../lib/loaders/external-loader')}?name=app!${require.resolve('../lib/loaders/app-loader')}!./app.json`,
+
+  devtool: 'none',
 
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -16,6 +16,9 @@ module.exports = {
 
   module: {
     rules: [
+      {
+        test: /\.json$/, type: 'javascript/auto', use: 'json-loader'
+      },
       {
         test: /\.wxml$/, use: '@weflow/wxml-loader'
       },

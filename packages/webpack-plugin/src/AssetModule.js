@@ -1,11 +1,12 @@
 import Module from 'webpack/lib/Module'
 
 class AssetModule extends Module {
-  constructor(type, context, content, identifier) {
+  constructor(type, context, content, identifier, outputPath) {
     super(type, context)
 
     this.content = content
     this._identifier = identifier
+    this.outputPath = outputPath
   }
 
   size() {

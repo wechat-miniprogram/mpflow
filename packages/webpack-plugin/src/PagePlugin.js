@@ -9,10 +9,26 @@ class MpPagePlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
-      compilation.dependencyFactories.set(PageDependency, new PageModuleFactory(compiler.resolverFactory))
+    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation, { normalModuleFactory }) => {
+      compilation.dependencyFactories.set(PageDependency, normalModuleFactory)
 
       compilation.dependencyTemplates.set(PageDependency, new PageDependency.Template())
+
+      normalModuleFactory.hooks.beforeResolve.tap(PLUGIN_NAME, result => {
+        const [dependency] = result.dependencies
+
+        if (dependency instanceof PageDependency) {
+          const resolveOptions = compiler.resolverFactory.hooks.resolveOptions
+            .for('miniprogram/page')
+            .call(result.resolveOptions)
+          return {
+            ...result,
+            resolveOptions,
+          }
+        }
+
+        return result
+      })
     })
   }
 }

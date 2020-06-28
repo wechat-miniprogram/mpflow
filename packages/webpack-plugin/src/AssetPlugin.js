@@ -5,20 +5,6 @@ import { RawSource } from 'webpack-sources'
 
 const PLUGIN_NAME = 'MpAssetPlugin'
 
-function getExt(type) {
-  switch (type) {
-    case 'miniprogram/json':
-      return '.json'
-    case 'miniprogram/wxml':
-      return '.wxml'
-    case 'miniprogram/wxss':
-      return '.wxss'
-    case 'miniprogram/wxs':
-      return '.wxs'
-  }
-  return ''
-}
-
 class MpAssetPlugin {
   constructor(options) {
     this.options = options
@@ -36,7 +22,7 @@ class MpAssetPlugin {
             result.push({
               render: () => new RawSource(module.content),
               pathOptions: { chunk },
-              filenameTemplate: `[name]${getExt(module.type)}`,
+              filenameTemplate: module.outputPath,
               identifier: `${PLUGIN_NAME}.${module.id}`,
               hash: module.hash,
             })

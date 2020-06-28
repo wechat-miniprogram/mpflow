@@ -13,18 +13,18 @@ class MpAppPlugin {
 
     let normalModuleFactory
 
-    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation, params) => {
-      normalModuleFactory = params.normalModuleFactory
-    })
+    // compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation, params) => {
+    //   normalModuleFactory = params.normalModuleFactory
+    // })
 
-    // 注册 make 而不是 compilation 用于保证在 SingleEntryPlugin 之后覆盖
-    compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
-      // 覆盖掉默认的 entry 模块生成
-      compilation.dependencyFactories.set(
-        SingleEntryDependency,
-        new AppModuleFactory(entry, compiler.resolverFactory, normalModuleFactory),
-      )
-    })
+    // // 注册 make 而不是 compilation 用于保证在 SingleEntryPlugin 之后覆盖
+    // compiler.hooks.make.tap(PLUGIN_NAME, compilation => {
+    //   // 覆盖掉默认的 entry 模块生成
+    //   compilation.dependencyFactories.set(
+    //     SingleEntryDependency,
+    //     new AppModuleFactory(entry, compiler.resolverFactory, normalModuleFactory),
+    //   )
+    // })
   }
 }
 

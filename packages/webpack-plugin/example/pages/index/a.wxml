@@ -1,0 +1,13 @@
+<import src="b.wxml" />
+
+<wxs module="foo">
+var some_msg = "hello world";
+module.exports = {
+  msg : some_msg,
+}
+</wxs>
+<view>
+  <input type="password" />
+  <!-- <image src="./image.png" /> -->
+  {{foo.msg}}
+</view>
