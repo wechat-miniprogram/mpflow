@@ -1,8 +1,7 @@
 import MpResolverPlugin from './ResolverPlugin'
-import MpAppPlugin from './AppPlugin'
-import MpPagePlugin from './PagePlugin'
 import MpAssetPlugin from './AssetPlugin'
 import MpVirtualPlugin from './VirtualPlugin'
+import { appLoader, pageLoader, externalLoader, assetLoader } from './loaders'
 
 class MpPlugin {
   constructor(options) {
@@ -13,9 +12,7 @@ class MpPlugin {
     const options = this.options
 
     new MpResolverPlugin(options).apply(compiler)
-    new MpAppPlugin(options).apply(compiler)
     new MpVirtualPlugin(options).apply(compiler)
-    new MpPagePlugin(options).apply(compiler)
     new MpAssetPlugin(options).apply(compiler)
   }
 }
@@ -31,5 +28,10 @@ const MpTarget = compiler => {
   new LoaderTargetPlugin('web').apply(compiler)
 }
 MpPlugin.target = MpTarget
+
+MpPlugin.appLoader = appLoader
+MpPlugin.pageLoader = pageLoader
+MpPlugin.externalLoader = externalLoader
+MpPlugin.assetLoader = assetLoader
 
 export default MpPlugin

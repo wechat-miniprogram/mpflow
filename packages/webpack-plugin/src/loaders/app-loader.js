@@ -1,6 +1,7 @@
 import path from 'path'
 import { asyncLoaderWrapper } from './utils'
 import { getOptions, interpolateName, urlToRequest, stringifyRequest, getRemainingRequest } from 'loader-utils'
+import { externalLoader, pageLoader, assetLoader } from './index'
 
 function resolve(loader, type, request) {
   const resolver = loader._compiler.resolverFactory.get(type)
@@ -58,11 +59,7 @@ const appLoader = asyncLoaderWrapper(async function (source) {
       const resolvedPageRequest = await resolve(this, 'miniprogram/page', pageRequest)
       const outputPath = getPageOutputPath(this.rootContext, resolvedPageRequest)
 
-      imports.push(
-        `${require.resolve('./external-loader')}?name=${outputPath}!${require.resolve(
-          './page-loader',
-        )}?outputPath=${outputPath}!${resolvedPageRequest}`,
-      )
+      imports.push(`${externalLoader}?name=${outputPath}!${pageLoader}?outputPath=${outputPath}!${resolvedPageRequest}`)
     }
   }
 
@@ -71,7 +68,7 @@ const appLoader = asyncLoaderWrapper(async function (source) {
     const sitemapRequest = moduleContent.sitemapLocation
     const resolvedSitemapRequest = await resolve(this, 'miniprogram/sitemap', sitemapRequest)
 
-    imports.push(`${require.resolve('./asset-loader')}?type=config&outputPath=sitemap.json!${resolvedSitemapRequest}`)
+    imports.push(`${assetLoader}?type=config&outputPath=sitemap.json!${resolvedSitemapRequest}`)
 
     moduleContent.sitemapLocation = 'sitemap.json'
   }
@@ -80,12 +77,12 @@ const appLoader = asyncLoaderWrapper(async function (source) {
 
   // 加载 wxss
   const wxssRequest = await resolve(this, 'miniprogram/wxss', resolveName)
-  imports.push(`${require.resolve('./asset-loader')}?type=style&outputPath=app.wxss&output!${wxssRequest}`)
+  imports.push(`${assetLoader}?type=style&outputPath=app.wxss&output!${wxssRequest}`)
 
   // 加载 json
   // 只需要将自身套一个 asset-loader
   imports.push(
-    `-!${require.resolve('./asset-loader')}?type=config&outputPath=app.json!${getCurrentLoaderRequest(this, {
+    `-!${assetLoader}?type=config&outputPath=app.json!${getCurrentLoaderRequest(this, {
       json: true,
     })}!${getRemainingRequest(this)}`,
   )

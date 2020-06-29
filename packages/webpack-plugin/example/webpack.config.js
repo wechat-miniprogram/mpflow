@@ -1,12 +1,12 @@
 const path = require('path')
-const MpPlugin = require('../lib/index').default
+const MpPlugin = require('../lib/cjs')
 
 module.exports = {
   mode: 'development',
 
   context: __dirname,
 
-  entry: `${require.resolve('../lib/loaders/external-loader')}?name=app!${require.resolve('../lib/loaders/app-loader')}!./app.json`,
+  entry: `${MpPlugin.externalLoader}?name=app!${MpPlugin.appLoader}!./app.json`,
 
   devtool: 'none',
 
@@ -34,8 +34,6 @@ module.exports = {
     extensions: ['.js', '.json', '.css'],
   },
   plugins: [
-    new MpPlugin({
-      entry: './app',
-    }),
+    new MpPlugin({}),
   ],
 }

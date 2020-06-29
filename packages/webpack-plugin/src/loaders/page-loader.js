@@ -1,6 +1,7 @@
 import path from 'path'
 import { asyncLoaderWrapper } from './utils'
 import { getOptions, interpolateName, urlToRequest, getRemainingRequest } from 'loader-utils'
+import { externalLoader, assetLoader, pageLoader } from './index'
 
 function resolve(loader, type, request) {
   const resolver = loader._compiler.resolverFactory.get(type)
@@ -23,7 +24,7 @@ function getPageOutputPath(rootContext, pageRequest) {
 /**
  * @type {import('webpack').loader.Loader}
  */
-const pageLoader = asyncLoaderWrapper(async function (source) {
+const loader = asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
   const { outputPath } = options
 
@@ -36,25 +37,19 @@ const pageLoader = asyncLoaderWrapper(async function (source) {
     for (const componentRequest of Object.values(moduleContent.usingComponents)) {
       const resolvedComponentRequest = await resolve(this, 'miniprogram/page', componentRequest)
       const chunkName = getPageOutputPath(this.rootContext, resolvedComponentRequest)
-      code += `require("${require.resolve('./external-loader')}?name=${chunkName}!${require.resolve(
-        './page-loader',
-      )}?outputPath=${chunkName}!${resolvedComponentRequest}");\n`
+      code += `require("${externalLoader}?name=${chunkName}!${pageLoader}?outputPath=${chunkName}!${resolvedComponentRequest}");\n`
     }
   }
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 
   const wxmlRequest = await resolve(this, 'miniprogram/wxml', resolveName)
-  code += `require("${require.resolve(
-    './asset-loader',
-  )}?type=template&outputPath=${outputPath}.wxml!${wxmlRequest}");\n`
+  code += `require("${assetLoader}?type=template&outputPath=${outputPath}.wxml!${wxmlRequest}");\n`
 
   const wxssRequest = await resolve(this, 'miniprogram/wxss', resolveName)
-  code += `require("${require.resolve('./asset-loader')}?type=style&outputPath=${outputPath}.wxss!${wxssRequest}");\n`
+  code += `require("${assetLoader}?type=style&outputPath=${outputPath}.wxss!${wxssRequest}");\n`
 
-  code += `require("-!${require.resolve(
-    './asset-loader',
-  )}?type=config&outputPath=${outputPath}.json!${getRemainingRequest(this)}");\n`
+  code += `require("-!${assetLoader}?type=config&outputPath=${outputPath}.json!${getRemainingRequest(this)}");\n`
 
   const jsRequest = await resolve(this, 'miniprogram/javascript', resolveName)
   code += `require("${jsRequest}");\n`
@@ -62,4 +57,4 @@ const pageLoader = asyncLoaderWrapper(async function (source) {
   return code
 })
 
-export default pageLoader
+export default loader
