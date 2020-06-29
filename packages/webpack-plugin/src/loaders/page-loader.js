@@ -10,25 +10,37 @@ function resolve(loader, type, request) {
 }
 
 /**
+ * 获取一个组件应该输出的路径位置
+ * @param {string} rootContext
+ * @param {string} pageRequest
+ */
+function getPageOutputPath(rootContext, pageRequest) {
+  return path
+    .relative(rootContext, path.join(path.dirname(pageRequest), path.basename(pageRequest, path.extname(pageRequest))))
+    .replace(/^\.\//, '')
+}
+
+/**
  * @type {import('webpack').loader.Loader}
  */
-const appLoader = asyncLoaderWrapper(async function (source) {
+const pageLoader = asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
   const { outputPath } = options
 
-  // const moduleContent = this.exec(source, this.resourcePath)
+  const moduleContent = this.exec(source, this.resourcePath)
 
   let code = ''
 
-  // if (Array.isArray(moduleContent.pages)) {
-  //   // 对 app.json 中读取到的 pages 分别设立为入口
-  //   for (const pageRequest of moduleContent.pages) {
-  //     const resolvedPageRequest = await resolve(this, 'miniprogram/page', pageRequest)
-  //     code += `require("${require.resolve('./external-loader')}?name=${pageRequest}!${require.resolve(
-  //       './page-loader',
-  //     )}!${resolvedPageRequest}");\n`
-  //   }
-  // }
+  if (moduleContent.usingComponents) {
+    // 对 comp.json 中读取到的 usingComponents 分别设立为入口
+    for (const componentRequest of Object.values(moduleContent.usingComponents)) {
+      const resolvedComponentRequest = await resolve(this, 'miniprogram/page', componentRequest)
+      const chunkName = getPageOutputPath(this.rootContext, resolvedComponentRequest)
+      code += `require("${require.resolve('./external-loader')}?name=${chunkName}!${require.resolve(
+        './page-loader',
+      )}?outputPath=${chunkName}!${resolvedComponentRequest}");\n`
+    }
+  }
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 
@@ -50,4 +62,4 @@ const appLoader = asyncLoaderWrapper(async function (source) {
   return code
 })
 
-export default appLoader
+export default pageLoader

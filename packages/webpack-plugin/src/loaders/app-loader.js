@@ -34,6 +34,14 @@ function getPageOutputPath(rootContext, pageRequest) {
     .replace(/^\.\//, '')
 }
 
+function getCurrentLoaderRequest(loaderContext, query) {
+  const currentLoader = loaderContext.loaders[loaderContext.loaderIndex]
+  const overrideQuery = Object.keys(query)
+    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(query[key])}`)
+    .join('&')
+  return `${currentLoader.path}${currentLoader.query}${currentLoader.query ? '&' : '?'}${overrideQuery}`
+}
+
 /**
  * @type {import('webpack').loader.Loader}
  */
@@ -49,12 +57,23 @@ const appLoader = asyncLoaderWrapper(async function (source) {
     for (const pageRequest of moduleContent.pages) {
       const resolvedPageRequest = await resolve(this, 'miniprogram/page', pageRequest)
       const outputPath = getPageOutputPath(this.rootContext, resolvedPageRequest)
+
       imports.push(
         `${require.resolve('./external-loader')}?name=${outputPath}!${require.resolve(
           './page-loader',
         )}?outputPath=${outputPath}!${resolvedPageRequest}`,
       )
     }
+  }
+
+  if (typeof moduleContent.sitemapLocation === 'string') {
+    // 对 app.json 中的 sitemapLocation 做处理
+    const sitemapRequest = moduleContent.sitemapLocation
+    const resolvedSitemapRequest = await resolve(this, 'miniprogram/sitemap', sitemapRequest)
+
+    imports.push(`${require.resolve('./asset-loader')}?type=config&outputPath=sitemap.json!${resolvedSitemapRequest}`)
+
+    moduleContent.sitemapLocation = 'sitemap.json'
   }
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
@@ -65,11 +84,20 @@ const appLoader = asyncLoaderWrapper(async function (source) {
 
   // 加载 json
   // 只需要将自身套一个 asset-loader
-  imports.push(`-!${require.resolve('./asset-loader')}?type=config&outputPath=app.json!${getRemainingRequest(this)}`)
+  imports.push(
+    `-!${require.resolve('./asset-loader')}?type=config&outputPath=app.json!${getCurrentLoaderRequest(this, {
+      json: true,
+    })}!${getRemainingRequest(this)}`,
+  )
 
   // 加载 js
   const jsRequest = await resolve(this, 'miniprogram/javascript', resolveName)
   imports.push(jsRequest)
+
+  if (options.json) {
+    // 如果设置了 json flag，则输出 json
+    return `module.exports = JSON.parse(${JSON.stringify(JSON.stringify(moduleContent))})`
+  }
 
   let code = ''
 
