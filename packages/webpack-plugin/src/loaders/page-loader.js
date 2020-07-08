@@ -26,7 +26,7 @@ function getPageOutputPath(rootContext, pageRequest) {
  */
 const loader = asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
-  const { outputPath } = options
+  const { appContext, outputPath } = options
 
   const moduleContent = this.exec(source, this.resourcePath)
 
@@ -36,8 +36,9 @@ const loader = asyncLoaderWrapper(async function (source) {
     // 对 comp.json 中读取到的 usingComponents 分别设立为入口
     for (const componentRequest of Object.values(moduleContent.usingComponents)) {
       const resolvedComponentRequest = await resolve(this, 'miniprogram/page', componentRequest)
-      const chunkName = getPageOutputPath(this.rootContext, resolvedComponentRequest)
-      code += `require("${externalLoader}?name=${chunkName}!${pageLoader}?outputPath=${chunkName}!${resolvedComponentRequest}");\n`
+      const context = appContext || this.context
+      const chunkName = getPageOutputPath(context, resolvedComponentRequest)
+      code += `require("${externalLoader}?name=${chunkName}!${pageLoader}?appContext=${context}&outputPath=${chunkName}!${resolvedComponentRequest}");\n`
     }
   }
 

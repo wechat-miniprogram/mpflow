@@ -57,9 +57,9 @@ const appLoader = asyncLoaderWrapper(async function (source) {
     // 对 app.json 中读取到的 pages 分别设立为入口
     for (const pageRequest of moduleContent.pages) {
       const resolvedPageRequest = await resolve(this, 'miniprogram/page', pageRequest)
-      const outputPath = getPageOutputPath(this.rootContext, resolvedPageRequest)
+      const outputPath = getPageOutputPath(this.context, resolvedPageRequest)
 
-      imports.push(`${externalLoader}?name=${outputPath}!${pageLoader}?outputPath=${outputPath}!${resolvedPageRequest}`)
+      imports.push(`${externalLoader}?name=${outputPath}!${pageLoader}?appContext=${this.context}&outputPath=${outputPath}!${resolvedPageRequest}`)
     }
   }
 
