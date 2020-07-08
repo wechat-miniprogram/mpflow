@@ -197,20 +197,11 @@ class MpResolverPlugin {
   apply(compiler) {
     compiler.hooks.afterResolvers.tap(PLUGIN_NAME, () => {
       /**
-       * 注册 app.json 查找
-       */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/entry').tap(PLUGIN_NAME, resolveOptions =>
-        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          extensions: ['.json'],
-          ...resolveOptions,
-        }),
-      )
-
-      /**
-       * 注册
+       * 注册 sitemap 查找
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/sitemap').tap(PLUGIN_NAME, resolveOptions =>
         compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
+          ...resolveOptions,
           extensions: ['.json'],
           plugins: [
             // 当作为模块查找时无法找到时，fallback 到相对路径查找
@@ -222,11 +213,15 @@ class MpResolverPlugin {
             // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
             new AbsoluteKindPlugin('after-after-described-resolve', 'miniprogram-absolute'),
             // 向上路径查找 project.config.json, 用其中 miniprogramRoot 作为根路径
-            new ProjectConfigFileRootPlugin('miniprogram-absolute', 'project.config.json', 'miniprogramRoot', 'resolve'),
+            new ProjectConfigFileRootPlugin(
+              'miniprogram-absolute',
+              'project.config.json',
+              'miniprogramRoot',
+              'resolve',
+            ),
 
             ...(resolveOptions.plugins || []),
           ],
-          ...resolveOptions,
         }),
       )
 
@@ -235,7 +230,7 @@ class MpResolverPlugin {
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/page').tap(PLUGIN_NAME, resolveOptions =>
         compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          extensions: ['.json'],
+          ...resolveOptions,
           plugins: [
             // 当作为模块查找时无法找到时，fallback 到相对路径查找
             // resolve('webpack') => resolve('./webpack')
@@ -246,7 +241,12 @@ class MpResolverPlugin {
             // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
             new AbsoluteKindPlugin('after-after-described-resolve', 'miniprogram-absolute'),
             // 向上路径查找 project.config.json, 用其中 miniprogramRoot 作为根路径
-            new ProjectConfigFileRootPlugin('miniprogram-absolute', 'project.config.json', 'miniprogramRoot', 'resolve'),
+            new ProjectConfigFileRootPlugin(
+              'miniprogram-absolute',
+              'project.config.json',
+              'miniprogramRoot',
+              'resolve',
+            ),
 
             // 当无法找到对应文件时，尝试通过 package.json 中定义的 miniprogram 字段作为路径查找
             // resolve('weui-miniprogram/cell/cell') => resolve('weui-miniprogram/miniprogram_dist/cell/cell')
@@ -254,7 +254,16 @@ class MpResolverPlugin {
 
             ...(resolveOptions.plugins || []),
           ],
+        }),
+      )
+
+      /**
+       * 注册 json 文件查找
+       */
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/json').tap(PLUGIN_NAME, resolveOptions =>
+        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
           ...resolveOptions,
+          extensions: ['.json'],
         }),
       )
 
@@ -272,8 +281,8 @@ class MpResolverPlugin {
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxml').tap(PLUGIN_NAME, resolveOptions =>
         compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          extensions: ['.wxml'],
           ...resolveOptions,
+          extensions: ['.wxml'],
         }),
       )
 
@@ -282,8 +291,8 @@ class MpResolverPlugin {
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxss').tap(PLUGIN_NAME, resolveOptions =>
         compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          extensions: ['.wxss'],
           ...resolveOptions,
+          extensions: ['.wxss'],
         }),
       )
     })

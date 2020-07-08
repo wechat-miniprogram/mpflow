@@ -6,7 +6,9 @@ module.exports = {
 
   context: __dirname,
 
-  entry: `${MpPlugin.externalLoader}?name=app!${MpPlugin.appLoader}!./app.json`,
+  entry: {
+    app: `${MpPlugin.appLoader}!./app`,
+  },
 
   devtool: 'none',
 
@@ -30,9 +32,6 @@ module.exports = {
 
   target: MpPlugin.target,
 
-  resolve: {
-    extensions: ['.js', '.json', '.css'],
-  },
   plugins: [
     new MpPlugin({}),
   ],

@@ -1,9 +1,11 @@
 import NativeModule from 'module'
-import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin'
-import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin'
+import path from 'path'
+import querystring from 'querystring'
 import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin'
-import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin'
+import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin'
+import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin'
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin'
+import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin'
 
 export function evalModuleCode(loaderContext, code, filename) {
   const module = new NativeModule(filename, loaderContext)
@@ -91,4 +93,39 @@ export function asyncLoaderWrapper(fn) {
     )
     return
   }
+}
+
+export function resolveWithType(loader, type, request) {
+  const resolver = loader._compiler.resolverFactory.get(type)
+  return new Promise((resolve, reject) => {
+    resolver.resolve({}, loader.context, request, {}, (err, result) => (err ? reject(err) : resolve(result)))
+  })
+}
+
+/**
+ * 获取一个组件应该输出的路径位置
+ * @param {string} rootContext
+ * @param {string} pageRequest
+ */
+export function getPageOutputPath(rootContext, pageRequest) {
+  return path
+    .relative(rootContext, path.join(path.dirname(pageRequest), path.basename(pageRequest, path.extname(pageRequest))))
+    .replace(/^\.\//, '')
+}
+
+export function getCurrentLoaderRequest(loaderContext, query) {
+  const currentLoader = loaderContext.loaders[loaderContext.loaderIndex]
+  const overrideQuery = querystring.stringify(query)
+  return `${currentLoader.path}${currentLoader.query}${currentLoader.query ? '&' : '?'}${overrideQuery}`
+}
+
+/**
+ *
+ * @param {*} loaderContext
+ * @param {Buffer | string} source
+ */
+export function getJSONContent(loaderContext, source) {
+  if (typeof source !== 'string') source = source.toString('utf-8')
+  if (source.trim().startsWith('{')) return JSON.parse(source)
+  return loaderContext.exec(source, loaderContext.resourcePath)
 }

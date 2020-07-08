@@ -30,7 +30,7 @@ export const pitch = asyncLoaderWrapper(async function pitch(request) {
     const { exports } = await evalModuleBundleCode(loaderName, this)
     const content = JSON.stringify(exports, null, 2)
     this._module.addDependency(new AssetDependency('miniprogram/json', request, this.context, content, outputPath))
-    return '// asset'
+    return 'module.exports = ' + content
   } else if (type === 'template') {
     // 通过 eval 获取模块运行后的内容
     const {

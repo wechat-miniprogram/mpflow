@@ -1,61 +1,66 @@
-import path from 'path'
-import { asyncLoaderWrapper } from './utils'
-import { getOptions, interpolateName, urlToRequest, getRemainingRequest } from 'loader-utils'
-import { externalLoader, assetLoader, pageLoader } from './index'
-
-function resolve(loader, type, request) {
-  const resolver = loader._compiler.resolverFactory.get(type)
-  return new Promise((resolve, reject) => {
-    resolver.resolve({}, loader.context, request, {}, (err, result) => (err ? reject(err) : resolve(result)))
-  })
-}
-
-/**
- * 获取一个组件应该输出的路径位置
- * @param {string} rootContext
- * @param {string} pageRequest
- */
-function getPageOutputPath(rootContext, pageRequest) {
-  return path
-    .relative(rootContext, path.join(path.dirname(pageRequest), path.basename(pageRequest, path.extname(pageRequest))))
-    .replace(/^\.\//, '')
-}
+import { getOptions, getRemainingRequest, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
+import querystring from 'querystring'
+import { assetLoader, pageJsonLoader } from './index'
+import { asyncLoaderWrapper, resolveWithType } from './utils'
 
 /**
  * @type {import('webpack').loader.Loader}
  */
-const loader = asyncLoaderWrapper(async function (source) {
+export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
   const { appContext, outputPath } = options
 
-  const moduleContent = this.exec(source, this.resourcePath)
-
-  let code = ''
-
-  if (moduleContent.usingComponents) {
-    // 对 comp.json 中读取到的 usingComponents 分别设立为入口
-    for (const componentRequest of Object.values(moduleContent.usingComponents)) {
-      const resolvedComponentRequest = await resolve(this, 'miniprogram/page', componentRequest)
-      const context = appContext || this.context
-      const chunkName = getPageOutputPath(context, resolvedComponentRequest)
-      code += `require("${externalLoader}?name=${chunkName}!${pageLoader}?appContext=${context}&outputPath=${chunkName}!${resolvedComponentRequest}");\n`
-    }
-  }
+  const imports = []
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 
-  const wxmlRequest = await resolve(this, 'miniprogram/wxml', resolveName)
-  code += `require("${assetLoader}?type=template&outputPath=${outputPath}.wxml!${wxmlRequest}");\n`
+  // 加载 wxml
+  const wxmlRequest = await resolveWithType(this, 'miniprogram/wxml', resolveName)
+  imports.push(
+    `${assetLoader}?${querystring.stringify({
+      type: 'template',
+      outputPath: `${outputPath}.wxml`,
+    })}!${wxmlRequest}`,
+  )
 
-  const wxssRequest = await resolve(this, 'miniprogram/wxss', resolveName)
-  code += `require("${assetLoader}?type=style&outputPath=${outputPath}.wxss!${wxssRequest}");\n`
+  // 加载 wxss
+  try {
+    const wxssRequest = await resolveWithType(this, 'miniprogram/wxss', resolveName)
+    imports.push(
+      `${assetLoader}?${querystring.stringify({
+        type: 'style',
+        outputPath: `${outputPath}.wxss`,
+      })}!${wxssRequest}`,
+    )
+  } catch (e) {
+    // page.wxss 可选
+  }
 
-  code += `require("-!${assetLoader}?type=config&outputPath=${outputPath}.json!${getRemainingRequest(this)}");\n`
+  // 加载 json
+  try {
+    const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
+    imports.push(
+      `${pageJsonLoader}?${querystring.stringify({
+        appContext,
+      })}!${assetLoader}?${querystring.stringify({
+        type: 'config',
+        outputPath: `${outputPath}.json`,
+      })}!${jsonRequest}`,
+    )
+  } catch (e) {
+    // page.json 可选
+  }
 
-  const jsRequest = await resolve(this, 'miniprogram/javascript', resolveName)
-  code += `require("${jsRequest}");\n`
+  let code = ''
+
+  for (const importRequest of imports) {
+    code += `require(${stringifyRequest(this, importRequest)});\n`
+  }
+
+  // 加载 js 并且导出
+  code += `\n module.exports = require(${stringifyRequest(this, getRemainingRequest(this))})`
 
   return code
 })
 
-export default loader
+export default () => {}
