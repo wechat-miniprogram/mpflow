@@ -1,0 +1,40 @@
+{
+  "name": "@weflow/service",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/service.js",
+  "bin": {
+    "weflow-service": "bin/weflow-service.js"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "http://r.tnpm.oa.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/weflow.git"
+  },
+  "scripts": {
+    "build": "cross-env NODE_ENV=production babel src --extensions '.ts' --config-file ../../babel.config.js -d lib --ignore \"src/**/*.test.js\"",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "json-loader": "^0.5.7",
+    "webpack-merge": "^5.0.8",
+    "yargs": "^15.4.0"
+  },
+  "devDependencies": {
+    "@types/webpack": "^4.41.21",
+    "@types/yargs": "^15.0.5"
+  }
+}
