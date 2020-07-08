@@ -8,7 +8,7 @@ const base: Plugin = (api, config) => {
       ...(config.app !== false
         ? {
             app: `${WeflowPlugin.appLoader}!${api.resolve(
-              typeof config.app === 'string' ? config.app : 'src/app.json',
+              typeof config.app === 'string' ? config.app : 'src/app',
             )}`,
           }
         : {}),
