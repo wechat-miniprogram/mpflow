@@ -1,5 +1,6 @@
 import WeflowPlugin from '@weflow/webpack-plugin'
 import path from 'path'
+import qs from 'querystring'
 import { Plugin } from '../PluginAPI'
 
 const base: Plugin = (api, config) => {
@@ -17,7 +18,11 @@ const base: Plugin = (api, config) => {
 
         webpackConfig
           .entry(basename)
-          .add(`${WeflowPlugin.pageLoader}!${api.resolve(pagePath)}`)
+          .add(
+            `${WeflowPlugin.pageLoader}?${qs.stringify({
+              outputPath: basename + '/' + basename,
+            })}!${api.resolve(pagePath)}`,
+          )
           .end()
       })
     }
