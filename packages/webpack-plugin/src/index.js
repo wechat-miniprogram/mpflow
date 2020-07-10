@@ -1,5 +1,4 @@
 import MpResolverPlugin from './ResolverPlugin'
-import MpAssetPlugin from './AssetPlugin'
 import MpVirtualPlugin from './VirtualPlugin'
 import { appLoader, pageLoader, externalLoader, assetLoader } from './loaders'
 
@@ -13,7 +12,6 @@ class WeflowWebpackPlugin {
 
     new MpResolverPlugin(options.resolve).apply(compiler)
     new MpVirtualPlugin(options).apply(compiler)
-    new MpAssetPlugin(options).apply(compiler)
   }
 }
 

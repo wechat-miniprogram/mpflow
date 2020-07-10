@@ -240,23 +240,19 @@ class WeflowResolverPlugin {
       /**
        * 注册 page 组件 js 查找
        */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/page').tap(PLUGIN_NAME, resolveOptions => {
-        const r = {
-          fileSystem: compiler.inputFileSystem,
-          ...deepMerge(
-            {
-              extensions: ['.js'],
-              plugins: [
-                new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true, usePkgField: true }),
-              ],
-            },
-            this.options.page || {},
-            resolveOptions,
-          ),
-        }
-        console.log(r.plugins, this.options.page, resolveOptions)
-        return r
-      })
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/page').tap(PLUGIN_NAME, resolveOptions => ({
+        fileSystem: compiler.inputFileSystem,
+        ...deepMerge(
+          {
+            extensions: ['.js'],
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true, usePkgField: true }),
+            ],
+          },
+          this.options.page || {},
+          resolveOptions,
+        ),
+      }))
 
       /**
        * 注册 js 文件查找
