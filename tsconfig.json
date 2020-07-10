@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "outDir": "dist",
+    "outDir": "lib",
     "sourceMap": false,
     "target": "esnext",
     "module": "commonjs",
@@ -19,9 +19,11 @@
     "lib": ["esnext"],
     "types": ["node"],
     "rootDir": ".",
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "paths": {
       "@weflow/*": ["packages/*/src"]
     }
   },
-  "include": ["packages/global.d.ts", "packages/*/src", "packages/*/__tests__"]
+  "include": ["packages/global.d.ts", "packages/*/src", "packages/*/__tests__", "typings"]
 }
