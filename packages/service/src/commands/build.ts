@@ -1,9 +1,9 @@
-import chalk from 'chalk'
-import webpack from 'webpack'
 import { Plugin } from '../PluginAPI'
 
 const build: Plugin = (api, config) => {
-  api.registerCommand('build', '构建小程序', {}, args => {
+  api.registerCommand('build', '构建小程序', {}, async args => {
+    const { default: chalk } = await import('chalk')
+    const { default: webpack } = await import('webpack')
     const webpackConfig = api.resolveWebpackConfig()
 
     webpack(webpackConfig, (err, stats) => {

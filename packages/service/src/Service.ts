@@ -2,13 +2,13 @@ import fs from 'fs'
 import path from 'path'
 import { Argv, CommandModule } from 'yargs'
 import yargs from 'yargs/yargs'
-import webpackMerge from 'webpack-merge'
+import WebpackChain from 'webpack-chain'
 import { Configuration } from 'webpack'
 import { Plugin, PluginAPI } from './PluginAPI'
 
 export interface WeflowConfig {
   plugins?: string[]
-  configureWebpack?: Configuration
+  configureWebpack?: (config: WebpackChain) => void
   outputDir?: string
   app?: string | boolean
   pages?: string[]
@@ -16,7 +16,7 @@ export interface WeflowConfig {
 
 interface PluginOption {
   id: string
-  apply: Plugin
+  plugin: Plugin
 }
 
 const interopRequire = (obj: any) => (obj && obj.__esModule ? obj.default : obj)
@@ -31,6 +31,10 @@ export default class Service {
    * 工作路径上的 package.json 内容
    */
   public pkg: any
+
+  /**
+   * package.json 中的 dev
+   */
 
   /**
    * 插件列表
@@ -50,7 +54,12 @@ export default class Service {
   /**
    * webpack 设置
    */
-  public webpackConfigs: Configuration[] = []
+  public webpackConfigs: ((config: WebpackChain) => void)[] = []
+
+  /**
+   * 是否初始化过
+   */
+  private initialized: boolean = false
 
   constructor(
     context: string,
@@ -61,13 +70,16 @@ export default class Service {
     this.config = this.resolveConfig(config, context)
     this.plugins = this.resolvePlugins(plugins)
     this.program = yargs()
-
-    this.init()
   }
 
   init() {
-    this.plugins.forEach(({ id, apply }) => {
-      apply(new PluginAPI(id, this), this.config)
+    if (this.initialized) return
+    this.initialized = true
+
+    const shared = {}
+
+    this.plugins.forEach(({ id, plugin: apply }) => {
+      apply(new PluginAPI(id, this, shared), this.config)
     })
 
     if (this.config.configureWebpack) {
@@ -112,17 +124,21 @@ export default class Service {
     const buildInPlugins: PluginOption[] = [
       {
         id: 'built-in:command/build',
-        apply: interopRequire(require('./commands/build')),
+        plugin: interopRequire(require('./commands/build')),
+      },
+      {
+        id: 'built-in:command/inspect',
+        plugin: interopRequire(require('./commands/inspect')),
       },
       {
         id: 'built-in:config/base',
-        apply: interopRequire(require('./config/base')),
+        plugin: interopRequire(require('./config/base')),
       },
     ]
 
-    const projectPlugins: PluginOption[] = Object.keys(config.plugins || []).map(id => ({
+    const projectPlugins: PluginOption[] = (config.plugins || []).map(id => ({
       id,
-      apply: interopRequire(require(id)),
+      plugin: interopRequire(require(id)),
     }))
 
     return [...buildInPlugins, ...inlinePlugins, ...projectPlugins]
@@ -141,6 +157,7 @@ export default class Service {
    * @param argv
    */
   run(argv: string[] = process.argv.slice(2)) {
+    this.init()
     this.program.help().parse(argv)
   }
 
@@ -148,6 +165,8 @@ export default class Service {
    * 获取最终 webpack 配置
    */
   resolveWebpackConfig() {
-    return this.webpackConfigs.reduce((config, result) => webpackMerge.merge(result, config))
+    const config = new WebpackChain()
+    this.webpackConfigs.forEach(configuration => configuration(config))
+    return config.toConfig()
   }
 }

@@ -2,18 +2,23 @@ import path from 'path'
 import { Arguments, CommandModule, InferredOptionTypes, Options } from 'yargs'
 import Service, { WeflowConfig } from './Service'
 import { Configuration } from 'webpack'
+import WebpackChain from 'webpack-chain'
 
 export interface Plugin {
   (api: PluginAPI, config: WeflowConfig): void
+
+  generator?: <C>(api: any, config: C) => void
 }
 
-export class PluginAPI {
+export class BaseAPI<T> {
   public id: string
-  public service: Service
+  protected service: Service
+  protected shared: Partial<T>
 
-  constructor(id: string, service: Service) {
+  constructor(id: string, service: Service, shared: Partial<T> = {}) {
     this.id = id
     this.service = service
+    this.shared = shared
   }
 
   getCwd() {
@@ -24,6 +29,12 @@ export class PluginAPI {
     return path.resolve(this.service.context, _path)
   }
 
+  hasPlugin(id: string) {
+    return this.service.plugins.some(p => p.id === id)
+  }
+}
+
+export class PluginAPI extends BaseAPI<{}> {
   registerCommand<T = {}, O extends { [key: string]: Options } = {}, U = {}>(
     command: CommandModule['command'],
     describe: CommandModule['describe'],
@@ -38,7 +49,7 @@ export class PluginAPI {
     })
   }
 
-  configureWebpack(config: Configuration) {
+  configureWebpack(config: (config: WebpackChain) => void) {
     this.service.webpackConfigs.push(config)
   }
 

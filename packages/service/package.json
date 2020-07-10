@@ -6,6 +6,7 @@
   "homepage": "",
   "license": "ISC",
   "main": "lib/service.js",
+  "type": "lib/index.d.ts",
   "bin": {
     "weflow-service": "bin/weflow-service.js"
   },
@@ -14,26 +15,33 @@
     "test": "__tests__"
   },
   "files": [
+    "bin",
     "lib"
   ],
-  "publishConfig": {
-    "registry": "http://r.tnpm.oa.com/"
-  },
   "repository": {
     "type": "git",
     "url": "git@git.code.oa.com:wxweb/weflow.git"
   },
   "scripts": {
-    "build": "cross-env NODE_ENV=production babel src --extensions '.ts' --config-file ../../babel.config.js -d lib --ignore \"src/**/*.test.js\"",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "npm run build-js && npm run build-ts",
+    "build-js": "cross-env NODE_ENV=production babel src --extensions '.ts' --config-file ../../babel.config.js -d lib --ignore \"src/**/*.test.js\"",
+    "build-ts": "node ../../scripts/tsc --rootDir src --outDir lib --declaration --emitDeclarationOnly 'src/**/*.ts'",
+    "test": "tsc"
   },
   "dependencies": {
     "chalk": "^4.1.0",
+    "cli-highlight": "^2.1.4",
+    "deepmerge": "^4.2.2",
     "json-loader": "^0.5.7",
+    "semver": "^7.3.2",
+    "semver-intersect": "^1.4.0",
+    "webpack": "^4.43.0",
+    "webpack-chain": "^6.5.0",
     "webpack-merge": "^5.0.8",
     "yargs": "^15.4.0"
   },
   "devDependencies": {
+    "@types/semver": "^7.3.1",
     "@types/webpack": "^4.41.21",
     "@types/yargs": "^15.0.5"
   }
