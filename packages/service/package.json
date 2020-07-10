@@ -33,6 +33,7 @@
     "cli-highlight": "^2.1.4",
     "deepmerge": "^4.2.2",
     "json-loader": "^0.5.7",
+    "raw-loader": "^4.0.1",
     "semver": "^7.3.2",
     "semver-intersect": "^1.4.0",
     "webpack": "^4.43.0",

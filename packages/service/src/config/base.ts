@@ -52,6 +52,12 @@ const base: Plugin = (api, config) => {
       .use('wxss')
       .loader(require.resolve('@weflow/wxss-loader'))
 
+    webpackConfig.module
+      .rule('wxs')
+      .test(/\.wxs$/)
+      .use('raw-loader')
+      .loader(require.resolve('raw-loader'))
+
     webpackConfig.target(WeflowPlugin.target as any)
 
     webpackConfig.plugin('weflow').use(WeflowPlugin, [{}])
