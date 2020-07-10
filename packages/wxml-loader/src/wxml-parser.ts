@@ -34,7 +34,7 @@ class Stack<T> extends Array<T> {
 interface TextToken {
   type: 'text'
   text: string
-  pos: Position
+  pos?: Position
 }
 
 interface CommentToken {
@@ -43,7 +43,7 @@ interface CommentToken {
     val: string
     pos: Position
   }
-  pos: Position
+  pos?: Position
 }
 
 interface AttributeToken {
@@ -56,7 +56,7 @@ interface AttributeToken {
     val: string
     pos: Position
   }
-  pos: Position
+  pos?: Position
 }
 
 interface StartTagToken {
@@ -67,7 +67,7 @@ interface StartTagToken {
   }
   attrs: AttributeToken[]
   unary: boolean
-  pos: Position
+  pos?: Position
 }
 
 interface EndTagToken {
@@ -76,7 +76,7 @@ interface EndTagToken {
     val: string
     pos: Position
   }
-  pos: Position
+  pos?: Position
 }
 
 type Token = TextToken | CommentToken | StartTagToken | EndTagToken
@@ -297,7 +297,7 @@ export function tokenize(content: string): Token[] {
 
     let offset: number | undefined
 
-    if (lastToken && lastToken.type === 'startTag' && rawTextSet.has(lastToken.tagName.val)) {
+    if (lastToken && lastToken.type === 'startTag' && rawTextSet.has(lastToken.tagName.val) && !lastToken.unary) {
       // 如果是包含任意元素的 tag，则只解析 text 和自己的 end tag
       offset =
         tokenizeRawText(lastToken.tagName.val, content, start, tokens) ||
@@ -450,14 +450,14 @@ export function codegen(ast: WxmlNode[]): string {
               wxml += `="${attr.value.val}"`
             }
           }
-          wxml += elem.startToken.unary ? '/>' : '>'
+          wxml += elem.startToken.unary && !elem.children.length ? '/>' : '>'
           break
       }
     },
     end: elem => {
       switch (elem.type) {
         case 'element':
-          if (!elem.startToken.unary) {
+          if (!elem.startToken.unary || elem.children.length) {
             wxml += `</${elem.startToken.tagName.val}>`
           }
           break

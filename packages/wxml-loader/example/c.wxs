@@ -1,0 +1,17 @@
+/* eslint-disable */
+var touchstart = function(event, ownerInstance) {
+  var ins = event.instance
+  var st = ins.getState()
+  if (st.disable) return // disable的逻辑
+  // console.log('touchstart st', JSON.stringify(st))
+  if (!st.size) return
+  // console.log('touchstart', JSON.stringify(event))
+  st.isMoving = true
+  st.startX = event.touches[0].pageX
+  st.startY = event.touches[0].pageY
+  st.firstAngle = 0
+}
+
+module.exports = {
+  touchstart: touchstart,
+}

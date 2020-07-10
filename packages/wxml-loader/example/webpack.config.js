@@ -30,6 +30,11 @@ module.exports = {
           loader,
         ]
       }, {
+        test: /\.wxs$/,
+        use: [
+          'raw-loader'
+        ]
+      }, {
         test: /\.png$/,
         use: 'file-loader'
       }

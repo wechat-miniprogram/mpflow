@@ -6,6 +6,7 @@ module.exports = {
   msg : some_msg,
 }
 </wxs>
+<wxs module="c" src="./c.wxs" />
 <view>
   <input type="password" />
   <image src="./image.png" />

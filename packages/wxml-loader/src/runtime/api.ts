@@ -20,6 +20,13 @@ class WxmlModule {
   }
 
   /**
+   * 处理 inline
+   */
+  l(module: any) {
+    return module.__esModule ? module.default : module
+  }
+
+  /**
    * 处理 url
    */
   u(url: any) {

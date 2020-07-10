@@ -120,19 +120,24 @@ function getExportCode(esModule: boolean) {
 interface ImportAttributes {
   tag: string
   attribute: string
-  importChild?: boolean
+  importType?: 'child' | 'inline'
 }
 
 const defaultImportAttributes: ImportAttributes[] = [
   {
     tag: 'import',
     attribute: 'src',
-    importChild: true,
+    importType: 'child',
   },
   {
     tag: 'include',
     attribute: 'src',
-    importChild: true,
+    importType: 'child',
+  },
+  {
+    tag: 'wxs',
+    attribute: 'src',
+    importType: 'inline',
   },
   {
     tag: 'image',
@@ -166,10 +171,13 @@ function importPlugin(attributes: ImportAttributes[]): Plugin {
 
   const importsMap = new Map()
   const replacementMap = new Map()
+  const inlineReplacementMap = new Map()
 
   return (ast, context) => {
     parser.walk(ast, {
       begin(elem) {
+        if (elem.type !== 'element') return
+
         const result = findAttribute(elem)
 
         if (!result) return
@@ -195,38 +203,72 @@ function importPlugin(attributes: ImportAttributes[]): Plugin {
           })
         }
 
-        // 是否作为子组件导入
-        if (option.importChild) {
-          context.messages.push({
-            type: 'child-import',
-            pluginName: PLUGIN_NAME,
-            value: {
-              importName,
+        if (option.importType === 'inline') {
+          // 是否作为内联内容导入
+
+          const replacementKey = importKey
+          let placeholderName: string = inlineReplacementMap.get(replacementKey)
+
+          if (!placeholderName) {
+            placeholderName = `___WXML_LOADER_INLINE_PLACEHOLDER_${replacementMap.size}___`
+            const replacementName = `___WXML_LOADER_INLINE_REPLACEMENT_${replacementMap.size}___`
+            inlineReplacementMap.set(replacementKey, placeholderName)
+
+            context.messages.push({
+              type: 'replacer',
+              pluginName: PLUGIN_NAME,
+              value: {
+                pattern: new RegExp(placeholderName, 'g'),
+                target: `exports.l(${importName});`,
+                replacementName,
+              },
+            })
+          }
+
+          // 将 ast 中的 content 替换
+          elem.children = [
+            {
+              type: 'text',
+              token: { type: 'text', text: placeholderName },
             },
-          })
+          ]
+          // 删除对应 attr
+          elem.startToken.attrs.splice(elem.startToken.attrs.findIndex(elemAttr => elemAttr === attr))
+        } else {
+          // 普通导入
+          if (option.importType === 'child') {
+            // 是否作为子组件导入
+            context.messages.push({
+              type: 'child-import',
+              pluginName: PLUGIN_NAME,
+              value: {
+                importName,
+              },
+            })
+          }
+
+          const replacementKey = importKey
+          let placeholderName = replacementMap.get(replacementKey)
+
+          if (!placeholderName) {
+            placeholderName = `___WXML_LOADER_PLACEHOLDER_${replacementMap.size}___`
+            const replacementName = `___WXML_LOADER_REPLACEMENT_${replacementMap.size}___`
+            replacementMap.set(replacementKey, placeholderName)
+
+            context.messages.push({
+              type: 'replacer',
+              pluginName: PLUGIN_NAME,
+              value: {
+                pattern: new RegExp(placeholderName, 'g'),
+                target: `exports.u(${importName});`,
+                replacementName,
+              },
+            })
+          }
+
+          // 将 ast 中的 src 替换
+          attr.value.val = placeholderName
         }
-
-        const replacementKey = importKey
-        let placeholderName = replacementMap.get(replacementKey)
-
-        if (!placeholderName) {
-          placeholderName = `___WXML_LOADER_PLACEHOLDER_${replacementMap.size}___`
-          const replacementName = `___WXML_LOADER_REPLACEMENT_${replacementMap.size}___`
-          replacementMap.set(replacementKey, placeholderName)
-
-          context.messages.push({
-            type: 'replacer',
-            pluginName: PLUGIN_NAME,
-            value: {
-              pattern: new RegExp(placeholderName, 'g'),
-              target: `exports.u(${importName});`,
-              replacementName,
-            },
-          })
-        }
-
-        // 将 ast 中的 src 替换
-        attr.value.val = placeholderName
       },
     })
   }
