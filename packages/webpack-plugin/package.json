@@ -29,5 +29,8 @@
   },
   "peerDependencies": {
     "webpack": "^4.43.0"
+  },
+  "dependencies": {
+    "deepmerge": "^4.2.2"
   }
 }

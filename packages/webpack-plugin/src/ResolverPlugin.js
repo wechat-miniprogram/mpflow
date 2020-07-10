@@ -1,8 +1,10 @@
+import deepmerge from 'deepmerge'
 import DescriptionFileUtils from 'enhanced-resolve/lib/DescriptionFileUtils'
 import JoinRequestPlugin from 'enhanced-resolve/lib/JoinRequestPlugin'
 import TryNextPlugin from 'enhanced-resolve/lib/TryNextPlugin'
 import path from 'path'
-import { cachedCleverMerge } from 'webpack/lib/util/cleverMerge'
+
+const deepMerge = (...objs) => objs.reduce((obj, rst) => deepmerge(rst, obj, { clone: false }), {})
 
 function withStage(stage, hook) {
   const currentStage = (hook._withOptions || {}).stage || 0
@@ -223,78 +225,91 @@ class WeflowResolverPlugin {
       /**
        * 注册 sitemap.json 查找
        */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/sitemap').tap(PLUGIN_NAME, resolveOptions =>
-        cachedCleverMerge(
-          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/sitemap').tap(PLUGIN_NAME, resolveOptions => ({
+        fileSystem: compiler.inputFileSystem,
+        ...deepMerge(
+          {
             extensions: ['.json'],
             plugins: [new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true })],
-          }),
+          },
           this.options.sitemap || {},
+          resolveOptions,
         ),
-      )
+      }))
 
       /**
        * 注册 page 组件 js 查找
        */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/page').tap(PLUGIN_NAME, resolveOptions =>
-        cachedCleverMerge(
-          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
-            extensions: ['.js'],
-            plugins: [
-              new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true, usePkgField: true }),
-            ],
-          }),
-          this.options.page || {},
-        ),
-      )
-
-      /**
-       * 注册 json 文件查找
-       */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/json').tap(PLUGIN_NAME, resolveOptions =>
-        cachedCleverMerge(
-          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
-            extensions: ['.json'],
-          }),
-          this.options.json || {},
-        ),
-      )
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/page').tap(PLUGIN_NAME, resolveOptions => {
+        const r = {
+          fileSystem: compiler.inputFileSystem,
+          ...deepMerge(
+            {
+              extensions: ['.js'],
+              plugins: [
+                new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true, usePkgField: true }),
+              ],
+            },
+            this.options.page || {},
+            resolveOptions,
+          ),
+        }
+        console.log(r.plugins, this.options.page, resolveOptions)
+        return r
+      })
 
       /**
        * 注册 js 文件查找
        */
-      compiler.resolverFactory.hooks.resolveOptions
-        .for('miniprogram/javascript')
-        .tap(PLUGIN_NAME, resolveOptions =>
-          cachedCleverMerge(
-            compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions),
-            this.options.javascript || {},
-          ),
-        )
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/javascript').tap(PLUGIN_NAME, resolveOptions => ({
+        fileSystem: compiler.inputFileSystem,
+        ...deepMerge(
+          compiler.resolverFactory.hooks.resolveOptions.for('normal').call(this.options.javascript || {}),
+          resolveOptions,
+        ),
+      }))
+
+      /**
+       * 注册 json 文件查找
+       */
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/json').tap(PLUGIN_NAME, resolveOptions => ({
+        fileSystem: compiler.inputFileSystem,
+        ...deepMerge(
+          {
+            extensions: ['.json'],
+          },
+          this.options.json || {},
+          resolveOptions,
+        ),
+      }))
 
       /**
        * 注册 wxml 文件查找
        */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxml').tap(PLUGIN_NAME, resolveOptions =>
-        cachedCleverMerge(
-          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxml').tap(PLUGIN_NAME, resolveOptions => ({
+        fileSystem: compiler.inputFileSystem,
+        ...deepMerge(
+          {
             extensions: ['.wxml'],
-          }),
+          },
           this.options.wxml || {},
+          resolveOptions,
         ),
-      )
+      }))
 
       /**
        * 注册 wxss 文件查找
        */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxss').tap(PLUGIN_NAME, resolveOptions =>
-        cachedCleverMerge(
-          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxss').tap(PLUGIN_NAME, resolveOptions => ({
+        fileSystem: compiler.inputFileSystem,
+        ...deepMerge(
+          {
             extensions: ['.wxss'],
-          }),
+          },
           this.options.wxss || {},
+          resolveOptions,
         ),
-      )
+      }))
     })
   }
 }
