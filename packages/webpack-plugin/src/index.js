@@ -3,21 +3,21 @@ import MpAssetPlugin from './AssetPlugin'
 import MpVirtualPlugin from './VirtualPlugin'
 import { appLoader, pageLoader, externalLoader, assetLoader } from './loaders'
 
-class MpPlugin {
-  constructor(options) {
+class WeflowWebpackPlugin {
+  constructor(options = {}) {
     this.options = options
   }
 
   apply(compiler) {
     const options = this.options
 
-    new MpResolverPlugin(options).apply(compiler)
+    new MpResolverPlugin(options.resolve).apply(compiler)
     new MpVirtualPlugin(options).apply(compiler)
     new MpAssetPlugin(options).apply(compiler)
   }
 }
 
-const MpTarget = compiler => {
+function WeflowMiniProgramTarget(compiler) {
   const NodeTemplatePlugin = require('webpack/lib/node/NodeTemplatePlugin')
   const FunctionModulePlugin = require('webpack/lib/FunctionModulePlugin')
   const NodeSourcePlugin = require('webpack/lib/node/NodeSourcePlugin')
@@ -27,11 +27,11 @@ const MpTarget = compiler => {
   new NodeSourcePlugin(compiler.options.node).apply(compiler)
   new LoaderTargetPlugin('web').apply(compiler)
 }
-MpPlugin.target = MpTarget
+WeflowWebpackPlugin.target = WeflowMiniProgramTarget
 
-MpPlugin.appLoader = appLoader
-MpPlugin.pageLoader = pageLoader
-MpPlugin.externalLoader = externalLoader
-MpPlugin.assetLoader = assetLoader
+WeflowWebpackPlugin.appLoader = appLoader
+WeflowWebpackPlugin.pageLoader = pageLoader
+WeflowWebpackPlugin.externalLoader = externalLoader
+WeflowWebpackPlugin.assetLoader = assetLoader
 
-export default MpPlugin
+export default WeflowWebpackPlugin

@@ -1,7 +1,8 @@
-import path from 'path'
-import TryNextPlugin from 'enhanced-resolve/lib/TryNextPlugin'
-import JoinRequestPlugin from 'enhanced-resolve/lib/JoinRequestPlugin'
 import DescriptionFileUtils from 'enhanced-resolve/lib/DescriptionFileUtils'
+import JoinRequestPlugin from 'enhanced-resolve/lib/JoinRequestPlugin'
+import TryNextPlugin from 'enhanced-resolve/lib/TryNextPlugin'
+import path from 'path'
+import { cachedCleverMerge } from 'webpack/lib/util/cleverMerge'
 
 function withStage(stage, hook) {
   const currentStage = (hook._withOptions || {}).stage || 0
@@ -69,28 +70,6 @@ class AbsoluteKindPlugin {
 }
 
 /**
- * 绝对路径转换为相对路径
- */
-class AbsoluteToRelativePlugin {
-  constructor(source, message, target) {
-    this.source = source
-    this.message = message
-    this.target = target
-  }
-
-  apply(resolver) {
-    const target = ensureHook(resolver, this.target)
-    getHook(resolver, this.source).tapAsync('AbsoluteToRelativePlugin', (request, resolveContext, callback) => {
-      if (request.request[0] !== '/') return callback()
-      const obj = Object.assign({}, request, {
-        request: '.' + request.request,
-      })
-      resolver.doResolve(target, obj, this.message, resolveContext, callback)
-    })
-  }
-}
-
-/**
  * resolve 模块时，根据其 package.json 中申明的 miniprogram 字段添加路径
  */
 class ModuleFieldDirPlugin {
@@ -127,9 +106,6 @@ class ModuleFieldDirPlugin {
   }
 }
 
-/**
- * 向上查找 project.config.json 文件
- */
 /**
  * 向上查找 project.config.json 文件，使用其中的 miniprogramRoot 作为根路径
  */
@@ -184,119 +160,143 @@ class ProjectConfigFileRootPlugin {
   }
 }
 
-const PLUGIN_NAME = 'MpResolverPlugin'
+class MiniprogramResolverPlugin {
+  /**
+   *
+   * @param {object} options
+   * @param {boolean} [options.moduleToRelative] 当使用模块路径无法找到时，作为相对路径查找
+   * @param {boolean} [options.absoluteToRelative] 当使用绝对路径无法找到时，作为小程序的绝对路径处理，会向上查找 project.config.json 中的 miniprogramRoot 作为根路径查找
+   * @param {boolean} [options.usePkgField] 当无法找到对应文件时，尝试通过 package.json 中定义的 miniprogram 字段作为路径查找
+   */
+  constructor(options) {
+    this.options = options
+  }
+
+  apply(resolver) {
+    const { moduleToRelative, absoluteToRelative, usePkgField } = this.options
+
+    const plugins = []
+
+    if (moduleToRelative) {
+      // 当作为模块查找时无法找到时，fallback 到相对路径查找
+      plugins.push(
+        // resolve('webpack') => resolve('./webpack')
+        new TryNextPlugin('after-raw-module', 'fallback as relative', 'fallback-relative'),
+        // fallback 到 relative
+        new JoinRequestPlugin('fallback-relative', 'relative'),
+      )
+    }
+
+    if (absoluteToRelative) {
+      // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
+      plugins.push(
+        new AbsoluteKindPlugin('after-after-described-resolve', 'miniprogram-absolute'),
+        // 向上路径查找 project.config.json, 用其中 miniprogramRoot 作为根路径
+        new ProjectConfigFileRootPlugin('miniprogram-absolute', 'project.config.json', 'miniprogramRoot', 'resolve'),
+      )
+    }
+
+    if (usePkgField) {
+      // 当无法找到对应文件时，尝试通过 package.json 中定义的 miniprogram 字段作为路径查找
+      plugins.push(
+        // resolve('weui-miniprogram/cell/cell') => resolve('weui-miniprogram/miniprogram_dist/cell/cell')
+        new ModuleFieldDirPlugin('after-described-relative', 'miniprogram', 'resolve'),
+      )
+    }
+
+    plugins.forEach(plugin => plugin.apply(resolver))
+  }
+}
+
+const PLUGIN_NAME = 'Weflow Resolver Plugin'
 
 /**
  * 注册小程序文件路径查找的插件
  */
-class MpResolverPlugin {
-  constructor(options) {
+class WeflowResolverPlugin {
+  constructor(options = {}) {
     this.options = options
   }
 
   apply(compiler) {
     compiler.hooks.afterResolvers.tap(PLUGIN_NAME, () => {
       /**
-       * 注册 sitemap 查找
+       * 注册 sitemap.json 查找
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/sitemap').tap(PLUGIN_NAME, resolveOptions =>
-        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          ...resolveOptions,
-          extensions: ['.json'],
-          plugins: [
-            // 当作为模块查找时无法找到时，fallback 到相对路径查找
-            // resolve('webpack') => resolve('./webpack')
-            new TryNextPlugin('after-raw-module', 'fallback as relative', 'fallback-relative'),
-            // fallback 到 relative
-            new JoinRequestPlugin('fallback-relative', 'relative'),
-
-            // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
-            new AbsoluteKindPlugin('after-after-described-resolve', 'miniprogram-absolute'),
-            // 向上路径查找 project.config.json, 用其中 miniprogramRoot 作为根路径
-            new ProjectConfigFileRootPlugin(
-              'miniprogram-absolute',
-              'project.config.json',
-              'miniprogramRoot',
-              'resolve',
-            ),
-
-            ...(resolveOptions.plugins || []),
-          ],
-        }),
+        cachedCleverMerge(
+          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+            extensions: ['.json'],
+            plugins: [new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true })],
+          }),
+          this.options.sitemap || {},
+        ),
       )
 
       /**
-       * 注册 page 组件 json 查找
+       * 注册 page 组件 js 查找
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/page').tap(PLUGIN_NAME, resolveOptions =>
-        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          ...resolveOptions,
-          plugins: [
-            // 当作为模块查找时无法找到时，fallback 到相对路径查找
-            // resolve('webpack') => resolve('./webpack')
-            new TryNextPlugin('after-raw-module', 'fallback as relative', 'fallback-relative'),
-            // fallback 到 relative
-            new JoinRequestPlugin('fallback-relative', 'relative'),
-
-            // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
-            new AbsoluteKindPlugin('after-after-described-resolve', 'miniprogram-absolute'),
-            // 向上路径查找 project.config.json, 用其中 miniprogramRoot 作为根路径
-            new ProjectConfigFileRootPlugin(
-              'miniprogram-absolute',
-              'project.config.json',
-              'miniprogramRoot',
-              'resolve',
-            ),
-
-            // 当无法找到对应文件时，尝试通过 package.json 中定义的 miniprogram 字段作为路径查找
-            // resolve('weui-miniprogram/cell/cell') => resolve('weui-miniprogram/miniprogram_dist/cell/cell')
-            new ModuleFieldDirPlugin('after-described-relative', 'miniprogram', 'resolve'),
-
-            ...(resolveOptions.plugins || []),
-          ],
-        }),
+        cachedCleverMerge(
+          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+            extensions: ['.js'],
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true, usePkgField: true }),
+            ],
+          }),
+          this.options.page || {},
+        ),
       )
 
       /**
        * 注册 json 文件查找
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/json').tap(PLUGIN_NAME, resolveOptions =>
-        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          ...resolveOptions,
-          extensions: ['.json'],
-        }),
+        cachedCleverMerge(
+          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+            extensions: ['.json'],
+          }),
+          this.options.json || {},
+        ),
       )
 
       /**
        * 注册 js 文件查找
        */
-      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/javascript').tap(PLUGIN_NAME, resolveOptions =>
-        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          ...resolveOptions,
-        }),
-      )
+      compiler.resolverFactory.hooks.resolveOptions
+        .for('miniprogram/javascript')
+        .tap(PLUGIN_NAME, resolveOptions =>
+          cachedCleverMerge(
+            compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions),
+            this.options.javascript || {},
+          ),
+        )
 
       /**
        * 注册 wxml 文件查找
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxml').tap(PLUGIN_NAME, resolveOptions =>
-        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          ...resolveOptions,
-          extensions: ['.wxml'],
-        }),
+        cachedCleverMerge(
+          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+            extensions: ['.wxml'],
+          }),
+          this.options.wxml || {},
+        ),
       )
 
       /**
        * 注册 wxss 文件查找
        */
       compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/wxss').tap(PLUGIN_NAME, resolveOptions =>
-        compiler.resolverFactory.hooks.resolveOptions.for('normal').call({
-          ...resolveOptions,
-          extensions: ['.wxss'],
-        }),
+        cachedCleverMerge(
+          cachedCleverMerge(compiler.resolverFactory.hooks.resolveOptions.for('normal').call(resolveOptions), {
+            extensions: ['.wxss'],
+          }),
+          this.options.wxss || {},
+        ),
       )
     })
   }
 }
 
-export default MpResolverPlugin
+export default WeflowResolverPlugin

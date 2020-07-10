@@ -56,6 +56,8 @@ export async function evalModuleBundleCode(loaderName, loaderContext) {
 
   // 截获 childCompiler 编译结果
   childCompiler.hooks.afterCompile.tap(loaderName, compilation => {
+    if (compilation.compiler !== childCompiler) return
+
     source = compilation.assets[childFilename] && compilation.assets[childFilename].source()
 
     // Remove all chunk assets

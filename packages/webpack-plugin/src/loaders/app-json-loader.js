@@ -1,15 +1,17 @@
 import { stringifyRequest } from 'loader-utils'
 import querystring from 'querystring'
 import { assetLoader, externalLoader, pageLoader } from './index'
-import { asyncLoaderWrapper, getJSONContent, getPageOutputPath, resolveWithType } from './utils'
+import { asyncLoaderWrapper, evalModuleBundleCode, getPageOutputPath, resolveWithType } from './utils'
+
+const loaderName = 'app-json-loader'
 
 /**
  * @type {import('webpack').loader.Loader}
  */
-const appJsonLoader = asyncLoaderWrapper(async function (source) {
+export const pitch = asyncLoaderWrapper(async function () {
   // const options = getOptions(this) || {}
 
-  const moduleContent = getJSONContent(this, source)
+  const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
   const imports = []
 
@@ -54,4 +56,4 @@ const appJsonLoader = asyncLoaderWrapper(async function (source) {
   return code
 })
 
-export default appJsonLoader
+export default source => source
