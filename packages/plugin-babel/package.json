@@ -1,0 +1,32 @@
+{
+  "name": "@weflow/plugin-babel",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "preset.js",
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/weflow.git"
+  },
+  "scripts": {
+    "build": "npm run build-js && npm run build-ts",
+    "build-js": "cross-env NODE_ENV=production babel src --extensions '.ts' --config-file ../../babel.config.js -d lib --ignore \"src/**/*.test.js\"",
+    "build-ts": "node ../../scripts/tsc --rootDir src --outDir lib --declaration --emitDeclarationOnly 'src/**/*.ts'",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "@babel/core": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "babel-loader": "^8.1.0"
+  }
+}
