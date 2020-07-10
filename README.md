@@ -10,3 +10,6 @@
 |@weflow/webpack-plugin|通过 webpack 构建小程序的 webpack 插件|
 |@weflow/wxml-loader|webpack 的 wxml loader|
 |@weflow/wxss-loader|webpack 的 wxss loader|
+|@weflow/plugin-babel|babel 插件，提供 js 的转义能力|
+|@weflow/plugin-typescript|typescript 插件，提供 ts 支持|
+|@weflow/plugin-css|样式处理插件，提供 less sass stylus 等支持|
