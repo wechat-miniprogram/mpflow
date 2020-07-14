@@ -21,6 +21,14 @@ export class BaseAPI<T> {
     this.shared = shared
   }
 
+  get mode() {
+    return this.service.mode
+  }
+
+  set mode(mode: string) {
+    this.service.mode = mode
+  }
+
   getCwd() {
     return this.service.context
   }

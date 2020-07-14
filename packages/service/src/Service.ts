@@ -57,19 +57,25 @@ export default class Service {
   public webpackConfigs: ((config: WebpackChain) => void)[] = []
 
   /**
+   * 运行模式
+   */
+  public mode: string
+
+  /**
    * 是否初始化过
    */
   private initialized: boolean = false
 
   constructor(
     context: string,
-    { plugins, pkg, config }: { plugins?: PluginOption[]; pkg?: any; config?: WeflowConfig } = {},
+    { plugins, pkg, config, mode }: { plugins?: PluginOption[]; pkg?: any; config?: WeflowConfig; mode?: string } = {},
   ) {
     this.context = context
     this.pkg = this.resolvePkg(pkg, context)
     this.config = this.resolveConfig(config, context)
     this.plugins = this.resolvePlugins(plugins)
     this.program = yargs()
+    this.mode = mode || 'development'
   }
 
   init() {

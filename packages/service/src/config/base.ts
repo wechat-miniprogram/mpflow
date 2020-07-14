@@ -5,6 +5,8 @@ import { Plugin } from '../PluginAPI'
 
 const base: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
+    webpackConfig.mode(api.mode === 'production' ? 'production' : 'development').devtool(false)
+
     if (config.app !== false) {
       webpackConfig
         .entry('app')
@@ -61,6 +63,12 @@ const base: Plugin = (api, config) => {
     webpackConfig.target(WeflowPlugin.target as any)
 
     webpackConfig.plugin('weflow').use(WeflowPlugin, [{}])
+
+    webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
+      {
+        patterns: [api.resolve('project.config.json')],
+      },
+    ])
   })
 }
 
