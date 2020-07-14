@@ -131,6 +131,8 @@ export default plugin(
               replacerName,
             },
           }
+
+          result.messages.push(replaceMessage)
         }
 
         node.type = 'word'

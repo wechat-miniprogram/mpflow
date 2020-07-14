@@ -65,11 +65,11 @@ function getModuleCode(
     ? `var exports = ___WXSS_LOADER_API_IMPORT___();\n`
     : `exports = ___WXSS_LOADER_API_IMPORT___();\n`
 
-  for (const item of childImports) {
-    const { importName } = item
+  // for (const item of childImports) {
+  //   const { importName } = item
 
-    beforeCode += `exports.i(${importName});\n`
-  }
+  //   beforeCode += `exports.i(${importName});\n`
+  // }
 
   for (const item of replacers) {
     const { pattern, replacerName, target } = item
@@ -79,9 +79,9 @@ function getModuleCode(
     code = code.replace(pattern, () => `" + ${replacerName} + "`)
   }
 
-  beforeCode += 'exports.moduleId = module.id;\n'
-  beforeCode += `exports.url = ${url};\n`
-  beforeCode += `exports.outputPath = ${outputPath};\n`
+  // beforeCode += 'exports.moduleId = module.id;\n'
+  // beforeCode += `exports.url = ${url};\n`
+  // beforeCode += `exports.outputPath = ${outputPath};\n`
 
   return `${beforeCode}\nexports.exports = ${code};\n`
 }
@@ -92,6 +92,8 @@ function getExportCode(esModule: boolean) {
 
 const wxssLoader: loader.Loader = function wxssLoader(content) {
   const options: any = getOptions(this) || {}
+
+  this.cacheable()
 
   const callback = this.async()!
   // const sourceMap = options.sourceMap || false
