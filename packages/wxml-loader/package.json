@@ -28,6 +28,7 @@
   "devDependencies": {
     "@types/loader-utils": "^2.0.1",
     "@types/webpack": "^4.41.17",
+    "extract-loader": "^5.1.0",
     "file-loader": "^6.0.0",
     "raw-loader": "^4.0.1",
     "webpack": "^4.43.0",

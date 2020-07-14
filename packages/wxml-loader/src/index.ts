@@ -1,58 +1,14 @@
-import { loader } from 'webpack'
+import { getOptions, interpolateName, stringifyRequest } from 'loader-utils'
 import path from 'path'
-import { getOptions, stringifyRequest, isUrlRequest, urlToRequest, interpolateName } from 'loader-utils'
+import { loader } from 'webpack'
+import {
+  importPlugin,
+  PluginChildImportMessage,
+  PluginImportMessage,
+  PluginReplaceMessage,
+  pluginRunner,
+} from './plugins'
 import * as parser from './wxml-parser'
-
-interface PluginImportMessage {
-  pluginName: string
-  type: 'import'
-  value: {
-    importName: string
-    url: string
-  }
-}
-
-interface PluginChildImportMessage {
-  pluginName: string
-  type: 'child-import'
-  value: {
-    importName: string
-  }
-}
-
-interface PluginReplaceMessage {
-  pluginName: string
-  type: 'replacer'
-  value: {
-    pattern: string | RegExp
-    target: string
-    replacementName: string
-  }
-}
-
-type PluginMessage = PluginImportMessage | PluginChildImportMessage | PluginReplaceMessage
-
-interface PluginContext {
-  messages: PluginMessage[]
-}
-
-interface Plugin {
-  (ast: parser.WxmlNode[], context: PluginContext): void
-}
-
-function pluginRunner(plugins: Plugin[]) {
-  return {
-    process: (ast: parser.WxmlNode[]) => {
-      const context: PluginContext = { messages: [] }
-
-      for (const plugin of plugins) {
-        plugin(ast, context)
-      }
-
-      return context
-    },
-  }
-}
 
 function getImportCode(
   loaderContext: loader.LoaderContext,
@@ -92,11 +48,11 @@ function getModuleCode(
     ? `var exports = ___WXML_LOADER_API_IMPORT___();\n`
     : `exports = ___WXML_LOADER_API_IMPORT___();\n`
 
-  for (const item of childImports) {
-    const { importName } = item
+  // for (const item of childImports) {
+  //   const { importName } = item
 
-    beforeCode += `exports.i(${importName});\n`
-  }
+  //   beforeCode += `exports.i(${importName});\n`
+  // }
 
   for (const item of replacers) {
     const { pattern, replacementName, target } = item
@@ -106,9 +62,9 @@ function getModuleCode(
     code = code.replace(pattern, () => `" + ${replacementName} + "`)
   }
 
-  beforeCode += 'exports.moduleId = module.id;\n'
-  beforeCode += `exports.url = ${url};\n`
-  beforeCode += `exports.outputPath = ${outputPath};\n`
+  // beforeCode += 'exports.moduleId = module.id;\n'
+  // beforeCode += `exports.url = ${url};\n`
+  // beforeCode += `exports.outputPath = ${outputPath};\n`
 
   return `${beforeCode}\nexports.exports = ${code};\n`
 }
@@ -117,171 +73,16 @@ function getExportCode(esModule: boolean) {
   return esModule ? 'export default exports;\n' : 'module.exports = exports;\n'
 }
 
-interface ImportAttributes {
-  tag: string
-  attribute: string
-  importType?: 'child' | 'inline'
-}
-
-const defaultImportAttributes: ImportAttributes[] = [
-  {
-    tag: 'import',
-    attribute: 'src',
-    importType: 'child',
-  },
-  {
-    tag: 'include',
-    attribute: 'src',
-    importType: 'child',
-  },
-  {
-    tag: 'wxs',
-    attribute: 'src',
-    importType: 'inline',
-  },
-  {
-    tag: 'image',
-    attribute: 'src',
-  },
-]
-
-function importPlugin(attributes: ImportAttributes[]): Plugin {
-  const PLUGIN_NAME = 'importPlugin'
-
-  const tagAttrMap = new Map<string, Map<string, ImportAttributes>>()
-
-  for (const item of attributes) {
-    const attrSet = tagAttrMap.get(item.tag) || new Map<string, ImportAttributes>()
-    attrSet.set(item.attribute, item)
-    tagAttrMap.set(item.tag, attrSet)
-  }
-
-  const findAttribute = (elem: parser.WxmlNode) => {
-    if (elem.type !== 'element') return
-
-    const attrSet = tagAttrMap.get(elem.startToken.tagName.val)
-
-    if (!attrSet) return
-
-    for (const attr of elem.startToken.attrs) {
-      const name = attr.name.val
-      if (attrSet.has(name) && attr.value) return { attr, option: attrSet.get(name)! }
-    }
-  }
-
-  const importsMap = new Map()
-  const replacementMap = new Map()
-  const inlineReplacementMap = new Map()
-
-  return (ast, context) => {
-    parser.walk(ast, {
-      begin(elem) {
-        if (elem.type !== 'element') return
-
-        const result = findAttribute(elem)
-
-        if (!result) return
-
-        const { attr, option } = result
-
-        if (!attr.value || !isUrlRequest(attr.value.val)) return
-
-        const importKey = urlToRequest(decodeURIComponent(attr.value.val))
-        let importName = importsMap.get(importKey)
-
-        if (!importName) {
-          importName = `___WXML_LOADER_IMPORT_${importsMap.size}___`
-          importsMap.set(importKey, importName)
-
-          context.messages.push({
-            type: 'import',
-            pluginName: PLUGIN_NAME,
-            value: {
-              importName,
-              url: importKey,
-            },
-          })
-        }
-
-        if (option.importType === 'inline') {
-          // 是否作为内联内容导入
-
-          const replacementKey = importKey
-          let placeholderName: string = inlineReplacementMap.get(replacementKey)
-
-          if (!placeholderName) {
-            placeholderName = `___WXML_LOADER_INLINE_PLACEHOLDER_${replacementMap.size}___`
-            const replacementName = `___WXML_LOADER_INLINE_REPLACEMENT_${replacementMap.size}___`
-            inlineReplacementMap.set(replacementKey, placeholderName)
-
-            context.messages.push({
-              type: 'replacer',
-              pluginName: PLUGIN_NAME,
-              value: {
-                pattern: new RegExp(placeholderName, 'g'),
-                target: `exports.l(${importName});`,
-                replacementName,
-              },
-            })
-          }
-
-          // 将 ast 中的 content 替换
-          elem.children = [
-            {
-              type: 'text',
-              token: { type: 'text', text: placeholderName },
-            },
-          ]
-          // 删除对应 attr
-          elem.startToken.attrs.splice(elem.startToken.attrs.findIndex(elemAttr => elemAttr === attr))
-        } else {
-          // 普通导入
-          if (option.importType === 'child') {
-            // 是否作为子组件导入
-            context.messages.push({
-              type: 'child-import',
-              pluginName: PLUGIN_NAME,
-              value: {
-                importName,
-              },
-            })
-          }
-
-          const replacementKey = importKey
-          let placeholderName = replacementMap.get(replacementKey)
-
-          if (!placeholderName) {
-            placeholderName = `___WXML_LOADER_PLACEHOLDER_${replacementMap.size}___`
-            const replacementName = `___WXML_LOADER_REPLACEMENT_${replacementMap.size}___`
-            replacementMap.set(replacementKey, placeholderName)
-
-            context.messages.push({
-              type: 'replacer',
-              pluginName: PLUGIN_NAME,
-              value: {
-                pattern: new RegExp(placeholderName, 'g'),
-                target: `exports.u(${importName});`,
-                replacementName,
-              },
-            })
-          }
-
-          // 将 ast 中的 src 替换
-          attr.value.val = placeholderName
-        }
-      },
-    })
-  }
-}
-
 const wxmlLoader: loader.Loader = function wxmlLoader(content) {
   const options: any = getOptions(this) || {}
 
   // const callback = this.async()
 
+  this.cacheable()
+
   const ast = parser.parse(typeof content === 'string' ? content : content.toString('utf8'))
 
-  const { messages } = pluginRunner([importPlugin(defaultImportAttributes)]).process(ast)
+  const { messages } = pluginRunner([importPlugin()]).process(ast)
 
   const imports = []
   const childImports = []

@@ -2,7 +2,7 @@ const path = require('path')
 const loader = require.resolve('../lib/cjs')
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
 
   context: __dirname,
 
@@ -14,7 +14,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
   },
 
-  devtool: 'none',
+  devtool: false,
 
   target: 'node',
 
@@ -27,6 +27,8 @@ module.exports = {
       {
         test: /\.wxml$/,
         use: [
+          "file-loader",
+          "extract-loader",
           loader,
         ]
       }, {

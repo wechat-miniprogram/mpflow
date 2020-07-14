@@ -1,22 +1,10 @@
 class WxmlModule {
-  imports: [string, string, string, string][]
-  moduleId: string
-  url: string
-  outputPath: string
   exports: string
 
-  constructor() {
-    this.imports = []
-  }
+  constructor() {}
 
-  /**
-   * 添加子模块
-   */
-  i(importModule: WxmlModule) {
-    for (const imported of importModule.imports) {
-      this.imports.push(imported)
-    }
-    this.imports.push([importModule.moduleId, importModule.exports, importModule.url, importModule.outputPath])
+  toString() {
+    return this.exports
   }
 
   /**
@@ -33,7 +21,7 @@ class WxmlModule {
     url = url && url.__esModule ? url.default : url
 
     if (typeof url === 'object' && url.url !== undefined) {
-      return url.url
+      url = url.url
     }
 
     // If url is already wrapped in quotes, remove them
