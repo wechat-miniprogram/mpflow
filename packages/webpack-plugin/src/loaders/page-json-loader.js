@@ -1,5 +1,5 @@
 import { getOptions, stringifyRequest } from 'loader-utils'
-import querystring from 'querystring'
+import qs from 'querystring'
 import { externalLoader, pageLoader } from './index'
 import { asyncLoaderWrapper, evalModuleBundleCode, getPageOutputPath, resolveWithType } from './utils'
 
@@ -24,9 +24,9 @@ export const pitch = asyncLoaderWrapper(async function () {
       const chunkName = getPageOutputPath(context, resolvedComponentRequest)
 
       imports.push(
-        `${externalLoader}?${querystring.stringify({
+        `${externalLoader}?${qs.stringify({
           name: chunkName,
-        })}!${pageLoader}?${querystring.stringify({
+        })}!${pageLoader}?${qs.stringify({
           appContext: context,
           outputPath: chunkName,
         })}!${resolvedComponentRequest}`,

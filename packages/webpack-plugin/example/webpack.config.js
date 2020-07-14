@@ -22,7 +22,19 @@ module.exports = {
         test: /\.json$/, type: 'javascript/auto', use: 'json-loader'
       },
       {
-        test: /\.wxml$/, use: '@weflow/wxml-loader'
+        test: /\.wxml$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '/_templates/[name].[contenthash:8].[ext]'
+            }
+          },
+          {
+            loader: 'extract-loader',
+          },
+          '@weflow/wxml-loader'
+        ]
       },
       {
         test: /\.wxss$/, use: '@weflow/wxss-loader'

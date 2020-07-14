@@ -1,7 +1,12 @@
-import { getOptions, getRemainingRequest, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
-import querystring from 'querystring'
-import { assetLoader, pageJsonLoader } from './index'
+import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
+import qs from 'querystring'
+import { pageJsonLoader } from './index'
 import { asyncLoaderWrapper, resolveWithType } from './utils'
+
+const extractLoader = require.resolve('extract-loader')
+const fileLoader = require.resolve('file-loader')
+const wxmlLoader = require.resolve('@weflow/wxml-loader')
+const wxssLoader = require.resolve('@weflow/wxss-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -11,26 +16,25 @@ export const pitch = asyncLoaderWrapper(async function () {
   const { appContext, outputPath } = options
 
   const imports = []
+  let exports
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 
   // 加载 wxml
   const wxmlRequest = await resolveWithType(this, 'miniprogram/wxml', resolveName)
   imports.push(
-    `${assetLoader}?${querystring.stringify({
-      type: 'template',
-      outputPath: `${outputPath}.wxml`,
-    })}!${wxmlRequest}`,
+    `!!${fileLoader}?${qs.stringify({
+      name: `${outputPath}.wxml`,
+    })}!${extractLoader}!${wxmlLoader}!${wxmlRequest}`,
   )
 
   // 加载 wxss
   try {
     const wxssRequest = await resolveWithType(this, 'miniprogram/wxss', resolveName)
     imports.push(
-      `${assetLoader}?${querystring.stringify({
-        type: 'style',
-        outputPath: `${outputPath}.wxss`,
-      })}!${wxssRequest}`,
+      `!!${fileLoader}?${qs.stringify({
+        name: `${outputPath}.wxss`,
+      })}!${extractLoader}!${wxssLoader}!${wxssRequest}`,
     )
   } catch (e) {
     // page.wxss 可选
@@ -40,16 +44,22 @@ export const pitch = asyncLoaderWrapper(async function () {
   try {
     const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
     imports.push(
-      `${pageJsonLoader}?${querystring.stringify({
+      `${pageJsonLoader}?${qs.stringify({
         appContext,
-      })}!${assetLoader}?${querystring.stringify({
-        type: 'config',
-        outputPath: `${outputPath}.json`,
       })}!${jsonRequest}`,
+    )
+    imports.push(
+      `${fileLoader}?${qs.stringify({
+        name: `${outputPath}.json`,
+      })}!${extractLoader}!${jsonRequest}`,
     )
   } catch (e) {
     // page.json 可选
   }
+
+  // 加载 js 并且导出
+  const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
+  exports = jsRequest
 
   let code = ''
 
@@ -57,8 +67,7 @@ export const pitch = asyncLoaderWrapper(async function () {
     code += `require(${stringifyRequest(this, importRequest)});\n`
   }
 
-  // 加载 js 并且导出
-  code += `\n module.exports = require(${stringifyRequest(this, getRemainingRequest(this))})`
+  if (exports) code += `\n module.exports = require(${stringifyRequest(this, exports)})`
 
   return code
 })
