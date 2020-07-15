@@ -29,5 +29,11 @@
     "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
     "babel-loader": "^8.1.0"
+  },
+  "devDependencies": {
+    "@weflow/service": "^0.0.1"
+  },
+  "peerDependencies": {
+    "@weflow/service": "*"
   }
 }
