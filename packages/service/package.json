@@ -5,7 +5,7 @@
   "author": "chyizheng <chyizheng@tencent.com>",
   "homepage": "",
   "license": "ISC",
-  "main": "lib/service.js",
+  "main": "lib/index.js",
   "type": "lib/index.d.ts",
   "bin": {
     "weflow-service": "bin/weflow-service.js"
@@ -24,8 +24,8 @@
   },
   "scripts": {
     "build": "npm run build-js && npm run build-ts",
-    "build-js": "cross-env NODE_ENV=production babel src --extensions '.ts' --config-file ../../babel.config.js -d lib --ignore \"src/**/*.test.js\"",
-    "build-ts": "node ../../scripts/tsc --rootDir src --outDir lib --declaration --emitDeclarationOnly 'src/**/*.ts'",
+    "build-js": "node ../../scripts/build-js",
+    "build-ts": "node ../../scripts/build-ts",
     "test": "tsc"
   },
   "dependencies": {

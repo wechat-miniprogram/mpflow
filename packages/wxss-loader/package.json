@@ -18,7 +18,9 @@
     "url": "git@git.code.oa.com:wxweb/weflow.git"
   },
   "scripts": {
-    "build": "cross-env NODE_ENV=production babel src --extensions '.ts' --config-file ../../babel.config.js -d lib --ignore \"src/**/*.test.js\"",
+    "build": "npm run build-js && npm run build-ts",
+    "build-js": "node ../../scripts/build-js",
+    "build-ts": "node ../../scripts/build-ts",
     "test": "webpack --config ./example/webpack.config.js",
     "test-debug": "node --inspect-brk node_modules/.bin/webpack --config ./example/webpack.config.js"
   },

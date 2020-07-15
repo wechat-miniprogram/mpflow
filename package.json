@@ -8,7 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "init": "lerna clean && lerna bootstrap"
+    "init": "lerna clean && lerna bootstrap",
+    "build": "lerna run build"
   },
   "repository": {
     "type": "git",
