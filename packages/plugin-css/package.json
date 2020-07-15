@@ -32,7 +32,8 @@
     "stylus-loader": "^3.0.2"
   },
   "devDependencies": {
-    "@weflow/service": "^0.0.1"
+    "@weflow/service": "^0.0.1",
+    "webpack": "^4.43.0"
   },
   "peerDependencies": {
     "@weflow/service": "*"
