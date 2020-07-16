@@ -45,7 +45,7 @@ export class BaseAPI<T> {
 export class PluginAPI extends BaseAPI<unknown> {
   registerCommand<
     T = Record<string, unknown>,
-    O extends { [key: string]: Options } = Record<string, unknown>,
+    O extends Record<string, Options> = Record<string, Options>,
     U = Record<string, unknown>
   >(
     command: CommandModule['command'],

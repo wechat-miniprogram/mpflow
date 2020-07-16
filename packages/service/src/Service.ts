@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import WebpackChain from 'webpack-chain'
-import webpackMerge from 'webpack-merge'
+import { merge } from 'webpack-merge'
 import { Argv, CommandModule } from 'yargs'
 import yargs from 'yargs/yargs'
 import { Plugin, PluginAPI } from './PluginAPI'
@@ -186,6 +186,6 @@ export default class Service {
     const chainConfig = config.toConfig()
     const { configureWebpack } = this.config
     const configuredConfig = typeof configureWebpack === 'function' ? configureWebpack(chainConfig) : configureWebpack
-    return webpackMerge.merge(chainConfig, configuredConfig || {})
+    return merge(chainConfig, configuredConfig || {})
   }
 }
