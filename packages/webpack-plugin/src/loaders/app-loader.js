@@ -34,9 +34,9 @@ export const pitch = asyncLoaderWrapper(async function () {
   const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
   imports.push(`${appJsonLoader}!${jsonRequest}`)
   imports.push(
-    `${fileLoader}?${qs.stringify({
+    `!!${fileLoader}?${qs.stringify({
       name: 'app.json',
-    })}!${extractLoader}!${jsonRequest}`,
+    })}!${jsonRequest}`,
   )
 
   // 加载 js 并且导出

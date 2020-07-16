@@ -49,9 +49,9 @@ export const pitch = asyncLoaderWrapper(async function () {
       })}!${jsonRequest}`,
     )
     imports.push(
-      `${fileLoader}?${qs.stringify({
+      `!!${fileLoader}?${qs.stringify({
         name: `${outputPath}.json`,
-      })}!${extractLoader}!${jsonRequest}`,
+      })}!${jsonRequest}`,
     )
   } catch (e) {
     // page.json 可选

@@ -12,6 +12,8 @@ export default externalLoader
 export const pitch = asyncLoaderWrapper(async function (request) {
   const options = getOptions(this) || {}
 
+  this.addDependency(request)
+
   await new Promise((resolve, reject) => {
     this._compilation.addEntry(this.context, new VirtualDependency('-!' + request), options.name, err =>
       err ? reject(err) : resolve(),
