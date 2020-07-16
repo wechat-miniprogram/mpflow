@@ -6,10 +6,6 @@ const { join, resolve, relative } = require('path')
 const glob = require('glob')
 const crypto = require('crypto')
 
-const md5 = content => {
-  return crypto.createHash('md5').update(content).digest('hex').substring(0, 8)
-}
-
 const resolveFromRoot = (...paths) => {
   return resolve(__dirname, '..', ...paths)
 }
@@ -27,7 +23,7 @@ const tmpTsconfig = {
   files,
 }
 const tmpTsconfigContent = JSON.stringify(tmpTsconfig, null, 2)
-const tmpTsconfigPath = join(cwd, `tsconfig.${md5(tmpTsconfigContent)}.json`)
+const tmpTsconfigPath = join(cwd, `tsconfig.json`)
 
 const argsToForward = ['--outDir', './lib', '-p', tmpTsconfigPath]
 
