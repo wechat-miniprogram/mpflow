@@ -1,17 +1,17 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
-import qs from 'querystring'
 import { appJsonLoader } from './index'
-import { asyncLoaderWrapper, resolveWithType } from './utils'
+import { asyncLoaderWrapper, resolveWithType, stringifyResource } from './utils'
 
 const extractLoader = require.resolve('extract-loader')
 const fileLoader = require.resolve('file-loader')
-const wxssLoader = require.resolve('@weflow/wxss-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
+
+  const weflowLoaders = this.__weflowLoaders || {}
 
   const imports = []
   let exports = null
@@ -22,9 +22,22 @@ export const pitch = asyncLoaderWrapper(async function () {
   try {
     const wxssRequest = await resolveWithType(this, 'miniprogram/wxss', resolveName)
     imports.push(
-      `!!${fileLoader}?${qs.stringify({
-        name: 'app.wxss',
-      })}!${extractLoader}!${wxssLoader}!${wxssRequest}`,
+      stringifyResource(
+        wxssRequest,
+        [
+          {
+            loader: fileLoader,
+            options: {
+              name: 'app.wxss',
+            },
+          },
+          {
+            loader: extractLoader,
+          },
+          ...(weflowLoaders.wxss || []),
+        ],
+        { disabled: 'normal' },
+      ),
     )
   } catch (e) {
     // app.wxss 可选
@@ -32,16 +45,42 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   // 加载 json
   const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
-  imports.push(`${appJsonLoader}!${jsonRequest}`)
+
+  // 用 app-json-loader 解析 app.json 中的依赖
   imports.push(
-    `!!${fileLoader}?${qs.stringify({
-      name: 'app.json',
-    })}!${jsonRequest}`,
+    stringifyResource(
+      jsonRequest,
+      [
+        {
+          loader: appJsonLoader,
+        },
+        ...(weflowLoaders.json || []),
+      ],
+      {
+        disabled: 'normal',
+      },
+    ),
+  )
+  // 将 app.json 提取输出
+  imports.push(
+    stringifyResource(
+      jsonRequest,
+      [
+        {
+          loader: fileLoader,
+          options: {
+            name: 'app.json',
+          },
+        },
+        ...(weflowLoaders.json || []),
+      ],
+      { disabled: 'normal' },
+    ),
   )
 
   // 加载 js 并且导出
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
-  exports = jsRequest
+  exports = stringifyResource(jsRequest, weflowLoaders.javascript || [], { disabled: 'normal' })
 
   let code = ''
 

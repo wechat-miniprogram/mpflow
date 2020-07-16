@@ -19,7 +19,19 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.json$/, type: 'javascript/auto', use: 'json-loader'
+        test: /\.json$/,
+        enforce: 'pre',
+        type: 'javascript/auto',
+        use: [
+          'json-loader'
+        ],
+      },
+      {
+        test: /\.wxml$/,
+        enforce: 'pre',
+        use: [
+          '@weflow/wxml-loader'
+        ]
       },
       {
         test: /\.wxml$/,
@@ -33,11 +45,14 @@ module.exports = {
           {
             loader: 'extract-loader',
           },
-          '@weflow/wxml-loader'
         ]
       },
       {
-        test: /\.wxss$/, use: '@weflow/wxss-loader'
+        test: /\.wxss$/,
+        enforce: 'pre',
+        use: [
+          '@weflow/wxss-loader'
+        ]
       }
     ]
   },

@@ -1,6 +1,6 @@
 import { getOptions } from 'loader-utils'
+import SingleEntryDependency from 'webpack/lib/dependencies/SingleEntryDependency'
 import { asyncLoaderWrapper } from './utils'
-import VirtualDependency from '../VirtualDependency'
 
 const externalLoader = source => source
 
@@ -15,7 +15,7 @@ export const pitch = asyncLoaderWrapper(async function (request) {
   this.addDependency(request)
 
   await new Promise((resolve, reject) => {
-    this._compilation.addEntry(this.context, new VirtualDependency('-!' + request), options.name, err =>
+    this._compilation.addEntry(this.context, new SingleEntryDependency('!!' + request), options.name, err =>
       err ? reject(err) : resolve(),
     )
   })

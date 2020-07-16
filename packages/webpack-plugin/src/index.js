@@ -1,6 +1,6 @@
-import MpResolverPlugin from './ResolverPlugin'
-import MpVirtualPlugin from './VirtualPlugin'
-import { appLoader, pageLoader, externalLoader, assetLoader } from './loaders'
+import ResolverPlugin from './ResolverPlugin'
+import LoaderRulesPlugin from './LoaderRulesPlugin'
+import { appLoader, pageLoader } from './loaders'
 
 class WeflowWebpackPlugin {
   constructor(options = {}) {
@@ -10,8 +10,8 @@ class WeflowWebpackPlugin {
   apply(compiler) {
     const options = this.options
 
-    new MpResolverPlugin(options.resolve).apply(compiler)
-    new MpVirtualPlugin(options).apply(compiler)
+    new ResolverPlugin(options.resolve).apply(compiler)
+    new LoaderRulesPlugin(options.rules).apply(compiler)
   }
 }
 
@@ -25,11 +25,10 @@ function WeflowMiniProgramTarget(compiler) {
   new NodeSourcePlugin(compiler.options.node).apply(compiler)
   new LoaderTargetPlugin('web').apply(compiler)
 }
+
 WeflowWebpackPlugin.target = WeflowMiniProgramTarget
 
 WeflowWebpackPlugin.appLoader = appLoader
 WeflowWebpackPlugin.pageLoader = pageLoader
-WeflowWebpackPlugin.externalLoader = externalLoader
-WeflowWebpackPlugin.assetLoader = assetLoader
 
 export default WeflowWebpackPlugin

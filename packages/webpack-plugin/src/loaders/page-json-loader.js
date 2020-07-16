@@ -1,7 +1,12 @@
 import { getOptions, stringifyRequest } from 'loader-utils'
-import qs from 'querystring'
 import { externalLoader, pageLoader } from './index'
-import { asyncLoaderWrapper, evalModuleBundleCode, getPageOutputPath, resolveWithType } from './utils'
+import {
+  asyncLoaderWrapper,
+  evalModuleBundleCode,
+  getPageOutputPath,
+  resolveWithType,
+  stringifyResource,
+} from './utils'
 
 const loaderName = 'page-json-loader'
 
@@ -11,6 +16,8 @@ const loaderName = 'page-json-loader'
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
   const { appContext } = options
+
+  const weflowLoaders = this.__weflowLoaders || {}
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
@@ -24,12 +31,26 @@ export const pitch = asyncLoaderWrapper(async function () {
       const chunkName = getPageOutputPath(context, resolvedComponentRequest)
 
       imports.push(
-        `${externalLoader}?${qs.stringify({
-          name: chunkName,
-        })}!${pageLoader}?${qs.stringify({
-          appContext: context,
-          outputPath: chunkName,
-        })}!${resolvedComponentRequest}`,
+        stringifyResource(
+          resolvedComponentRequest,
+          [
+            {
+              loader: externalLoader,
+              options: {
+                name: chunkName,
+              },
+            },
+            {
+              loader: pageLoader,
+              options: {
+                appContext: context,
+                outputPath: chunkName,
+              },
+            },
+            ...(weflowLoaders.page || []),
+          ],
+          { disabled: 'normal' },
+        ),
       )
     }
   }

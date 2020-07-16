@@ -1,11 +1,38 @@
 import NativeModule from 'module'
 import path from 'path'
-import querystring from 'querystring'
+import qs from 'querystring'
 import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin'
 import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin'
 import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin'
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin'
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin'
+
+/**
+ *
+ * @param {string} resource
+ * @param {{ loader: string, options: any }[]} loaders
+ * @param {object} [options]
+ * @param {'normal' | 'pre-normal' | 'all'} [options.disabled]
+ */
+export function stringifyResource(resource, loaders, options = {}) {
+  const { disabled } = options
+  const segs = loaders.map(({ options, loader }) => {
+    if (!options) return loader
+    return `${loader}?${typeof options === 'object' ? qs.stringify(options) : options}`
+  })
+  segs.push(resource)
+
+  let prefix = ''
+  if (disabled === 'normal') {
+    prefix = '!'
+  } else if (disabled === 'pre-normal') {
+    prefix = '-!'
+  } else if (disabled === 'all') {
+    prefix = '!!'
+  }
+
+  return `${prefix}${segs.join('!')}`
+}
 
 export function evalModuleCode(loaderContext, code, filename) {
   const module = new NativeModule(filename, loaderContext)
@@ -117,7 +144,7 @@ export function getPageOutputPath(rootContext, pageRequest) {
 
 export function getCurrentLoaderRequest(loaderContext, query) {
   const currentLoader = loaderContext.loaders[loaderContext.loaderIndex]
-  const overrideQuery = querystring.stringify(query)
+  const overrideQuery = qs.stringify(query)
   return `${currentLoader.path}${currentLoader.query}${currentLoader.query ? '&' : '?'}${overrideQuery}`
 }
 

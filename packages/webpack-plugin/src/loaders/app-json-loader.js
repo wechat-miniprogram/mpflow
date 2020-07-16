@@ -1,7 +1,12 @@
 import { stringifyRequest } from 'loader-utils'
-import querystring from 'querystring'
-import { assetLoader, externalLoader, pageLoader } from './index'
-import { asyncLoaderWrapper, evalModuleBundleCode, getPageOutputPath, resolveWithType } from './utils'
+import { externalLoader, pageLoader } from './index'
+import {
+  asyncLoaderWrapper,
+  evalModuleBundleCode,
+  getPageOutputPath,
+  resolveWithType,
+  stringifyResource,
+} from './utils'
 
 const loaderName = 'app-json-loader'
 
@@ -10,6 +15,8 @@ const loaderName = 'app-json-loader'
  */
 export const pitch = asyncLoaderWrapper(async function () {
   // const options = getOptions(this) || {}
+
+  const weflowLoaders = this.__weflowLoaders || {}
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
@@ -22,12 +29,28 @@ export const pitch = asyncLoaderWrapper(async function () {
       const outputPath = getPageOutputPath(this.context, resolvedPageRequest)
 
       imports.push(
-        `${externalLoader}?${querystring.stringify({
-          name: outputPath,
-        })}!${pageLoader}?${querystring.stringify({
-          appContext: this.context,
-          outputPath: outputPath,
-        })}!${resolvedPageRequest}`,
+        stringifyResource(
+          resolvedPageRequest,
+          [
+            {
+              loader: externalLoader,
+              options: {
+                name: outputPath,
+              },
+            },
+            {
+              loader: pageLoader,
+              options: {
+                appContext: this.context,
+                outputPath: outputPath,
+              },
+            },
+            ...(weflowLoaders.page || []),
+          ],
+          {
+            disabled: 'normal',
+          },
+        ),
       )
     }
   }
@@ -38,10 +61,21 @@ export const pitch = asyncLoaderWrapper(async function () {
     const resolvedSitemapRequest = await resolveWithType(this, 'miniprogram/sitemap', sitemapRequest)
 
     imports.push(
-      `${assetLoader}?${querystring.stringify({
-        type: 'config',
-        outputPath: 'sitemap.json',
-      })}!${resolvedSitemapRequest}`,
+      stringifyResource(
+        resolvedSitemapRequest,
+        [
+          {
+            loader: require.resolve('file-loader'),
+            options: {
+              name: 'sitemap.json',
+            },
+          },
+          ...(weflowLoaders.sitemap || []),
+        ],
+        {
+          disabled: 'normal',
+        },
+      ),
     )
 
     moduleContent.sitemapLocation = 'sitemap.json'

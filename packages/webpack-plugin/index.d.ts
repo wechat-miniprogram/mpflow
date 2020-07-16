@@ -1,4 +1,4 @@
-import { Resolve } from 'webpack'
+import { Resolve, RuleSetRule, Compiler } from 'webpack'
 
 export interface Options {
   resolve?: {
@@ -9,18 +9,24 @@ export interface Options {
     wxml?: Resolve
     wxss?: Resolve
   }
+  rules?: {
+    sitemap?: RuleSetRule[]
+    page?: RuleSetRule[]
+    json?: RuleSetRule[]
+    javascript?: RuleSetRule[]
+    wxml?: RuleSetRule[]
+    wxss?: RuleSetRule[]
+  }
 }
 
 declare class MpPlugin {
   constructor(options?: Options)
-  apply(compiler: any): void
+  apply(compiler: Compiler): void
 
-  static target: (compiler: any) => void
+  static target: (compiler: Compiler) => void
 
   static appLoader: string
   static pageLoader: string
-  static externalLoader: string
-  static assetLoader: string
 }
 
 export default MpPlugin
