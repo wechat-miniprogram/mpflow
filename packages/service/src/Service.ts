@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import WebpackChain from 'webpack-chain'
+import webpackMerge from 'webpack-merge'
 import { Argv, CommandModule } from 'yargs'
 import yargs from 'yargs/yargs'
 import { Plugin, PluginAPI } from './PluginAPI'
@@ -8,7 +9,8 @@ import { Configuration } from 'webpack'
 
 export interface WeflowConfig {
   plugins?: string[]
-  configureWebpack?: (config: WebpackChain) => void
+  configureWebpack?: Configuration | ((config: Configuration) => Configuration)
+  configureWebpackChain?: (config: WebpackChain) => void
   outputDir?: string
   app?: string | boolean
   pages?: string[]
@@ -76,7 +78,11 @@ export default class Service {
     this.mode = mode || 'development'
   }
 
-  async init() {
+  /**
+   * 初始化
+   * 加载所有的插件
+   */
+  async init(): Promise<void> {
     if (this.initialized) return
     this.initialized = true
 
@@ -88,8 +94,8 @@ export default class Service {
       apply(new PluginAPI(id, this, shared), this.config)
     }
 
-    if (this.config.configureWebpack) {
-      this.webpackConfigs.push(this.config.configureWebpack)
+    if (this.config.configureWebpackChain) {
+      this.webpackConfigs.push(this.config.configureWebpackChain)
     }
   }
 
@@ -177,6 +183,9 @@ export default class Service {
   resolveWebpackConfig(): Configuration {
     const config = new WebpackChain()
     this.webpackConfigs.forEach(configuration => configuration(config))
-    return config.toConfig()
+    const chainConfig = config.toConfig()
+    const { configureWebpack } = this.config
+    const configuredConfig = typeof configureWebpack === 'function' ? configureWebpack(chainConfig) : configureWebpack
+    return webpackMerge.merge(chainConfig, configuredConfig || {})
   }
 }
