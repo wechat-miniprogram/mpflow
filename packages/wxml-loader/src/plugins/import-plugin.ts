@@ -50,7 +50,7 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
 
     for (const attr of elem.startToken.attrs) {
       const name = attr.name.val
-      if (attrSet.has(name) && attr.value) return { attr, option: attrSet.get(name)! }
+      if (attrSet.has(name) && attr.value) return { attr, option: attrSet.get(name) }
     }
   }
 

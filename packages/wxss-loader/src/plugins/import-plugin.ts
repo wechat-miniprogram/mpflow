@@ -40,8 +40,8 @@ export default plugin(
         return
       }
 
-      let isStringValue: boolean = false
-      let url: string = ''
+      let isStringValue = false
+      let url = ''
 
       if (nodes[0].type === 'string') {
         isStringValue = true

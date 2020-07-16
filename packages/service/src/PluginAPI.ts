@@ -42,8 +42,12 @@ export class BaseAPI<T> {
   }
 }
 
-export class PluginAPI extends BaseAPI<{}> {
-  registerCommand<T = {}, O extends { [key: string]: Options } = {}, U = {}>(
+export class PluginAPI extends BaseAPI<unknown> {
+  registerCommand<
+    T = Record<string, unknown>,
+    O extends { [key: string]: Options } = Record<string, unknown>,
+    U = Record<string, unknown>
+  >(
     command: CommandModule['command'],
     describe: CommandModule['describe'],
     options: O,
