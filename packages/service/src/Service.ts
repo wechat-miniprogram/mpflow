@@ -1,10 +1,10 @@
 import fs from 'fs'
 import path from 'path'
+import WebpackChain from 'webpack-chain'
 import { Argv, CommandModule } from 'yargs'
 import yargs from 'yargs/yargs'
-import WebpackChain from 'webpack-chain'
-import { Configuration } from 'webpack'
 import { Plugin, PluginAPI } from './PluginAPI'
+import { Configuration } from 'webpack'
 
 export interface WeflowConfig {
   plugins?: string[]
@@ -16,10 +16,8 @@ export interface WeflowConfig {
 
 interface PluginOption {
   id: string
-  plugin: Plugin
+  plugin: Promise<{ default: Plugin }>
 }
-
-const interopRequire = (obj: any) => (obj && obj.__esModule ? obj.default : obj)
 
 export default class Service {
   /**
@@ -64,7 +62,7 @@ export default class Service {
   /**
    * 是否初始化过
    */
-  private initialized: boolean = false
+  private initialized = false
 
   constructor(
     context: string,
@@ -78,15 +76,17 @@ export default class Service {
     this.mode = mode || 'development'
   }
 
-  init() {
+  async init() {
     if (this.initialized) return
     this.initialized = true
 
     const shared = {}
 
-    this.plugins.forEach(({ id, plugin: apply }) => {
+    for (const plugin of this.plugins) {
+      const { id, plugin: pluginModule } = plugin
+      const { default: apply } = await pluginModule
       apply(new PluginAPI(id, this, shared), this.config)
-    })
+    }
 
     if (this.config.configureWebpack) {
       this.webpackConfigs.push(this.config.configureWebpack)
@@ -130,21 +130,25 @@ export default class Service {
     const buildInPlugins: PluginOption[] = [
       {
         id: 'built-in:command/build',
-        plugin: interopRequire(require('./commands/build')),
+        plugin: import('./commands/build'),
+      },
+      {
+        id: 'built-in:command/dev',
+        plugin: import('./commands/dev'),
       },
       {
         id: 'built-in:command/inspect',
-        plugin: interopRequire(require('./commands/inspect')),
+        plugin: import('./commands/inspect'),
       },
       {
         id: 'built-in:config/base',
-        plugin: interopRequire(require('./config/base')),
+        plugin: import('./config/base'),
       },
     ]
 
     const projectPlugins: PluginOption[] = (config.plugins || []).map(id => ({
       id,
-      plugin: interopRequire(require(id)),
+      plugin: import(id),
     }))
 
     return [...buildInPlugins, ...inlinePlugins, ...projectPlugins]
@@ -154,7 +158,7 @@ export default class Service {
    * 注册 CLI 命令
    * @param options
    */
-  registerCommand<T = {}, U = {}>(options: CommandModule<T, U>) {
+  registerCommand<T, U>(options: CommandModule<T, U>): void {
     this.program.command(options)
   }
 
@@ -162,15 +166,15 @@ export default class Service {
    * 执行 CLI
    * @param argv
    */
-  run(argv: string[] = process.argv.slice(2)) {
-    this.init()
+  async run(argv: string[] = process.argv.slice(2)): Promise<void> {
+    await this.init()
     this.program.help().parse(argv)
   }
 
   /**
    * 获取最终 webpack 配置
    */
-  resolveWebpackConfig() {
+  resolveWebpackConfig(): Configuration {
     const config = new WebpackChain()
     this.webpackConfigs.forEach(configuration => configuration(config))
     return config.toConfig()
