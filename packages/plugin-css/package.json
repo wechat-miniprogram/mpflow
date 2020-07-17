@@ -25,6 +25,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
+    "css-loader": "^3.6.0",
     "deepmerge": "^4.2.2",
     "less-loader": "^6.2.0",
     "sass-loader": "^9.0.2",
