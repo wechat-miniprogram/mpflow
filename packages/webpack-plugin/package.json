@@ -31,8 +31,11 @@
     "webpack": "^4.43.0"
   },
   "dependencies": {
+    "@weflow/wxss-loader": "^0.0.1",
+    "@weflow/wxml-loader": "^0.0.1",
     "deepmerge": "^4.2.2",
     "extract-loader": "^5.1.0",
-    "file-loader": "^6.0.0"
+    "file-loader": "^6.0.0",
+    "webpack-chain": "^6.5.0"
   }
 }

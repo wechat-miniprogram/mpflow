@@ -135,6 +135,14 @@ export default class Service {
   resolvePlugins(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
     const buildInPlugins: PluginOption[] = [
       {
+        id: 'built-in:config/base',
+        plugin: import('./config/base'),
+      },
+      {
+        id: 'built-in:config/weflow',
+        plugin: import('./config/weflow'),
+      },
+      {
         id: 'built-in:command/build',
         plugin: import('./commands/build'),
       },
@@ -145,10 +153,6 @@ export default class Service {
       {
         id: 'built-in:command/inspect',
         plugin: import('./commands/inspect'),
-      },
-      {
-        id: 'built-in:config/base',
-        plugin: import('./config/base'),
       },
     ]
 

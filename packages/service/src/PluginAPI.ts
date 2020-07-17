@@ -1,8 +1,8 @@
 import path from 'path'
-import { Arguments, CommandModule, InferredOptionTypes, Options } from 'yargs'
-import Service, { WeflowConfig } from './Service'
 import { Configuration } from 'webpack'
 import WebpackChain from 'webpack-chain'
+import { Arguments, CommandModule, InferredOptionTypes, Options } from 'yargs'
+import Service, { WeflowConfig } from './Service'
 
 export interface Plugin {
   (api: PluginAPI, config: WeflowConfig): void
@@ -21,7 +21,7 @@ export class BaseAPI<T> {
     this.shared = shared
   }
 
-  get mode() {
+  get mode(): string {
     return this.service.mode
   }
 
@@ -29,30 +29,26 @@ export class BaseAPI<T> {
     this.service.mode = mode
   }
 
-  getCwd() {
+  getCwd(): string {
     return this.service.context
   }
 
-  resolve(_path: string) {
+  resolve(_path: string): string {
     return path.resolve(this.service.context, _path)
   }
 
-  hasPlugin(id: string) {
+  hasPlugin(id: string): boolean {
     return this.service.plugins.some(p => p.id === id)
   }
 }
 
 export class PluginAPI extends BaseAPI<unknown> {
-  registerCommand<
-    T = Record<string, unknown>,
-    O extends Record<string, Options> = Record<string, Options>,
-    U = Record<string, unknown>
-  >(
+  registerCommand<T = Record<string, unknown>, O extends Record<string, Options> = Record<string, Options>>(
     command: CommandModule['command'],
     describe: CommandModule['describe'],
     options: O,
     handler: (args: Arguments<Omit<T, keyof O> & InferredOptionTypes<O>>) => void,
-  ) {
+  ): void {
     this.service.registerCommand({
       command,
       describe,
@@ -61,11 +57,11 @@ export class PluginAPI extends BaseAPI<unknown> {
     })
   }
 
-  configureWebpack(config: (config: WebpackChain) => void) {
+  configureWebpack(config: (config: WebpackChain) => void): void {
     this.service.webpackConfigs.push(config)
   }
 
-  resolveWebpackConfig() {
+  resolveWebpackConfig(): Configuration {
     return this.service.resolveWebpackConfig()
   }
 }

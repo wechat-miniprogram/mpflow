@@ -1,9 +1,11 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
 import { pageJsonLoader } from './index'
-import { asyncLoaderWrapper, resolveWithType, stringifyResource } from './utils'
+import { asyncLoaderWrapper, getWeflowLoaders, resolveWithType, stringifyResource } from './utils'
 
 const extractLoader = require.resolve('extract-loader')
 const fileLoader = require.resolve('file-loader')
+const wxssLoader = require.resolve('@weflow/wxss-loader')
+const wxmlLoader = require.resolve('@weflow/wxml-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -11,8 +13,6 @@ const fileLoader = require.resolve('file-loader')
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
   const { appContext, outputPath } = options
-
-  const weflowLoaders = this.__weflowLoaders || {}
 
   const imports = []
   let exports
@@ -34,7 +34,10 @@ export const pitch = asyncLoaderWrapper(async function () {
         {
           loader: extractLoader,
         },
-        ...(weflowLoaders.wxml || []),
+        {
+          loader: wxmlLoader,
+        },
+        ...getWeflowLoaders(this, wxmlRequest, 'wxml'),
       ],
       { disabled: 'normal' },
     ),
@@ -56,7 +59,10 @@ export const pitch = asyncLoaderWrapper(async function () {
           {
             loader: extractLoader,
           },
-          ...(weflowLoaders.wxss || []),
+          {
+            loader: wxssLoader,
+          },
+          ...getWeflowLoaders(this, wxssRequest, 'wxss'),
         ],
         { disabled: 'normal' },
       ),
@@ -79,7 +85,7 @@ export const pitch = asyncLoaderWrapper(async function () {
               appContext,
             },
           },
-          ...(weflowLoaders.json || []),
+          ...getWeflowLoaders(this, jsonRequest, 'json'),
         ],
         {
           disabled: 'normal',
@@ -97,7 +103,7 @@ export const pitch = asyncLoaderWrapper(async function () {
               name: `${outputPath}.json`,
             },
           },
-          ...(weflowLoaders.json || []),
+          ...getWeflowLoaders(this, jsonRequest, 'json'),
         ],
         { disabled: 'normal' },
       ),
@@ -108,7 +114,7 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   // 加载 js 并且导出
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
-  exports = stringifyResource(jsRequest, weflowLoaders.javascript || [], { disabled: 'normal' })
+  exports = stringifyResource(jsRequest, getWeflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
   let code = ''
 

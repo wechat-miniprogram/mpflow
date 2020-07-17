@@ -39,30 +39,32 @@ const base: Plugin = (api, config) => {
       .rule('json')
       .test(/\.json$/)
       .type('javascript/auto')
+      .pre()
       .use('json')
       .loader(require.resolve('json-loader'))
 
-    webpackConfig.module
-      .rule('wxml')
-      .test(/\.wxml$/)
-      .use('wxml')
-      .loader(require.resolve('@weflow/wxml-loader'))
+    // webpackConfig.module
+    //   .rule('wxml')
+    //   .test(/\.wxml$/)
+    //   .pre()
+    //   .use('wxml')
+    //   .loader(require.resolve('@weflow/wxml-loader'))
 
-    webpackConfig.module
-      .rule('wxss')
-      .test(/\.wxss$/)
-      .use('wxss')
-      .loader(require.resolve('@weflow/wxss-loader'))
+    // webpackConfig.module
+    //   .rule('wxss')
+    //   .test(/\.wxss$/)
+    //   .pre()
+    //   .use('wxss')
+    //   .loader(require.resolve('@weflow/wxss-loader'))
 
     webpackConfig.module
       .rule('wxs')
       .test(/\.wxs$/)
+      .pre()
       .use('raw-loader')
       .loader(require.resolve('raw-loader'))
 
     webpackConfig.target(WeflowPlugin.target as any)
-
-    webpackConfig.plugin('weflow').use(WeflowPlugin, [{}])
 
     webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
       {

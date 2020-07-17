@@ -1,6 +1,4 @@
-import { Plugin } from '@weflow/service'
-import { Options } from '@weflow/webpack-plugin'
-import deepmerge from 'deepmerge'
+import { Plugin, WeflowPluginConfigChain } from '@weflow/service'
 
 const plugin: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
@@ -13,6 +11,7 @@ const plugin: Plugin = (api, config) => {
     webpackConfig.module
       .rule('ts')
       .test(/\.tsx?$/)
+      .pre()
       .exclude.add(/node_modules/)
       .end()
       .use('babel-loader')
@@ -21,20 +20,13 @@ const plugin: Plugin = (api, config) => {
 
     webpackConfig.plugin('for-ts-checker').use(require('fork-ts-checker-webpack-plugin'), [{}])
 
-    webpackConfig.plugin('weflow').tap((options: Options[]) =>
-      options.map(option =>
-        deepmerge<Options, Options>(option, {
-          resolve: {
-            page: {
-              extensions: ['.ts', '.tsx'],
-            },
-            javascript: {
-              extensions: ['.ts', '.tsx'],
-            },
-          },
-        }),
-      ),
-    )
+    webpackConfig.plugin('weflow').tap(([config]: [WeflowPluginConfigChain]) => {
+      config.resolve.page.extensions.add('.ts').add('.tsx')
+
+      config.resolve.javascript.extensions.add('.ts').add('.tsx')
+
+      return [config]
+    })
   })
 }
 

@@ -28,13 +28,6 @@ module.exports = {
       },
       {
         test: /\.wxml$/,
-        enforce: 'pre',
-        use: [
-          '@weflow/wxml-loader'
-        ]
-      },
-      {
-        test: /\.wxml$/,
         use: [
           {
             loader: 'file-loader',
@@ -45,15 +38,11 @@ module.exports = {
           {
             loader: 'extract-loader',
           },
+          {
+            loader: '@weflow/wxml-loader'
+          }
         ]
       },
-      {
-        test: /\.wxss$/,
-        enforce: 'pre',
-        use: [
-          '@weflow/wxss-loader'
-        ]
-      }
     ]
   },
 

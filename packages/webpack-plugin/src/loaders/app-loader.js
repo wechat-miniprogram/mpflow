@@ -1,17 +1,16 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
 import { appJsonLoader } from './index'
-import { asyncLoaderWrapper, resolveWithType, stringifyResource } from './utils'
+import { asyncLoaderWrapper, getWeflowLoaders, resolveWithType, stringifyResource } from './utils'
 
 const extractLoader = require.resolve('extract-loader')
 const fileLoader = require.resolve('file-loader')
+const wxssLoader = require.resolve('@weflow/wxss-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
-
-  const weflowLoaders = this.__weflowLoaders || {}
 
   const imports = []
   let exports = null
@@ -34,7 +33,10 @@ export const pitch = asyncLoaderWrapper(async function () {
           {
             loader: extractLoader,
           },
-          ...(weflowLoaders.wxss || []),
+          {
+            loader: wxssLoader,
+          },
+          ...getWeflowLoaders(this, wxssRequest, 'wxss'),
         ],
         { disabled: 'normal' },
       ),
@@ -54,7 +56,7 @@ export const pitch = asyncLoaderWrapper(async function () {
         {
           loader: appJsonLoader,
         },
-        ...(weflowLoaders.json || []),
+        ...getWeflowLoaders(this, jsonRequest, 'json'),
       ],
       {
         disabled: 'normal',
@@ -72,7 +74,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             name: 'app.json',
           },
         },
-        ...(weflowLoaders.json || []),
+        ...getWeflowLoaders(this, jsonRequest, 'json'),
       ],
       { disabled: 'normal' },
     ),
@@ -80,7 +82,7 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   // 加载 js 并且导出
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
-  exports = stringifyResource(jsRequest, weflowLoaders.javascript || [], { disabled: 'normal' })
+  exports = stringifyResource(jsRequest, getWeflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
   let code = ''
 
@@ -88,7 +90,7 @@ export const pitch = asyncLoaderWrapper(async function () {
     code += `require(${stringifyRequest(this, importRequest)});\n`
   }
 
-  if (exports) code += `\n module.exports = require(${stringifyRequest(this, jsRequest)})`
+  if (exports) code += `\n module.exports = require(${stringifyRequest(this, exports)})`
 
   return code
 })

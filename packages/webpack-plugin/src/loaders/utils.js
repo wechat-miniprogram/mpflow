@@ -9,6 +9,50 @@ import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin'
 
 /**
  *
+ * @param {any} loaderContext
+ * @param {string} resource
+ * @param {string} type
+ * @return {{ loader: string, options: any }[]}
+ */
+export function getWeflowLoaders(loaderContext, resource, type) {
+  const ruleSets = loaderContext.__weflowRuleSets || {}
+
+  const resourceQuery = ''
+  const resourcePath = resource
+
+  if (!ruleSets[type]) return []
+
+  const result = ruleSets[type].exec({
+    resource: resourcePath,
+    realResource: resourcePath,
+    resourceQuery,
+    issuer: loaderContext._module.issuer,
+    compiler: loaderContext._compiler,
+  })
+
+  const useLoadersPost = []
+  const useLoaders = []
+  const useLoadersPre = []
+
+  for (const r of result) {
+    if (r.type === 'use') {
+      if (r.enforce === 'post') {
+        useLoadersPost.push(r.value)
+      } else if (r.enforce === 'pre') {
+        useLoadersPre.push(r.value)
+      } else if (!r.enforce) {
+        useLoaders.push(r.value)
+      }
+    }
+  }
+
+  const loaders = useLoadersPost.concat(useLoaders, useLoadersPre)
+
+  return loaders
+}
+
+/**
+ *
  * @param {string} resource
  * @param {{ loader: string, options: any }[]} loaders
  * @param {object} [options]

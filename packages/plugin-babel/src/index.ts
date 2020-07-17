@@ -5,6 +5,7 @@ const plugin: Plugin = (api, config) => {
     webpackConfig.module
       .rule('js')
       .test(/\.m?jsx?$/)
+      .enforce('pre')
       .exclude.add(/node_modules/)
       .end()
       .use('babel-loader')

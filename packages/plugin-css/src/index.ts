@@ -1,31 +1,23 @@
-import { Plugin } from '@weflow/service'
-import { Options } from '@weflow/webpack-plugin'
-import deepmerge from 'deepmerge'
+import { Plugin, WeflowPluginConfigChain } from '@weflow/service'
 
 const plugin: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
     function addLoader(extension: string, loader?: string, options: any = {}) {
-      const loaderRule = webpackConfig.module
-        .rule(extension)
-        .test(new RegExp('\\.' + extension + '$'))
-        .use('wxss')
-        .loader(require.resolve('@weflow/wxss-loader'))
-        .end()
       if (loader) {
-        loaderRule.use(loader).loader(require.resolve(loader)).options(options)
+        webpackConfig.module
+          .rule(extension)
+          .test(new RegExp('\\.' + extension + '$'))
+          .enforce('pre')
+          .use(loader)
+          .loader(require.resolve(loader))
+          .options(options)
       }
 
-      webpackConfig.plugin('weflow').tap((options: Options[]) =>
-        options.map(option =>
-          deepmerge<Options, Options>(option, {
-            resolve: {
-              wxss: {
-                extensions: ['.' + extension],
-              },
-            },
-          }),
-        ),
-      )
+      webpackConfig.plugin('weflow').tap(([weflowPluginConfig]: [WeflowPluginConfigChain]) => {
+        weflowPluginConfig.resolve.wxss.extensions.add('.' + extension)
+
+        return [weflowPluginConfig]
+      })
     }
 
     addLoader('css')

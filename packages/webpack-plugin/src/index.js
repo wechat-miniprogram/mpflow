@@ -1,6 +1,7 @@
-import ResolverPlugin from './ResolverPlugin'
+import { ConfigChain } from './ConfigChain'
 import LoaderRulesPlugin from './LoaderRulesPlugin'
 import { appLoader, pageLoader } from './loaders'
+import ResolverPlugin from './ResolverPlugin'
 
 class WeflowWebpackPlugin {
   constructor(options = {}) {
@@ -30,5 +31,7 @@ WeflowWebpackPlugin.target = WeflowMiniProgramTarget
 
 WeflowWebpackPlugin.appLoader = appLoader
 WeflowWebpackPlugin.pageLoader = pageLoader
+
+WeflowWebpackPlugin.ConfigChain = ConfigChain
 
 export default WeflowWebpackPlugin

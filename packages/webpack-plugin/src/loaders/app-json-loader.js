@@ -4,6 +4,7 @@ import {
   asyncLoaderWrapper,
   evalModuleBundleCode,
   getPageOutputPath,
+  getWeflowLoaders,
   resolveWithType,
   stringifyResource,
 } from './utils'
@@ -15,8 +16,6 @@ const loaderName = 'app-json-loader'
  */
 export const pitch = asyncLoaderWrapper(async function () {
   // const options = getOptions(this) || {}
-
-  const weflowLoaders = this.__weflowLoaders || {}
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
@@ -45,7 +44,7 @@ export const pitch = asyncLoaderWrapper(async function () {
                 outputPath: outputPath,
               },
             },
-            ...(weflowLoaders.page || []),
+            ...getWeflowLoaders(this, resolvedPageRequest, 'page'),
           ],
           {
             disabled: 'normal',
@@ -70,7 +69,7 @@ export const pitch = asyncLoaderWrapper(async function () {
               name: 'sitemap.json',
             },
           },
-          ...(weflowLoaders.sitemap || []),
+          ...getWeflowLoaders(this, resolvedSitemapRequest, 'sitemap'),
         ],
         {
           disabled: 'normal',

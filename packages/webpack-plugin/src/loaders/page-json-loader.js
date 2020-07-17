@@ -4,6 +4,7 @@ import {
   asyncLoaderWrapper,
   evalModuleBundleCode,
   getPageOutputPath,
+  getWeflowLoaders,
   resolveWithType,
   stringifyResource,
 } from './utils'
@@ -16,8 +17,6 @@ const loaderName = 'page-json-loader'
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
   const { appContext } = options
-
-  const weflowLoaders = this.__weflowLoaders || {}
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
@@ -47,7 +46,7 @@ export const pitch = asyncLoaderWrapper(async function () {
                 outputPath: chunkName,
               },
             },
-            ...(weflowLoaders.page || []),
+            ...getWeflowLoaders(this, resolvedComponentRequest, 'page'),
           ],
           { disabled: 'normal' },
         ),
