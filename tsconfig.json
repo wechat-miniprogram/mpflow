@@ -4,5 +4,6 @@
     "paths": {
       "@weflow/*": ["packages/*/src"]
     }
-  }
+  },
+  "include": ["typings", "packages/*/src"]
 }
