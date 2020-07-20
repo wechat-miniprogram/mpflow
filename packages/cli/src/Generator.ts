@@ -1,12 +1,10 @@
 import { BaseAPI, BaseService, BaseServiceOptions, GeneratorAPI as IGeneratorAPI } from '@weflow/service-core'
 import deepMerge from 'deepmerge'
 import { Options as EjsOptions } from 'ejs'
-import fs from 'fs-extra'
 import stableStringify from 'json-stable-stringify'
-import path from 'path'
 import semver from 'semver'
 import { intersect } from 'semver-intersect'
-import { renderFiles } from './utils'
+import { renderFiles, writeFiles } from './utils'
 
 const isObject = (obj: any) => typeof obj === 'object'
 
@@ -54,10 +52,10 @@ const mergeDeps = (
 
 const mergeArrayWithDedupe = <A, B>(a: A[], b: B[]) => [...new Set([...a, ...b])]
 
-export class GeneratorAPI extends BaseAPI<Generator> implements IGeneratorAPI<Generator> {
+export class GeneratorAPI<T extends Generator = Generator> extends BaseAPI<T> implements IGeneratorAPI<T> {
   private depSources: Record<string, string>
 
-  constructor(id: string, service: Generator, depSources: Record<string, string>) {
+  constructor(id: string, service: T, depSources: Record<string, string>) {
     super(id, service)
     this.depSources = depSources
   }
@@ -89,8 +87,7 @@ export class GeneratorAPI extends BaseAPI<Generator> implements IGeneratorAPI<Ge
   }
 
   async render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): Promise<void> {
-    const files = await renderFiles(source, additionalData, ejsOptions)
-    Object.assign(this.service.files, files)
+    return this.service.render(source, additionalData, ejsOptions)
   }
 }
 
@@ -144,15 +141,15 @@ export class Generator extends BaseService {
     this.files['package.json'] = stableStringify(this.pkg, { space: 2 })
   }
 
+  async render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): Promise<void> {
+    const files = await renderFiles(source, additionalData, ejsOptions)
+    Object.assign(this.files, files)
+  }
+
   /**
    * 将文件写入磁盘
    */
   async writeFiles(): Promise<void> {
-    const names = Object.keys(this.files)
-    for (const name of names) {
-      const filePath = path.join(this.context, name)
-      await fs.mkdirp(path.dirname(filePath))
-      await fs.writeFile(filePath, this.files[name])
-    }
+    await writeFiles(this.context, this.files)
   }
 }

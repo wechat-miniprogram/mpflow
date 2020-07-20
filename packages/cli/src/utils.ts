@@ -3,6 +3,7 @@ import fs from 'fs-extra'
 import glob from 'glob'
 import path from 'path'
 import util from 'util'
+import cp from 'child_process'
 
 const globPromise = util.promisify(glob)
 
@@ -56,4 +57,29 @@ export async function renderFile(
   const template = await fs.readFile(sourcePath, 'utf-8')
 
   return ejs.render(template, additionalData, ejsOptions)
+}
+
+/**
+ * 写入文件
+ */
+export async function writeFiles(context: string, files: Record<string, string>): Promise<void> {
+  const names = Object.keys(files)
+  for (const name of names) {
+    const filePath = path.join(context, name)
+    await fs.mkdirp(path.dirname(filePath))
+    await fs.writeFile(filePath, files[name])
+  }
+}
+
+/**
+ * 执行命令
+ */
+export async function exec(context: string, command: string, args: string[] = []): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = cp.spawn(command, args, { cwd: context, stdio: 'inherit' })
+    child.on('close', code => {
+      if (code) return reject(new Error(`exec exited with status ${code}`))
+      resolve()
+    })
+  })
 }

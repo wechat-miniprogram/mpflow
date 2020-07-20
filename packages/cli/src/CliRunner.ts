@@ -1,7 +1,7 @@
 import { BaseAPI, BaseService, BaseServiceOptions, Plugin, PluginOption, WeflowConfig } from '@weflow/service-core'
 import { Arguments, Argv, CommandModule, InferredOptionTypes, Options, PositionalOptions } from 'yargs'
 import yargs from 'yargs/yargs'
-import { Generator, GeneratorOptions } from './Generator'
+import { Creator } from './Creator'
 
 export class CliRunnerAPI extends BaseAPI<CliRunner> {
   registerCommand<
@@ -26,15 +26,21 @@ export class CliRunnerAPI extends BaseAPI<CliRunner> {
     })
   }
 
-  async callGenerator(context: string, options: GeneratorOptions): Promise<void> {
-    const generator = new Generator(context, options)
+  /**
+   * 新建项目，并且安装内置插件
+   */
+  async create(
+    context: string,
+    templatePath: string,
+    { projectName, appId }: { projectName: string; appId: string },
+  ): Promise<void> {
+    const creator = new Creator(context, {
+      templatePath,
+      projectName,
+      appId,
+    })
 
-    try {
-      await generator.generate()
-    } catch (e) {
-      console.error(e)
-      throw e
-    }
+    await creator.generate()
   }
 }
 

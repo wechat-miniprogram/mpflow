@@ -13,7 +13,8 @@
   },
   "files": [
     "preset.js",
-    "lib"
+    "lib",
+    "template"
   ],
   "repository": {
     "type": "git",

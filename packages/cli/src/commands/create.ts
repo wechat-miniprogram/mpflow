@@ -1,4 +1,3 @@
-import { Plugin } from '@weflow/service/src'
 import fs from 'fs-extra'
 import path from 'path'
 import { CliPlugin } from '../CliRunner'
@@ -27,37 +26,20 @@ create.cliRunner = (api, config) => {
         description: '创建小程序的 app id',
       },
     },
-    async ({ appName, template, appId }) => {
+    async ({ appName, template: templatePath, appId }) => {
       const createPath = api.resolve(appName)
 
       if (fs.existsSync(createPath)) throw new Error(`folder "${appName}" already exists`)
-      if (!fs.existsSync(template)) throw new Error(`template "${template}" doesn't exists`)
+      if (!fs.existsSync(templatePath)) throw new Error(`template "${templatePath}" doesn't exists`)
 
       await fs.ensureDir(createPath)
 
-      await api.callGenerator(createPath, {
-        plugins: [
-          {
-            id: 'build-in:create-generator',
-            plugin: Promise.resolve({
-              default: createGeneratorPlugin(template, {
-                appid: appId || '',
-                projectname: appName,
-              }),
-            }),
-          },
-        ],
+      await api.create(createPath, templatePath, {
+        appId: appId || '',
+        projectName: appName,
       })
     },
   )
-}
-
-function createGeneratorPlugin(templatePath: string, data: Record<string, any>): Plugin {
-  const generatorPlugin: Plugin = () => {}
-
-  generatorPlugin.generator = api => api.render(templatePath, data)
-
-  return generatorPlugin
 }
 
 export default create
