@@ -11,6 +11,7 @@
     "weflow-service": "bin/weflow-service.js"
   },
   "directories": {
+    "bin": "bin",
     "lib": "lib",
     "test": "__tests__"
   },
@@ -29,6 +30,7 @@
     "test": "tsc"
   },
   "dependencies": {
+    "@weflow/service-core": "^0.0.1",
     "@weflow/webpack-plugin": "^0.0.1",
     "@weflow/wxml-loader": "^0.0.1",
     "@weflow/wxss-loader": "^0.0.1",
@@ -41,17 +43,13 @@
     "json-loader": "^0.5.7",
     "miniprogram-automator": "^0.9.1",
     "raw-loader": "^4.0.1",
-    "semver": "^7.3.2",
-    "semver-intersect": "^1.4.0",
     "webpack": "^4.43.0",
     "webpack-chain": "^6.5.0",
     "webpack-merge": "^5.0.8",
     "yargs": "^15.4.0"
   },
   "devDependencies": {
-    "@types/semver": "^7.3.1",
     "@types/webpack": "^4.41.21",
-    "@types/yargs": "^15.0.5",
-    "open": "^7.0.4"
+    "@types/yargs": "^15.0.5"
   }
 }

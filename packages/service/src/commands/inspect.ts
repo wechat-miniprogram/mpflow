@@ -1,8 +1,4 @@
-import { Plugin } from '../PluginAPI'
-
-declare module 'webpack-chain' {
-  export function toString(config: any, options?: { verbose?: boolean; configPrefix?: string }): string
-}
+import { Plugin } from '@weflow/service-core'
 
 const inspect: Plugin = api => {
   api.registerCommand('inspect', '检查 webpack 配置', {}, async args => {
@@ -13,7 +9,7 @@ const inspect: Plugin = api => {
 
     const webpackConfig = api.resolveWebpackConfig()
 
-    const output = toString(webpackConfig)
+    const output = String(webpackConfig)
     console.log(highlight(output, { language: 'js' }))
   })
 }

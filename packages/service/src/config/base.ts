@@ -1,7 +1,7 @@
+import { Plugin } from '@weflow/service-core'
 import WeflowPlugin from '@weflow/webpack-plugin'
 import path from 'path'
 import qs from 'querystring'
-import { Plugin } from '../PluginAPI'
 
 const base: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {

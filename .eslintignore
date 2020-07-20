@@ -1,3 +1,4 @@
 packages/*/lib
 packages/*/example
+packages/*/template
 packages/*/__tests__

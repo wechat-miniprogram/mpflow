@@ -1,4 +1,4 @@
-import { Plugin } from '../PluginAPI'
+import { Plugin } from '@weflow/service-core'
 
 const build: Plugin = (api, config) => {
   api.registerCommand(

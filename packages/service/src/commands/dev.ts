@@ -1,6 +1,6 @@
+import { Plugin } from '@weflow/service-core'
 import cp from 'child_process'
 import fs from 'fs'
-import { Plugin } from '../PluginAPI'
 import { Compiler, Stats } from 'webpack'
 
 const getDevtoolCliPath = async () => {
@@ -100,7 +100,7 @@ const dev: Plugin = (api, config) => {
 
       setupHooks(context, () => {
         if (args.open) {
-          openDevtool(api.resolve('dist'))
+          openDevtool(api.resolve(config.outputDir || 'dist'))
         }
       })
 

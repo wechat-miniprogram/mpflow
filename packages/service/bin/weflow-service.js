@@ -1,3 +1,7 @@
 #!/usr/bin/env node
 
-require('../lib/index')
+const { Runner } = require('../lib')
+
+const runner = new Runner(process.cwd())
+
+runner.run()

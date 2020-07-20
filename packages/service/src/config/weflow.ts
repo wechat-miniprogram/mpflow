@@ -1,5 +1,5 @@
+import { Plugin } from '@weflow/service-core'
 import WeflowPlugin from '@weflow/webpack-plugin'
-import { Plugin } from '../PluginAPI'
 
 const ChainedPlugin = require('webpack-chain/src/Plugin')
 
@@ -11,7 +11,10 @@ class PluginWeflow extends ChainedPlugin {
   toConfig() {
     // 调用之前把 args 给转成 config
     const originalArgs = this.get('args')
-    this.set('args', originalArgs.map((a: any) => a.toConfig ? a.toConfig() : a))
+    this.set(
+      'args',
+      originalArgs.map((a: any) => (a.toConfig ? a.toConfig() : a)),
+    )
 
     const config = super.toConfig()
 

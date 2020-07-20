@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "info": "/components/info/info"
+  }
+}

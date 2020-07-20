@@ -1,0 +1,24 @@
+{
+  "name": "@weflow/template-miniprogram",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
+  "private": "true",
+  "main": "lib/template-miniprogram.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/weflow.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  }
+}
