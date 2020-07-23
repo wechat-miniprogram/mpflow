@@ -5,6 +5,7 @@ import { asyncLoaderWrapper, getWeflowLoaders, resolveWithType, stringifyResourc
 const extractLoader = require.resolve('extract-loader')
 const fileLoader = require.resolve('file-loader')
 const wxssLoader = require.resolve('@weflow/wxss-loader')
+const jsonLoader = require.resolve('json-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -55,6 +56,9 @@ export const pitch = asyncLoaderWrapper(async function () {
       [
         {
           loader: appJsonLoader,
+        },
+        {
+          loader: jsonLoader,
         },
         ...getWeflowLoaders(this, jsonRequest, 'json'),
       ],

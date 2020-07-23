@@ -2388,6 +2388,11 @@
     "@types/webpack-sources" "*"
     source-map "^0.6.0"
 
+"@types/wechat-miniprogram@^2.11.0":
+  version "2.11.0"
+  resolved "https://registry.npmjs.org/@types/wechat-miniprogram/-/wechat-miniprogram-2.11.0.tgz#e3144acd99eff9e5980aed21e68819b173909c5f"
+  integrity sha512-yj6l9ln75X0a6rtAojr0Otyem5m4RlPnF4J/xRClIod3Xl5kCQWcMpshKIFxuoJZIDBfv9/rFhJUkDN5Gr6hcA==
+
 "@types/yargs-parser@*":
   version "15.0.0"
   resolved "https://registry.npmjs.org/@types/yargs-parser/-/yargs-parser-15.0.0.tgz#cb3f9f741869e20cce330ffbeb9271590483882d"

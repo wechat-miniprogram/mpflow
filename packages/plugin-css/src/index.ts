@@ -1,6 +1,5 @@
 import { Plugin } from '@weflow/service'
 import { ConfigChain } from '@weflow/webpack-plugin'
-import minimatch from 'minimatch'
 
 const plugin: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {

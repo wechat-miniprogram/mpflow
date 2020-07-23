@@ -37,6 +37,7 @@ plugin.generator = async api => {
   api.extendPackage({
     dependencies: {
       typescript: pkg.devDependencies.typescript,
+      '@types/wechat-miniprogram': pkg.devDependencies['@types/wechat-miniprogram'],
     },
   })
 
@@ -46,6 +47,15 @@ plugin.generator = async api => {
     // js 文件重命名为 ts 文件
     api.rename(file.path.replace(/\.js$/, '.ts'))
   })
+
+  if (api.hasPlugin('@weflow/plugin-babel')) {
+    api.processFile('babel.config.js', (file, api) => {
+      api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
+        fieldName: 'presets',
+        items: ['@weflow/plugin-typescript/preset'],
+      })
+    })
+  }
 }
 
 export default plugin

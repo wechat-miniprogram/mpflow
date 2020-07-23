@@ -40,8 +40,8 @@ const base: Plugin = (api, config) => {
       .test(/\.json$/)
       .type('javascript/auto')
       .pre()
-      .use('json')
-      .loader(require.resolve('json-loader'))
+      // .use('json')
+      // .loader(require.resolve('json-loader'))
 
     // webpackConfig.module
     //   .rule('wxml')

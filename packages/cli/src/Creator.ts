@@ -129,11 +129,15 @@ export class Creator extends Generator {
         plugins = [...localService.Runner.getBuiltInPlugins(), ...plugins]
       }
 
-      console.log(plugins)
-
       const generator = new Generator(this.context, { plugins })
 
-      // TODO add to weflow.config.js
+      // 将插件添加到 weflow.config.js
+      generator.processFile('weflow.config.js', (file, api) => {
+        api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
+          fieldName: 'plugins',
+          items: pluginNames,
+        })
+      })
 
       await generator.generate()
 

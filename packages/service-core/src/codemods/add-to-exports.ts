@@ -1,16 +1,20 @@
-import { ArrayExpression, ASTPath, ObjectExpression, Statement, Transform } from 'jscodeshift'
+import { ArrayExpression, ASTPath, ExpressionStatement, ObjectExpression, Statement, Transform } from 'jscodeshift'
 
-const addPlugins: Transform = (fileInfo, api, { pluginNames }: { pluginNames: string[] }) => {
+const addToExports: Transform = (fileInfo, api, { fieldName, items }: { fieldName: string; items: string[] }) => {
   const { source } = fileInfo
   const { j } = api
+  const { statement } = j.template
 
-  if (typeof pluginNames === 'string') {
-    pluginNames = (pluginNames as string).split(',')
-  } else if (!Array.isArray(pluginNames)) {
-    pluginNames = []
+  if (typeof items === 'string') {
+    items = (items as string).split(',')
+  } else if (!Array.isArray(items)) {
+    items = []
   }
 
+  if (!fieldName || !items.length) return
+
   const root = j(source)
+
   // module.exports = { plugins: [] }
   let pluginsArrayExpression = root
     .find(j.AssignmentExpression, {
@@ -30,11 +34,11 @@ const addPlugins: Transform = (fileInfo, api, { pluginNames }: { pluginNames: st
         type: 'ObjectExpression',
       },
     })
-    .map<ObjectExpression>(p => p.get('right'))
-    .find(
-      j.Property,
+    .map<ObjectExpression['properties'][0]>(p => p.get('right', 'properties').map((i: any) => i))
+    .filter(
       p =>
         j.match(p, {
+          type: 'Property',
           method: false,
           shorthand: false,
           computed: false,
@@ -45,13 +49,13 @@ const addPlugins: Transform = (fileInfo, api, { pluginNames }: { pluginNames: st
         (j.match(p, {
           key: {
             type: 'Literal',
-            value: 'plugins',
+            value: fieldName,
           },
         } as any) ||
           j.match(p, {
             key: {
               type: 'Identifier',
-              name: 'plugins',
+              name: fieldName,
             },
           } as any)),
     )
@@ -60,18 +64,20 @@ const addPlugins: Transform = (fileInfo, api, { pluginNames }: { pluginNames: st
   // 如果没有 module.exports = { plugins: [] }
   // 则在文件末尾添加一句
   if (!pluginsArrayExpression.size()) {
-    const pushStatement = j('exports.plugins = (exports.plugins || []).concat([]);').find(j.ExpressionStatement)
+    // exports.fieldName = (exports.fieldName || []).concat([])
+    const pushStatement: ExpressionStatement = statement`\nexports.${fieldName} = (exports.${fieldName} || []).concat([]);`
 
-    pluginsArrayExpression = pushStatement.find(j.CallExpression).map(p => p.get('arguments', 0))
+    pluginsArrayExpression = j(pushStatement)
+      .find(j.CallExpression)
+      .map(p => p.get('arguments', 0))
 
     const body: ASTPath<Statement[]> = root.find(j.Program).get('body')
-    body.push(...pushStatement.nodes())
+    body.push(pushStatement)
   }
 
   // 插入新的 pluginName
   pluginsArrayExpression.forEach(p => {
-    p.value.elements.push
-    pluginNames.forEach(pluginName => {
+    items.forEach(pluginName => {
       p.get('elements').push(j.stringLiteral(pluginName))
     })
   })
@@ -79,4 +85,4 @@ const addPlugins: Transform = (fileInfo, api, { pluginNames }: { pluginNames: st
   return root.toSource()
 }
 
-export default addPlugins
+export default addToExports

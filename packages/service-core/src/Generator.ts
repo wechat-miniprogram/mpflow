@@ -1,5 +1,6 @@
 import type { Options as EjsOptions } from 'ejs'
 import type { BaseAPI, BaseService } from './Service'
+import { Transform } from 'jscodeshift'
 
 export interface ProcessFileInfo {
   path: string
@@ -9,6 +10,7 @@ export interface ProcessFileInfo {
 export interface ProcessFileAPI {
   rename: (path: string) => void
   replace: (content: string) => void
+  transform: (transform: Transform, options?: any) => void
 }
 
 export interface ProcessFileHandler {

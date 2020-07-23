@@ -20,11 +20,7 @@ module.exports = {
     rules: [
       {
         test: /\.json$/,
-        enforce: 'pre',
         type: 'javascript/auto',
-        use: [
-          'json-loader'
-        ],
       },
       {
         test: /\.wxml$/,

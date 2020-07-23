@@ -4,6 +4,7 @@ import {
   BaseServiceOptions,
   GeneratorAPI as IGeneratorAPI,
   ProcessFileHandler,
+  ProcessFileAPI,
 } from '@weflow/service-core'
 import { Options as EjsOptions } from 'ejs'
 import minimatch from 'minimatch'
@@ -161,20 +162,39 @@ export class Generator extends BaseService {
 
       this.processFilesHandlers.forEach(({ filter, handler }) => {
         if (filter && !minimatch(outFilePath, filter)) return
-        handler(
-          {
-            path: outFilePath,
-            source: outFileContent,
+        const fileInfo = {
+          path: outFilePath,
+          source: outFileContent,
+        }
+
+        const processFileAPI: ProcessFileAPI = {
+          rename: name => {
+            outFilePath = name
           },
-          {
-            rename: name => {
-              outFilePath = name
-            },
-            replace: content => {
-              outFileContent = content
-            },
+          replace: content => {
+            outFileContent = content
           },
-        )
+          transform: (transform, options) => {
+            const jscodeshift = require('jscodeshift') as typeof import('jscodeshift')
+            // const j = jscodeshift.withParser('ts')
+            const j = jscodeshift
+
+            const out = transform(
+              fileInfo,
+              {
+                j,
+                jscodeshift: j,
+                report: () => {},
+                stats: () => {},
+              },
+              options,
+            )
+
+            if (out) outFileContent = out
+          },
+        }
+
+        handler(fileInfo, processFileAPI)
       })
 
       this.files[outFilePath] = outFileContent
