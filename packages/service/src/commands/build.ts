@@ -34,4 +34,12 @@ const build: Plugin = (api, config) => {
   )
 }
 
+build.generator = (api, config) => {
+  api.extendPackage({
+    scripts: {
+      build: 'weflow-service build',
+    },
+  })
+}
+
 export default build

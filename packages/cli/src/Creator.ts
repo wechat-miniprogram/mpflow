@@ -1,7 +1,6 @@
-import { Plugin, WeflowConfig } from '@weflow/service-core'
-import { Generator, GeneratorAPI, GeneratorOptions } from '../Generator'
-import { exec } from '../utils'
-import { Installer } from '../Installer'
+import { Plugin, PluginOption } from '@weflow/service-core'
+import { Generator, GeneratorAPI, GeneratorOptions } from './Generator'
+import { exec, getLocalService } from './utils'
 
 export class CreatorAPI<T extends Creator = Creator> extends GeneratorAPI<T> {
   async exec(command: string, args?: string[]): Promise<void> {
@@ -34,12 +33,7 @@ export class CreatorAPI<T extends Creator = Creator> extends GeneratorAPI<T> {
 }
 
 export interface CreatorPlugin extends Plugin {
-  creator: (api: CreatorAPI) => void
-}
-
-export interface CreatorPluginOption {
-  id: string
-  plugin: Promise<{ default: CreatorPlugin }>
+  creator?: (api: CreatorAPI) => void
 }
 
 export interface CreatorOptions extends GeneratorOptions {
@@ -63,8 +57,6 @@ export class Creator extends Generator {
    * 项目 APP id
    */
   public appId: string
-
-  public plugins: CreatorPluginOption[]
 
   public beforeRenderHooks: Array<() => Promise<void>> = []
   public afterRenderHooks: Array<() => Promise<void>> = []
@@ -104,8 +96,49 @@ export class Creator extends Generator {
 
     await this.runHooks(this.afterEmitHooks)
 
-    const installer = new Installer(this.context, { plugins: ['@weflow/plugin-babel'] })
-    await installer.install()
+    await this.install(['@weflow/plugin-babel', '@weflow/plugin-typescript', '@weflow/plugin-css'], true)
+  }
+
+  /**
+   * 获取本地安装的 @weflow/service
+   * @param context
+   */
+  getLocalService(context: string = this.context): typeof import('@weflow/service') {
+    let localService: typeof import('@weflow/service')
+    try {
+      localService = getLocalService(context)
+    } catch (e) {
+      throw new Error('当前路径下无法找到 @weflow/service')
+    }
+    return localService
+  }
+
+  async install(pluginNames: string[], generateBuiltIns = false): Promise<void> {
+    const localService = this.getLocalService(this.context)
+    await exec(this.context, 'yarn', ['install'])
+
+    if (pluginNames.length) {
+      await exec(this.context, 'yarn', ['link', ...pluginNames])
+    }
+
+    if (generateBuiltIns || pluginNames.length) {
+      // 执行 generator 从而执行插件的 generator
+      let plugins: PluginOption[] = pluginNames.map(id => ({ id }))
+
+      if (generateBuiltIns) {
+        plugins = [...localService.Runner.getBuiltInPlugins(), ...plugins]
+      }
+
+      console.log(plugins)
+
+      const generator = new Generator(this.context, { plugins })
+
+      // TODO add to weflow.config.js
+
+      await generator.generate()
+
+      await exec(this.context, 'yarn', ['install'])
+    }
   }
 
   /**
@@ -113,29 +146,32 @@ export class Creator extends Generator {
    * @param inlinePlugins
    * @param config
    */
-  resolvePlugins(inlinePlugins: CreatorPluginOption[] = [], config: WeflowConfig = this.config): CreatorPluginOption[] {
-    if (inlinePlugins.length) return inlinePlugins
-
-    const buildInPlugins: CreatorPluginOption[] = [
+  resolvePluginOptions(inlinePlugins: PluginOption[] = []): PluginOption[] {
+    const buildInPlugins: PluginOption[] = [
       {
-        id: 'built-in:plugins/installService',
-        plugin: import('./plugins/installService'),
+        id: '@weflow/cli/lib/creator-plugins/install-service',
+        module: require('./creator-plugins/install-service'),
       },
     ]
 
-    return buildInPlugins
+    return [...buildInPlugins, ...inlinePlugins]
+  }
+
+  resolvePlugins(
+    pluginOptions: PluginOption[] = this.pluginOptions,
+    context: string = this.context,
+  ): { id: string; plugin: CreatorPlugin; config?: any }[] {
+    return super.resolvePlugins(pluginOptions, context)
   }
 
   /**
    * 执行所有的插件 generator
    */
   async initPlugins(): Promise<void> {
-    for (const plugin of this.plugins) {
-      const { id, plugin: pluginModule } = plugin
-      const { default: apply } = await pluginModule
-      if (apply.creator) {
-        await apply.creator(new CreatorAPI(id, this, this.depSources))
-      }
-    }
+    const plugins = this.resolvePlugins()
+
+    plugins.forEach(({ id, plugin }) => {
+      plugin.creator && plugin.creator(new CreatorAPI(id, this, this.depSources))
+    })
   }
 }

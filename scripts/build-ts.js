@@ -25,7 +25,7 @@ const tmpTsconfig = {
 const tmpTsconfigContent = JSON.stringify(tmpTsconfig, null, 2)
 const tmpTsconfigPath = join(cwd, `tsconfig.json`)
 
-const argsToForward = ['--outDir', './lib', '-p', tmpTsconfigPath]
+const argsToForward = ['--outDir', './lib', '-p', tmpTsconfigPath, '--declaration', '--emitDeclarationOnly']
 
 fs.writeFileSync(tmpTsconfigPath, tmpTsconfigContent)
 

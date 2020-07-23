@@ -1,4 +1,4 @@
-import { Plugin } from '@weflow/service'
+import { Plugin } from '@weflow/service-core'
 import path from 'path'
 
 const plugin: Plugin = (api, config) => {
@@ -17,8 +17,8 @@ const plugin: Plugin = (api, config) => {
   })
 }
 
-plugin.generator = async api => {
-  await api.render(path.resolve(__dirname, '../template'))
+plugin.generator = api => {
+  api.render(path.resolve(__dirname, '../template'))
 }
 
 export default plugin

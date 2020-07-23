@@ -1,21 +1,50 @@
+import cp from 'child_process'
+import deepMerge from 'deepmerge'
 import ejs, { Options as EjsOptions } from 'ejs'
 import fs from 'fs-extra'
 import glob from 'glob'
 import path from 'path'
-import util from 'util'
-import cp from 'child_process'
+import semver from 'semver'
+import { intersect } from 'semver-intersect'
 
-const globPromise = util.promisify(glob)
+/**
+ * 将某个目录下的文件读取
+ */
+export function loadFiles(source: string): Record<string, string> {
+  const filePaths = glob.sync('**/*', { nodir: true, cwd: source, ignore: ['node_modules/**'] })
+  const files: Record<string, string> = {}
+
+  for (const filePath of filePaths) {
+    files[filePath] = fs.readFileSync(path.resolve(source, filePath), 'utf-8')
+  }
+
+  return files
+}
+
+// /**
+//  * 读取某个文件
+//  * @param source
+//  */
+// export function loadFiles(source: string): Record<string, string> {
+//   const filePaths = glob.sync('**/*', { nodir: true, cwd: source, ignore: ['node_modules/**'] })
+//   const files: Record<string, string> = {}
+
+//   for (const filePath of filePaths) {
+//     files[filePath] = fs.readFileSync(path.resolve(source, filePath), 'utf-8')
+//   }
+
+//   return files
+// }
 
 /**
  * 将某个目录下的文件渲染
  */
-export async function renderFiles(
+export function renderFiles(
   source: string,
   additionalData: Record<string, any> = {},
   ejsOptions: EjsOptions = {},
-): Promise<Record<string, string>> {
-  const filePaths = await globPromise('**/*', { nodir: true, cwd: source })
+): Record<string, string> {
+  const filePaths = glob.sync('**/*', { nodir: true, cwd: source })
   const files: Record<string, string> = {}
 
   for (const rawPath of filePaths) {
@@ -35,7 +64,7 @@ export async function renderFiles(
       .join('/')
 
     const sourcePath = path.resolve(source, rawPath)
-    const content = await renderFile(sourcePath, additionalData, ejsOptions)
+    const content = renderFile(sourcePath, additionalData, ejsOptions)
 
     files[targetPath] = content
   }
@@ -49,14 +78,14 @@ export async function renderFiles(
  * @param additionalData
  * @param ejsOptions
  */
-export async function renderFile(
+export function renderFile(
   sourcePath: string,
   additionalData: Record<string, any> = {},
   ejsOptions: EjsOptions = {},
-): Promise<string> {
-  const template = await fs.readFile(sourcePath, 'utf-8')
+): string {
+  const template = fs.readFileSync(sourcePath, 'utf-8')
 
-  return ejs.render(template, additionalData, ejsOptions)
+  return ejs.render(template, additionalData, { ...ejsOptions, async: false })
 }
 
 /**
@@ -72,6 +101,18 @@ export async function writeFiles(context: string, files: Record<string, string>)
 }
 
 /**
+ * 删除文件
+ * @param context
+ * @param files
+ */
+export async function removeFiles(context: string, files: Iterable<string>): Promise<void> {
+  for (const name of files) {
+    const filePath = path.join(context, name)
+    await fs.unlink(filePath)
+  }
+}
+
+/**
  * 执行命令
  */
 export async function exec(context: string, command: string, args: string[] = []): Promise<void> {
@@ -82,4 +123,141 @@ export async function exec(context: string, command: string, args: string[] = []
       resolve()
     })
   })
+}
+
+/**
+ * 合并 package.json 中的 dependencies
+ * @param id
+ * @param sourceDeps
+ * @param depsToInject
+ * @param depSources
+ */
+export const mergeDeps = (
+  id: string,
+  sourceDeps: Record<string, string>,
+  depsToInject: Record<string, string>,
+  depSources: Record<string, string>,
+): Record<string, string> => {
+  const result = { ...sourceDeps }
+
+  for (const depName in depsToInject) {
+    const sourceRange = sourceDeps[depName]
+    const injectingRange = depsToInject[depName]
+
+    if (sourceRange === injectingRange) continue
+
+    if (!semver.validRange(injectingRange)) {
+      console.warn(`invalid semver "${depName}": "${injectingRange}" in ${id}`)
+      continue
+    }
+
+    const sourceGeneratorId = depSources[depName]
+
+    if (sourceRange) {
+      if (!semver.intersects(sourceRange, injectingRange)) {
+        console.warn(
+          `semver "${depName}": "${sourceRange}"${
+            sourceGeneratorId ? `(from ${sourceGeneratorId})` : ''
+          } and "${depName}": "${injectingRange}"(from ${id}) are not intersect`,
+        )
+        continue
+      }
+      if (semver.subset(sourceRange, injectingRange)) continue
+      result[depName] = intersect(sourceRange, injectingRange)
+      depSources[depName] = id
+    } else {
+      result[depName] = injectingRange
+      depSources[depName] = id
+    }
+  }
+
+  return result
+}
+
+const mergeArrayWithDedupe = <A, B>(a: A[], b: B[]) => [...new Set([...a, ...b])]
+
+/**
+ * 合并 package.json
+ */
+export function mergePackage(
+  target: Record<string, any>,
+  toMerge: Record<string, any>,
+  id: string,
+  sourceDeps: Record<string, string>,
+): void {
+  for (const key in toMerge) {
+    const existing = target[key]
+    const value = toMerge[key]
+    if (typeof value === 'object' && (key === 'dependencies' || key === 'devDependencies')) {
+      // use special version resolution merge
+      target[key] = mergeDeps(id, existing || {}, value, sourceDeps)
+    } else if (!(key in target)) {
+      target[key] = value
+    } else if (Array.isArray(value) && Array.isArray(existing)) {
+      target[key] = mergeArrayWithDedupe(existing, value)
+    } else if (typeof value === 'object' && typeof existing === 'object') {
+      target[key] = deepMerge(existing, value, { arrayMerge: mergeArrayWithDedupe })
+    } else {
+      target[key] = value
+    }
+  }
+}
+
+function sortObject(obj: Record<string, any>, keyOrder?: string[]): Record<string, any> {
+  const res: Record<string, any> = {}
+
+  if (keyOrder) {
+    keyOrder.forEach(key => {
+      if (key in obj) {
+        res[key] = obj[key]
+        delete obj[key]
+      }
+    })
+  }
+
+  const keys = Object.keys(obj).sort()
+
+  keys.forEach(key => {
+    res[key] = obj[key]
+  })
+
+  return res
+}
+
+/**
+ * 生成 package.json
+ */
+export function stringifyPackage(pkg: Record<string, any>): string {
+  if (pkg.dependencies) pkg.dependencies = sortObject(pkg.dependencies)
+  if (pkg.devDependencies) pkg.devDependencies = sortObject(pkg.devDependencies)
+  if (pkg.scripts) pkg.scripts = sortObject(pkg.scripts)
+
+  pkg = sortObject(pkg, [
+    'name',
+    'version',
+    'private',
+    'description',
+    'author',
+    'scripts',
+    'main',
+    'module',
+    'type',
+    'browser',
+    'files',
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+  ])
+
+  return JSON.stringify(pkg, null, 2) + '\n'
+}
+
+/**
+ * 获取路径下的本地 service
+ * @param context
+ */
+export function getLocalService(context: string): typeof import('@weflow/service') {
+  const servicePath = require.resolve('@weflow/service', { paths: [context] })
+
+  return require(servicePath)
 }

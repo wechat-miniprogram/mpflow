@@ -17,7 +17,9 @@ export class CliRunnerAPI extends BaseAPI<CliRunner> {
     this.service.registerCommand({
       command,
       describe,
-      handler,
+      handler: args => {
+        handler(args as any)
+      },
       builder: yargs => {
         Object.keys(positional).forEach(key => (yargs = yargs.positional(key, positional[key])))
         yargs = yargs.options(options)
@@ -63,7 +65,7 @@ export class CliRunner extends BaseService {
   /**
    * 插件列表
    */
-  public plugins: CliPluginOption[]
+  public pluginOptions: CliPluginOption[]
 
   /**
    * 是否初始化过
@@ -81,17 +83,22 @@ export class CliRunner extends BaseService {
    * @param inlinePlugins
    * @param config
    */
-  resolvePlugins(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
-    if (inlinePlugins.length) return inlinePlugins
-
+  resolvePluginOptions(inlinePlugins: PluginOption[] = []): PluginOption[] {
     const buildInPlugins: PluginOption[] = [
       {
-        id: 'built-in:commands/create',
-        plugin: import('./commands/create'),
+        id: '@weflow/cli/lib/commands/create',
+        module: require('./commands/create'),
       },
     ]
 
-    return buildInPlugins
+    return [...buildInPlugins, ...inlinePlugins]
+  }
+
+  resolvePlugins(
+    pluginOptions: PluginOption[] = this.pluginOptions,
+    context: string = this.context,
+  ): { id: string; plugin: CliPlugin; config?: any }[] {
+    return super.resolvePlugins(pluginOptions, context)
   }
 
   /**
@@ -102,11 +109,11 @@ export class CliRunner extends BaseService {
     if (this.initialized) return
     this.initialized = true
 
-    for (const plugin of this.plugins) {
-      const { id, plugin: pluginModule } = plugin
-      const { default: apply } = await pluginModule
-      apply.cliRunner && apply.cliRunner(new CliRunnerAPI(id, this), this.config)
-    }
+    const plugins = this.resolvePlugins()
+
+    plugins.forEach(({ id, plugin }) => {
+      plugin.cliRunner && plugin.cliRunner(new CliRunnerAPI(id, this), this.config)
+    })
   }
 
   /**

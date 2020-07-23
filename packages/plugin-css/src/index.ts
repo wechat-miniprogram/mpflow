@@ -1,4 +1,6 @@
-import { Plugin, WeflowPluginConfigChain } from '@weflow/service'
+import { Plugin } from '@weflow/service'
+import { ConfigChain } from '@weflow/webpack-plugin'
+import minimatch from 'minimatch'
 
 const plugin: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
@@ -13,7 +15,7 @@ const plugin: Plugin = (api, config) => {
           .options(options)
       }
 
-      webpackConfig.plugin('weflow').tap(([weflowPluginConfig]: [WeflowPluginConfigChain]) => {
+      webpackConfig.plugin('weflow').tap(([weflowPluginConfig]: [ConfigChain]) => {
         weflowPluginConfig.resolve.wxss.extensions.add('.' + extension)
 
         return [weflowPluginConfig]
@@ -26,6 +28,13 @@ const plugin: Plugin = (api, config) => {
     addLoader('scss', 'sass-loader')
     addLoader('stylus', 'stylus-loader')
     addLoader('styl', 'stylus-loader')
+  })
+}
+
+plugin.generator = api => {
+  api.processFile('src/**/*.wxss', (file, api) => {
+    // wxss 文件重命名为 less 文件
+    api.rename(file.path.replace(/\.wxss$/, '.less'))
   })
 }
 

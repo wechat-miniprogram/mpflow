@@ -20,17 +20,19 @@ export class BaseAPI<S extends BaseService> {
   }
 
   hasPlugin(id: string): boolean {
-    return this.service.plugins.some(p => p.id === id)
+    return this.service.pluginOptions.some(p => p.id === id)
   }
 }
 
 export interface PluginOption {
   id: string
-  plugin: Promise<{ default: Plugin }>
+  module?: Plugin
+  config?: any
 }
 
 export interface BaseServiceOptions {
   plugins?: PluginOption[]
+  project?: any
   pkg?: any
   config?: WeflowConfig
 }
@@ -47,20 +49,26 @@ export class BaseService {
   public pkg: any
 
   /**
+   * 工作路径上的 project.config.json 内容
+   */
+  public project: any
+
+  /**
    * 插件列表
    */
-  public plugins: PluginOption[]
+  public pluginOptions: PluginOption[]
 
   /**
    * weflow.config.js 读取到的配置内容
    */
   public config: WeflowConfig
 
-  constructor(context: string, { plugins, pkg, config }: BaseServiceOptions = {}) {
+  constructor(context: string, { plugins, pkg, project, config }: BaseServiceOptions = {}) {
     this.context = context
     this.pkg = this.resolvePkg(pkg, context)
+    this.project = this.resolveProject(project, context)
     this.config = this.resolveConfig(config, context)
-    this.plugins = this.resolvePlugins(plugins)
+    this.pluginOptions = this.resolvePluginOptions(plugins)
   }
 
   /**
@@ -73,6 +81,20 @@ export class BaseService {
     const pkgPath = path.resolve(context, 'package.json')
     if (fs.existsSync(pkgPath)) {
       return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+    }
+    return {}
+  }
+
+  /**
+   * 解析 project.config.json
+   * @param inlineProject
+   * @param context
+   */
+  resolveProject(inlineProject?: any, context: string = this.context): any {
+    if (inlineProject) return inlineProject
+    const projectPath = path.resolve(context, 'project.config.json')
+    if (fs.existsSync(projectPath)) {
+      return JSON.parse(fs.readFileSync(projectPath, 'utf-8'))
     }
     return {}
   }
@@ -92,18 +114,40 @@ export class BaseService {
   }
 
   /**
-   * 获取所有插件
+   * 获取所有插件配置
    * @param inlinePlugins
    * @param config
    */
-  resolvePlugins(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
+  resolvePluginOptions(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
     if (inlinePlugins.length) return inlinePlugins
 
-    const projectPlugins: PluginOption[] = (config.plugins || []).map(id => ({
-      id,
-      plugin: import(id),
-    }))
+    const projectPlugins: PluginOption[] = (config.plugins || []).map(id => {
+      return {
+        id,
+      }
+    })
 
     return projectPlugins
+  }
+
+  /**
+   * 获取所有插件
+   */
+  resolvePlugins(
+    pluginOptions: PluginOption[] = this.pluginOptions,
+    context: string = this.context,
+  ): { id: string; plugin: Plugin; config?: any }[] {
+    const interopRequireDefault = <T>(obj: T): T => (obj && (obj as any).__esModule ? (obj as any).default : obj)
+
+    return pluginOptions.map(({ id, module, config }) => {
+      let plugin: Plugin = interopRequireDefault(module)!
+
+      if (!plugin) {
+        const pluginPath = require.resolve(id, { paths: [context] })
+        plugin = interopRequireDefault(require(pluginPath))
+      }
+
+      return { id, plugin, config }
+    })
   }
 }

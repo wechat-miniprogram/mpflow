@@ -1,56 +1,13 @@
-import { BaseAPI, BaseService, BaseServiceOptions, GeneratorAPI as IGeneratorAPI } from '@weflow/service-core'
-import deepMerge from 'deepmerge'
+import {
+  BaseAPI,
+  BaseService,
+  BaseServiceOptions,
+  GeneratorAPI as IGeneratorAPI,
+  ProcessFileHandler,
+} from '@weflow/service-core'
 import { Options as EjsOptions } from 'ejs'
-import stableStringify from 'json-stable-stringify'
-import semver from 'semver'
-import { intersect } from 'semver-intersect'
-import { renderFiles, writeFiles } from './utils'
-
-const isObject = (obj: any) => typeof obj === 'object'
-
-const mergeDeps = (
-  id: string,
-  sourceDeps: Record<string, string>,
-  depsToInject: Record<string, string>,
-  depSources: Record<string, string>,
-): Record<string, string> => {
-  const result = { ...sourceDeps }
-
-  for (const depName in depsToInject) {
-    const sourceRange = sourceDeps[depName]
-    const injectingRange = depsToInject[depName]
-
-    if (sourceRange === injectingRange) continue
-
-    if (!semver.validRange(injectingRange)) {
-      console.warn(`invalid semver "${depName}": "${injectingRange}" in ${id}`)
-      continue
-    }
-
-    const sourceGeneratorId = depSources[depName]
-
-    if (sourceRange) {
-      if (!semver.intersects(sourceRange, injectingRange)) {
-        console.warn(
-          `semver "${depName}": "${sourceRange}"${
-            sourceGeneratorId ? `(from ${sourceGeneratorId})` : ''
-          } and "${depName}": "${injectingRange}"(from ${id}) are not intersect`,
-        )
-        continue
-      }
-      if (semver.subset(sourceRange, injectingRange)) continue
-      result[depName] = intersect(sourceRange, injectingRange)
-      depSources[depName] = id
-    } else {
-      result[depName] = injectingRange
-      depSources[depName] = id
-    }
-  }
-
-  return result
-}
-
-const mergeArrayWithDedupe = <A, B>(a: A[], b: B[]) => [...new Set([...a, ...b])]
+import minimatch from 'minimatch'
+import { loadFiles, mergePackage, removeFiles, renderFiles, stringifyPackage, writeFiles } from './utils'
 
 export class GeneratorAPI<T extends Generator = Generator> extends BaseAPI<T> implements IGeneratorAPI<T> {
   private depSources: Record<string, string>
@@ -62,32 +19,20 @@ export class GeneratorAPI<T extends Generator = Generator> extends BaseAPI<T> im
 
   /**
    * 拓展 package.json
-   * @param fields
+   * @param toMerge
    */
-  extendPackage(fields: Record<string, any>): void {
-    const pkg = this.service.pkg
-    const toMerge = fields
-
-    for (const key in toMerge) {
-      const existing = pkg[key]
-      const value = toMerge[key]
-      if (isObject(value) && (key === 'dependencies' || key === 'devDependencies')) {
-        // use special version resolution merge
-        pkg[key] = mergeDeps(this.id, existing || {}, value, this.depSources)
-      } else if (!(key in pkg)) {
-        pkg[key] = value
-      } else if (Array.isArray(value) && Array.isArray(existing)) {
-        pkg[key] = mergeArrayWithDedupe(existing, value)
-      } else if (isObject(value) && isObject(existing)) {
-        pkg[key] = deepMerge(existing, value, { arrayMerge: mergeArrayWithDedupe })
-      } else {
-        pkg[key] = value
-      }
-    }
+  extendPackage(toMerge: Record<string, any>): void {
+    mergePackage(this.service.pkg, toMerge, this.id, this.depSources)
   }
 
-  async render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): Promise<void> {
+  render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): void {
     return this.service.render(source, additionalData, ejsOptions)
+  }
+
+  processFile(handler: ProcessFileHandler): void
+  processFile(filter: string, handler: ProcessFileHandler): void
+  processFile(filter: any, handler?: any): void {
+    this.service.processFile(filter, handler)
   }
 }
 
@@ -107,42 +52,67 @@ export class Generator extends BaseService {
    */
   public files: Record<string, string>
 
+  /**
+   * 需要删除的文件列表
+   */
+  public filesToRemove: Set<string>
+
+  /**
+   * 处理文件回调
+   */
+  public processFilesHandlers: { filter?: string; handler: ProcessFileHandler }[]
+
   constructor(context: string, { depSources, files, ...options }: GeneratorOptions = {}) {
     super(context, options)
 
     this.depSources = depSources || {}
-    this.files = files || {}
+    this.files = this.loadFiles(files)
+    this.processFilesHandlers = []
+    this.filesToRemove = new Set()
+  }
+
+  /**
+   * 加载 context 下的文件内容
+   */
+  loadFiles(innerFiles: Record<string, string> = {}): Record<string, string> {
+    return {
+      ...loadFiles(this.context),
+      ...innerFiles,
+    }
   }
 
   async generate(): Promise<void> {
     await this.initPlugins()
 
     this.generatePackage()
+    this.doProcessFiles()
     await this.writeFiles()
+    await this.removeFiles()
   }
 
   /**
    * 执行所有的插件 generator
    */
   async initPlugins(): Promise<void> {
-    for (const plugin of this.plugins) {
-      const { id, plugin: pluginModule } = plugin
-      const { default: apply } = await pluginModule
-      if (apply.generator) {
-        await apply.generator(new GeneratorAPI(id, this, this.depSources), this.config)
-      }
-    }
+    const plugins = this.resolvePlugins()
+
+    plugins.forEach(({ id, plugin }) => {
+      plugin.generator && plugin.generator(new GeneratorAPI(id, this, this.depSources), this.config)
+    })
   }
 
   /**
    * 生成 package.json
    */
   generatePackage(): void {
-    this.files['package.json'] = stableStringify(this.pkg, { space: 2 })
+    this.files['package.json'] = stringifyPackage(this.pkg)
   }
 
-  async render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): Promise<void> {
-    const files = await renderFiles(source, additionalData, ejsOptions)
+  /**
+   * 将一个目录渲染到虚拟树中
+   */
+  render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): void {
+    const files = renderFiles(source, additionalData, ejsOptions)
     Object.assign(this.files, files)
   }
 
@@ -151,5 +121,68 @@ export class Generator extends BaseService {
    */
   async writeFiles(): Promise<void> {
     await writeFiles(this.context, this.files)
+  }
+
+  /**
+   * 删除多余文件
+   */
+  async removeFiles(): Promise<void> {
+    removeFiles(this.context, this.filesToRemove)
+  }
+
+  /**
+   * 注册文件处理回调
+   * @param handler
+   */
+  processFile(handler: ProcessFileHandler): void
+  processFile(filter: string, handler: ProcessFileHandler): void
+  processFile(filter: ProcessFileHandler | string, handler?: ProcessFileHandler): void {
+    const { processFilesHandlers } = this
+    if (!handler) {
+      processFilesHandlers.push({
+        filter: '',
+        handler: filter as ProcessFileHandler,
+      })
+    } else {
+      processFilesHandlers.push({
+        filter: filter as string,
+        handler,
+      })
+    }
+  }
+
+  /**
+   * 处理文件内容
+   */
+  doProcessFiles(): void {
+    for (const originFilePath in this.files) {
+      let outFilePath = originFilePath
+      let outFileContent = this.files[originFilePath]
+
+      this.processFilesHandlers.forEach(({ filter, handler }) => {
+        if (filter && !minimatch(outFilePath, filter)) return
+        handler(
+          {
+            path: outFilePath,
+            source: outFileContent,
+          },
+          {
+            rename: name => {
+              outFilePath = name
+            },
+            replace: content => {
+              outFileContent = content
+            },
+          },
+        )
+      })
+
+      this.files[outFilePath] = outFileContent
+      if (outFilePath !== originFilePath) {
+        this.filesToRemove.delete(outFilePath)
+        this.filesToRemove.add(originFilePath)
+        delete this.files[originFilePath]
+      }
+    }
   }
 }

@@ -27,7 +27,7 @@ export class RunnerAPI extends BaseAPI<Runner> implements IRunnerAPI<Runner> {
     options: O,
     handler: (args: Arguments<InferredOptionTypes<O>>) => void,
   ): void {
-    this.service.registerCommand({
+    this.service.program.command({
       command,
       describe,
       handler,
@@ -40,7 +40,12 @@ export class RunnerAPI extends BaseAPI<Runner> implements IRunnerAPI<Runner> {
   }
 
   resolveWebpackConfig(): Configuration {
-    return this.service.resolveWebpackConfig()
+    const config = new WebpackChain()
+    this.service.webpackConfigs.forEach(configuration => configuration(config))
+    const chainConfig = config.toConfig()
+    const { configureWebpack } = this.service.config
+    const configuredConfig = typeof configureWebpack === 'function' ? configureWebpack(chainConfig) : configureWebpack
+    return merge(chainConfig, configuredConfig || {})
   }
 }
 
@@ -77,39 +82,43 @@ export class Runner extends BaseService {
   }
 
   /**
+   * 获取内置组件列表
+   */
+  static getBuiltInPlugins(): PluginOption[] {
+    return [
+      {
+        id: '@weflow/service/lib/config/base',
+        module: require('./config/base'),
+      },
+      {
+        id: '@weflow/service/lib/config/weflow',
+        module: require('./config/weflow'),
+      },
+      {
+        id: '@weflow/service/lib/commands/build',
+        module: require('./commands/build'),
+      },
+      {
+        id: '@weflow/service/lib/commands/dev',
+        module: require('./commands/dev'),
+      },
+      {
+        id: '@weflow/service/lib/commands/inspect',
+        module: require('./commands/inspect'),
+      },
+    ]
+  }
+
+  /**
    * 获取所有插件
    * @param inlinePlugins
    * @param config
    */
-  resolvePlugins(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
-    if (inlinePlugins.length) return inlinePlugins
+  resolvePluginOptions(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
+    const projectPlugins = super.resolvePluginOptions(inlinePlugins, config)
+    const builtInPlugins = Runner.getBuiltInPlugins()
 
-    const buildInPlugins: PluginOption[] = [
-      {
-        id: 'built-in:config/base',
-        plugin: import('./config/base'),
-      },
-      {
-        id: 'built-in:config/weflow',
-        plugin: import('./config/weflow'),
-      },
-      {
-        id: 'built-in:command/build',
-        plugin: import('./commands/build'),
-      },
-      {
-        id: 'built-in:command/dev',
-        plugin: import('./commands/dev'),
-      },
-      {
-        id: 'built-in:command/inspect',
-        plugin: import('./commands/inspect'),
-      },
-    ]
-
-    const projectPlugins = super.resolvePlugins([], config)
-
-    return [...buildInPlugins, ...projectPlugins]
+    return [...builtInPlugins, ...projectPlugins]
   }
 
   /**
@@ -120,23 +129,15 @@ export class Runner extends BaseService {
     if (this.initialized) return
     this.initialized = true
 
-    for (const plugin of this.plugins) {
-      const { id, plugin: pluginModule } = plugin
-      const { default: apply } = await pluginModule
-      apply(new RunnerAPI(id, this), this.config)
-    }
+    const plugins = this.resolvePlugins()
+
+    plugins.forEach(plugin => {
+      plugin.plugin(new RunnerAPI(plugin.id, this), this.config)
+    })
 
     if (this.config.configureWebpackChain) {
       this.webpackConfigs.push(this.config.configureWebpackChain)
     }
-  }
-
-  /**
-   * 注册 CLI 命令
-   * @param options
-   */
-  registerCommand<T, U>(options: CommandModule<T, U>): void {
-    this.program.command(options)
   }
 
   /**
@@ -146,17 +147,5 @@ export class Runner extends BaseService {
   async run(argv: string[] = process.argv.slice(2)): Promise<void> {
     await this.init()
     this.program.help().parse(argv)
-  }
-
-  /**
-   * 获取最终 webpack 配置
-   */
-  resolveWebpackConfig(): Configuration {
-    const config = new WebpackChain()
-    this.webpackConfigs.forEach(configuration => configuration(config))
-    const chainConfig = config.toConfig()
-    const { configureWebpack } = this.config
-    const configuredConfig = typeof configureWebpack === 'function' ? configureWebpack(chainConfig) : configureWebpack
-    return merge(chainConfig, configuredConfig || {})
   }
 }

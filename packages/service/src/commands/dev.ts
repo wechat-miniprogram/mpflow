@@ -119,4 +119,12 @@ const dev: Plugin = (api, config) => {
   )
 }
 
+dev.generator = (api, config) => {
+  api.extendPackage({
+    scripts: {
+      dev: 'weflow-service dev',
+    },
+  })
+}
+
 export default dev

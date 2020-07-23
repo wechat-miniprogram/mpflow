@@ -1,4 +1,7 @@
-import { Plugin, WeflowPluginConfigChain } from '@weflow/service'
+import { Plugin } from '@weflow/service-core'
+import { ConfigChain } from '@weflow/webpack-plugin'
+import path from 'path'
+import pkg from '../package.json'
 
 const plugin: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
@@ -20,13 +23,28 @@ const plugin: Plugin = (api, config) => {
 
     webpackConfig.plugin('for-ts-checker').use(require('fork-ts-checker-webpack-plugin'), [{}])
 
-    webpackConfig.plugin('weflow').tap(([config]: [WeflowPluginConfigChain]) => {
+    webpackConfig.plugin('weflow').tap(([config]: [ConfigChain]) => {
       config.resolve.page.extensions.add('.ts').add('.tsx')
 
       config.resolve.javascript.extensions.add('.ts').add('.tsx')
 
       return [config]
     })
+  })
+}
+
+plugin.generator = async api => {
+  api.extendPackage({
+    dependencies: {
+      typescript: pkg.devDependencies.typescript,
+    },
+  })
+
+  api.render(path.resolve(__dirname, '../template'))
+
+  api.processFile('src/**/*.js', (file, api) => {
+    // js 文件重命名为 ts 文件
+    api.rename(file.path.replace(/\.js$/, '.ts'))
   })
 }
 
