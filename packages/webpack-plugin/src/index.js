@@ -1,6 +1,7 @@
 import { ConfigChain } from './ConfigChain'
 import LoaderRulesPlugin from './LoaderRulesPlugin'
 import { appLoader, pageLoader } from './loaders'
+import ProjectAliasPlugin from './ProjectAliasPlugin'
 import ResolverPlugin from './ResolverPlugin'
 
 class WeflowWebpackPlugin {
@@ -13,6 +14,7 @@ class WeflowWebpackPlugin {
 
     new ResolverPlugin(options.resolve).apply(compiler)
     new LoaderRulesPlugin(options.rules).apply(compiler)
+    new ProjectAliasPlugin().apply(compiler)
   }
 }
 
