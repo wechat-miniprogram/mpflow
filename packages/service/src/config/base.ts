@@ -36,26 +36,15 @@ const base: Plugin = (api, config) => {
     webpackConfig.resolve.extensions.add('.js').add('.json')
 
     webpackConfig.module
-      .rule('json')
+      .rule('json-type')
       .test(/\.json$/)
       .type('javascript/auto')
-      .pre()
-      // .use('json')
-      // .loader(require.resolve('json-loader'))
 
-    // webpackConfig.module
-    //   .rule('wxml')
-    //   .test(/\.wxml$/)
-    //   .pre()
-    //   .use('wxml')
-    //   .loader(require.resolve('@weflow/wxml-loader'))
-
-    // webpackConfig.module
-    //   .rule('wxss')
-    //   .test(/\.wxss$/)
-    //   .pre()
-    //   .use('wxss')
-    //   .loader(require.resolve('@weflow/wxss-loader'))
+    webpackConfig.module
+      .rule('json')
+      .test(/\.json$/)
+      .use('json')
+      .loader(require.resolve('json-loader'))
 
     webpackConfig.module
       .rule('wxs')
