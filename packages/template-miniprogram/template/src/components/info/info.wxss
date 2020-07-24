@@ -1,4 +1,10 @@
 /**info.wxss**/
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .info-avatar {
   width: 128rpx;
   height: 128rpx;

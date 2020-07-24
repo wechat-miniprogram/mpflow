@@ -1,5 +1,7 @@
-<button wx:if="{{!userInfo}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
-<block wx:else>
-  <image class="info-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-  <text class="info-nickname">{{userInfo.nickName}}</text>
-</block>
+<view class="info">
+  <button wx:if="{{!userInfo || !userInfo.nickName}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+  <block wx:else>
+    <image class="info-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+    <text class="info-nickname">{{userInfo.nickName}}</text>
+  </block>
+</view>
