@@ -84,6 +84,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             loader: pageJsonLoader,
             options: {
               appContext,
+              outputPath,
             },
           },
           {

@@ -25,7 +25,8 @@ export const pitch = asyncLoaderWrapper(async function () {
     // 对 app.json 中读取到的 pages 分别设立为入口
     for (const pageRequest of moduleContent.pages) {
       const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
-      const outputPath = getPageOutputPath(this.context, resolvedPageRequest)
+      const chunkName = getPageOutputPath(this.context, '/', pageRequest, resolvedPageRequest)
+      console.log(chunkName)
 
       imports.push(
         stringifyResource(
@@ -34,14 +35,14 @@ export const pitch = asyncLoaderWrapper(async function () {
             {
               loader: externalLoader,
               options: {
-                name: outputPath,
+                name: chunkName,
               },
             },
             {
               loader: pageLoader,
               options: {
                 appContext: this.context,
-                outputPath: outputPath,
+                outputPath: chunkName,
               },
             },
             ...getWeflowLoaders(this, resolvedPageRequest, 'page'),

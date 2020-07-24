@@ -16,7 +16,9 @@ const loaderName = 'page-json-loader'
  */
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
-  const { appContext } = options
+
+  const appContext = options.appContext || this.context
+  const outputPath = options.outputPath || '/'
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
@@ -26,8 +28,7 @@ export const pitch = asyncLoaderWrapper(async function () {
     // 对 comp.json 中读取到的 usingComponents 分别设立为入口
     for (const componentRequest of Object.values(moduleContent.usingComponents)) {
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
-      const context = appContext || this.context
-      const chunkName = getPageOutputPath(context, resolvedComponentRequest)
+      const chunkName = getPageOutputPath(appContext, outputPath, componentRequest, resolvedComponentRequest)
 
       imports.push(
         stringifyResource(
@@ -42,7 +43,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             {
               loader: pageLoader,
               options: {
-                appContext: context,
+                appContext: appContext,
                 outputPath: chunkName,
               },
             },

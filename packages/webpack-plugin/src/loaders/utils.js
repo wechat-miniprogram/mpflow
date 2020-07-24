@@ -177,13 +177,45 @@ export function resolveWithType(loader, type, request) {
 
 /**
  * 获取一个组件应该输出的路径位置
- * @param {string} rootContext
+ * @param {string} appContext
  * @param {string} pageRequest
  */
-export function getPageOutputPath(rootContext, pageRequest) {
-  return path
-    .relative(rootContext, path.join(path.dirname(pageRequest), path.basename(pageRequest, path.extname(pageRequest))))
-    .replace(/^\.\//, '')
+export function getPageOutputPath(appContext, currentPath, rawRequest, pageRequest) {
+  const relativePath = path.relative(
+    appContext,
+    path.join(path.dirname(pageRequest), path.basename(pageRequest, path.extname(pageRequest))),
+  )
+  console.log(appContext, currentPath, rawRequest, pageRequest, relativePath)
+
+  // 如果依然在 appContext 下，就保留目录结构
+  if (!/^\.\.[\\/]/.test(relativePath)) return relativePath.replace(/^\.[\\/]/, '')
+
+  // 不在 appContext 下，则放置到 miniprogram_npm 目录下
+  return /^\./.test(rawRequest)
+    ? path.join(path.dirname(currentPath), rawRequest).replace(/^[\\/]/, '')
+    : path.join('miniprogram_npm', rawRequest)
+
+  // if (/\/node_modules\//.test(resolvedPageRequest)) {
+  //   return path
+  //     .relative(
+  //       appContext,
+  //       path.resolve(
+  //         currentContext,
+  //         path.join(path.dirname(rawPageRequest), path.basename(rawPageRequest, path.extname(rawPageRequest))),
+  //       ),
+  //     )
+  //     .replace(/^\.+\//, '')
+  // }
+
+  // return path
+  //   .relative(
+  //     appContext,
+  //     path.join(
+  //       path.dirname(resolvedPageRequest),
+  //       path.basename(resolvedPageRequest, path.extname(resolvedPageRequest)),
+  //     ),
+  //   )
+  //   .replace(/^\.\//, '')
 }
 
 export function getCurrentLoaderRequest(loaderContext, query) {
