@@ -1,218 +1,7 @@
 import deepmerge from 'deepmerge'
-import DescriptionFileUtils from 'enhanced-resolve/lib/DescriptionFileUtils'
-import JoinRequestPlugin from 'enhanced-resolve/lib/JoinRequestPlugin'
-import TryNextPlugin from 'enhanced-resolve/lib/TryNextPlugin'
-import path from 'path'
+import MiniprogramResolverPlugin from './resolvers/MiniprogramResolverPlugin'
 
 const deepMerge = (...objs) => objs.reduce((obj, rst) => deepmerge(rst, obj, { clone: false }), {})
-
-function withStage(stage, hook) {
-  const currentStage = (hook._withOptions || {}).stage || 0
-  const resultStage = currentStage + stage
-
-  const options = Object.assign({}, hook._withOptions || {}, { stage: resultStage })
-
-  const mergeOptions = opt => Object.assign({}, options, typeof opt === 'string' ? { name: opt } : opt)
-
-  const base = hook._withOptionsBase || hook
-  const newHook = Object.create(base)
-
-  newHook.tapAsync = (opt, fn) => base.tapAsync(mergeOptions(opt), fn)
-  newHook.tap = (opt, fn) => base.tap(mergeOptions(opt), fn)
-  newHook.tapPromise = (opt, fn) => base.tapPromise(mergeOptions(opt), fn)
-  newHook._withOptions = options
-  newHook._withOptionsBase = base
-  return newHook
-}
-
-function toCamelCase(str) {
-  return str.replace(/-([a-z])/g, str => str.substr(1).toUpperCase())
-}
-
-function ensureHook(resolver, name) {
-  if (typeof name !== 'string') return name
-  name = toCamelCase(name)
-  if (/^before/i.test(name)) {
-    return withStage(-10, ensureHook(resolver, name[6].toLowerCase() + name.substr(7)))
-  }
-  if (/^after/i.test(name)) {
-    return withStage(10, ensureHook(resolver, name[5].toLowerCase() + name.substr(6)))
-  }
-  return resolver.ensureHook(name)
-}
-
-function getHook(resolver, name) {
-  if (typeof name !== 'string') return name
-  name = toCamelCase(name)
-  if (/^before/i.test(name)) {
-    return withStage(-10, getHook(resolver, name[6].toLowerCase() + name.substr(7)))
-  }
-  if (/^after/i.test(name)) {
-    return withStage(10, getHook(resolver, name[5].toLowerCase() + name.substr(6)))
-  }
-  return resolver.getHook(name)
-}
-
-/**
- * 检查是否是绝对路径
- */
-class AbsoluteKindPlugin {
-  constructor(source, target) {
-    this.source = source
-    this.target = target
-  }
-
-  apply(resolver) {
-    const target = ensureHook(resolver, this.target)
-    getHook(resolver, this.source).tapAsync('AbsoluteKindPlugin', (request, resolveContext, callback) => {
-      if (request.request[0] !== '/') return callback()
-      resolver.doResolve(target, request, null, resolveContext, callback)
-    })
-  }
-}
-
-/**
- * resolve 模块时，根据其 package.json 中申明的 miniprogram 字段添加路径
- */
-class ModuleFieldDirPlugin {
-  constructor(source, fieldName, defaultDir, target) {
-    this.source = source
-    this.fieldName = fieldName
-    this.defaultDir = defaultDir
-    this.target = target
-  }
-
-  apply(resolver) {
-    const target = ensureHook(resolver, this.target)
-    getHook(resolver, this.source).tapAsync('ModuleFieldDirPlugin', (request, resolveContext, callback) => {
-      if (!request.descriptionFileRoot || path.join(request.descriptionFileRoot, request.relativePath) !== request.path)
-        return callback()
-      if (request.alreadyTriedMiniprogramField === request.descriptionFilePath) return callback()
-      const pkgContent = request.descriptionFileData
-      const filename = path.basename(request.descriptionFilePath)
-
-      let miniprogramDistPath = pkgContent && pkgContent[this.fieldName]
-      if (!miniprogramDistPath || typeof miniprogramDistPath !== 'string') miniprogramDistPath = this.defaultDir
-
-      if (!miniprogramDistPath) return callback()
-
-      const obj = Object.assign({}, request, {
-        path: path.join(request.descriptionFileRoot, miniprogramDistPath),
-        request: request.relativePath,
-        alreadyTriedMiniprogramField: request.descriptionFilePath,
-      })
-      return resolver.doResolve(
-        target,
-        obj,
-        'use ' + miniprogramDistPath + ' from ' + this.fieldName + ' in ' + filename,
-        resolveContext,
-        callback,
-      )
-    })
-  }
-}
-
-/**
- * 向上查找 project.config.json 文件，使用其中的 miniprogramRoot 作为根路径
- */
-class ProjectConfigFileRootPlugin {
-  constructor(source, filename, fieldName, target) {
-    this.source = source
-    this.filename = filename
-    this.fieldName = fieldName
-    this.target = target
-  }
-
-  apply(resolver) {
-    const target = ensureHook(resolver, this.target)
-    getHook(resolver, this.source).tapAsync('ProjectConfigFileRootPlugin', (request, resolveContext, callback) => {
-      const directory = request.path
-      DescriptionFileUtils.loadDescriptionFile(resolver, directory, [this.filename], resolveContext, (err, result) => {
-        if (err) return callback(err)
-        if (!result) {
-          if (resolveContext.missing) {
-            this.filenames.forEach(filename => {
-              resolveContext.missing.add(resolver.join(directory, filename))
-            })
-          }
-          if (resolveContext.log) resolveContext.log('No project config file found')
-          return callback()
-        }
-        const miniprogramRoot = path.join(result.directory, result.content[this.fieldName] || '')
-        // const relativePath = "." + request.path.substr(result.directory.length).replace(/\\/g, "/");
-        // const relativePath = '.' + request.request;
-        const obj = Object.assign({}, request, {
-          projectConfigPath: result.path,
-          projectConfigData: result.content,
-          projectConfigRoot: result.directory,
-          path: miniprogramRoot,
-          request: '.' + request.request,
-        })
-        resolver.doResolve(
-          target,
-          obj,
-          'using project config file: ' + result.path + ' (root path: ' + miniprogramRoot + ')',
-          resolveContext,
-          (err, result) => {
-            if (err) return callback(err)
-
-            // Don't allow other processing
-            if (result === undefined) return callback(null, null)
-            callback(null, result)
-          },
-        )
-      })
-    })
-  }
-}
-
-class MiniprogramResolverPlugin {
-  /**
-   *
-   * @param {object} options
-   * @param {boolean} [options.moduleToRelative] 当使用模块路径无法找到时，作为相对路径查找
-   * @param {boolean} [options.absoluteToRelative] 当使用绝对路径无法找到时，作为小程序的绝对路径处理，会向上查找 project.config.json 中的 miniprogramRoot 作为根路径查找
-   * @param {boolean} [options.usePkgField] 当无法找到对应文件时，尝试通过 package.json 中定义的 miniprogram 字段作为路径查找
-   */
-  constructor(options) {
-    this.options = options
-  }
-
-  apply(resolver) {
-    const { moduleToRelative, absoluteToRelative, usePkgField } = this.options
-
-    const plugins = []
-
-    if (moduleToRelative) {
-      // 当作为模块查找时无法找到时，fallback 到相对路径查找
-      plugins.push(
-        // resolve('webpack') => resolve('./webpack')
-        new TryNextPlugin('after-raw-module', 'fallback as relative', 'fallback-relative'),
-        // fallback 到 relative
-        new JoinRequestPlugin('fallback-relative', 'relative'),
-      )
-    }
-
-    if (absoluteToRelative) {
-      // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
-      plugins.push(
-        new AbsoluteKindPlugin('after-after-described-resolve', 'miniprogram-absolute'),
-        // 向上路径查找 project.config.json, 用其中 miniprogramRoot 作为根路径
-        new ProjectConfigFileRootPlugin('miniprogram-absolute', 'project.config.json', 'miniprogramRoot', 'resolve'),
-      )
-    }
-
-    if (usePkgField) {
-      // 优先尝试通过 package.json 中定义的 miniprogram 字段作为路径查找
-      plugins.push(
-        // resolve('weui-miniprogram/cell/cell') => resolve('weui-miniprogram/miniprogram_dist/cell/cell')
-        new ModuleFieldDirPlugin('before-described-relative', 'miniprogram', 'miniprogram_dist', 'resolve'),
-      )
-    }
-
-    plugins.forEach(plugin => plugin.apply(resolver))
-  }
-}
 
 const PLUGIN_NAME = 'Weflow Resolver Plugin'
 
@@ -230,7 +19,7 @@ class WeflowResolverPlugin {
        * 让普通的 js import 也解析到 miniprogram_dist
        */
       compiler.resolverFactory.hooks.resolver.for('normal').tap(PLUGIN_NAME, resolver => {
-        new MiniprogramResolverPlugin({ usePkgField: true }).apply(resolver)
+        new MiniprogramResolverPlugin({ roots: this.options.roots, usePkgField: true }).apply(resolver)
       })
 
       /**
@@ -241,7 +30,9 @@ class WeflowResolverPlugin {
         ...deepMerge(
           compiler.resolverFactory.hooks.resolveOptions.for('normal').call({ extensions: ['.json'] }),
           {
-            plugins: [new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true })],
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, roots: this.options.roots, usePkgField: true }),
+            ],
           },
           this.options.sitemap || {},
           resolveOptions,
@@ -257,7 +48,7 @@ class WeflowResolverPlugin {
           compiler.resolverFactory.hooks.resolveOptions.for('normal').call({}),
           {
             plugins: [
-              new MiniprogramResolverPlugin({ moduleToRelative: true, absoluteToRelative: true, usePkgField: true }),
+              new MiniprogramResolverPlugin({ moduleToRelative: true, roots: this.options.roots, usePkgField: true }),
             ],
           },
           this.options.page || {},
@@ -272,6 +63,11 @@ class WeflowResolverPlugin {
         fileSystem: compiler.inputFileSystem,
         ...deepMerge(
           compiler.resolverFactory.hooks.resolveOptions.for('normal').call({}),
+          {
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, roots: this.options.roots, usePkgField: true }),
+            ],
+          },
           this.options.javascript || {},
           resolveOptions,
         ),
@@ -284,6 +80,11 @@ class WeflowResolverPlugin {
         fileSystem: compiler.inputFileSystem,
         ...deepMerge(
           compiler.resolverFactory.hooks.resolveOptions.for('normal').call({ extensions: ['.json'] }),
+          {
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, roots: this.options.roots, usePkgField: true }),
+            ],
+          },
           this.options.json || {},
           resolveOptions,
         ),
@@ -296,6 +97,11 @@ class WeflowResolverPlugin {
         fileSystem: compiler.inputFileSystem,
         ...deepMerge(
           compiler.resolverFactory.hooks.resolveOptions.for('normal').call({ extensions: ['.wxml'] }),
+          {
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, roots: this.options.roots, usePkgField: true }),
+            ],
+          },
           this.options.wxml || {},
           resolveOptions,
         ),
@@ -308,6 +114,11 @@ class WeflowResolverPlugin {
         fileSystem: compiler.inputFileSystem,
         ...deepMerge(
           compiler.resolverFactory.hooks.resolveOptions.for('normal').call({ extensions: ['.wxss'] }),
+          {
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, roots: this.options.roots, usePkgField: true }),
+            ],
+          },
           this.options.wxss || {},
           resolveOptions,
         ),

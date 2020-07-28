@@ -10,7 +10,7 @@ import {
   stringifyResource,
 } from './utils'
 
-const loaderName = 'app-json-loader'
+const loaderName = 'plugin-json-loader'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -18,21 +18,28 @@ const loaderName = 'app-json-loader'
 export const pitch = asyncLoaderWrapper(async function () {
   // const options = getOptions(this) || {}
 
+  const appContext = this.context
+
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
   const imports = []
 
-  if (Array.isArray(moduleContent.pages)) {
-    // 对 app.json 中读取到的 pages 分别设立为入口
-    for (const pageRequest of moduleContent.pages) {
+  if (moduleContent.publicComponents || moduleContent.pages) {
+    // 对 plugin.json 中读取到的 publicComponents 和 pages 分别设立为入口
+    const pageRequests = [
+      ...Object.values(moduleContent.publicComponents || {}),
+      ...Object.values(moduleContent.pages || {}),
+    ]
+
+    for (const pageRequest of pageRequests) {
       if (!isRequest(pageRequest)) continue // 跳过 plugins:// 等等
 
-      const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
-      const chunkName = getPageOutputPath(this.context, '/', pageRequest, resolvedPageRequest)
+      const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
+      const chunkName = getPageOutputPath(appContext, '/', pageRequest, resolvedComponentRequest)
 
       imports.push(
         stringifyResource(
-          resolvedPageRequest,
+          resolvedComponentRequest,
           [
             {
               loader: externalLoader,
@@ -43,44 +50,40 @@ export const pitch = asyncLoaderWrapper(async function () {
             {
               loader: pageLoader,
               options: {
-                appContext: this.context,
+                appContext: appContext,
                 outputPath: chunkName,
               },
             },
-            ...getWeflowLoaders(this, resolvedPageRequest, 'page'),
+            ...getWeflowLoaders(this, resolvedComponentRequest, 'page'),
           ],
-          {
-            disabled: 'normal',
-          },
+          { disabled: 'normal' },
         ),
       )
     }
   }
 
-  if (typeof moduleContent.sitemapLocation === 'string') {
-    // 对 app.json 中的 sitemapLocation 做处理
-    const sitemapRequest = moduleContent.sitemapLocation
-    const resolvedSitemapRequest = await resolveWithType(this, 'miniprogram/sitemap', sitemapRequest)
+  if (moduleContent.main) {
+    const mainRequest = moduleContent.main
+
+    const resolvedMainRequest = await resolveWithType(this, 'miniprogram/javascript', mainRequest)
 
     imports.push(
       stringifyResource(
-        resolvedSitemapRequest,
+        resolvedMainRequest,
         [
           {
-            loader: require.resolve('file-loader'),
+            loader: externalLoader,
             options: {
-              name: 'sitemap.json',
+              name: 'main',
             },
           },
-          ...getWeflowLoaders(this, resolvedSitemapRequest, 'sitemap'),
+          ...getWeflowLoaders(this, resolvedMainRequest, 'javascript'),
         ],
-        {
-          disabled: 'normal',
-        },
+        { disabled: 'normal' },
       ),
     )
 
-    moduleContent.sitemapLocation = 'sitemap.json'
+    moduleContent.main = 'main.js'
   }
 
   let code = '//\n'

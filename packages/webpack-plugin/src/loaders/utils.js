@@ -185,7 +185,6 @@ export function getPageOutputPath(appContext, currentPath, rawRequest, pageReque
     appContext,
     path.join(path.dirname(pageRequest), path.basename(pageRequest, path.extname(pageRequest))),
   )
-  console.log(appContext, currentPath, rawRequest, pageRequest, relativePath)
 
   // 如果依然在 appContext 下，就保留目录结构
   if (!/^\.\.[\\/]/.test(relativePath)) return relativePath.replace(/^\.[\\/]/, '')
@@ -194,34 +193,6 @@ export function getPageOutputPath(appContext, currentPath, rawRequest, pageReque
   return /^\./.test(rawRequest)
     ? path.join(path.dirname(currentPath), rawRequest).replace(/^[\\/]/, '')
     : path.join('miniprogram_npm', rawRequest)
-
-  // if (/\/node_modules\//.test(resolvedPageRequest)) {
-  //   return path
-  //     .relative(
-  //       appContext,
-  //       path.resolve(
-  //         currentContext,
-  //         path.join(path.dirname(rawPageRequest), path.basename(rawPageRequest, path.extname(rawPageRequest))),
-  //       ),
-  //     )
-  //     .replace(/^\.+\//, '')
-  // }
-
-  // return path
-  //   .relative(
-  //     appContext,
-  //     path.join(
-  //       path.dirname(resolvedPageRequest),
-  //       path.basename(resolvedPageRequest, path.extname(resolvedPageRequest)),
-  //     ),
-  //   )
-  //   .replace(/^\.\//, '')
-}
-
-export function getCurrentLoaderRequest(loaderContext, query) {
-  const currentLoader = loaderContext.loaders[loaderContext.loaderIndex]
-  const overrideQuery = qs.stringify(query)
-  return `${currentLoader.path}${currentLoader.query}${currentLoader.query ? '&' : '?'}${overrideQuery}`
 }
 
 /**
@@ -233,4 +204,22 @@ export function getJSONContent(loaderContext, source) {
   if (typeof source !== 'string') source = source.toString('utf-8')
   if (source.trim().startsWith('{')) return JSON.parse(source)
   return loaderContext.exec(source, loaderContext.resourcePath)
+}
+
+/**
+ * 判断一个 request 是否应该处理
+ * @param {string} request
+ * @return {boolean}
+ */
+export function isRequest(request) {
+  if (typeof request !== 'string' || !request) {
+    return false
+  }
+
+  // 带有类似 plugin: 开头，并且不是 windows 的 path 如 C:\dir\file
+  if (/^[a-z][a-z0-9+.-]*:/i.test(request) && !path.win32.isAbsolute(request)) {
+    return false
+  }
+
+  return true
 }

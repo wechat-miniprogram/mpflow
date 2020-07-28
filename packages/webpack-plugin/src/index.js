@@ -1,6 +1,6 @@
 import { ConfigChain } from './ConfigChain'
 import LoaderRulesPlugin from './LoaderRulesPlugin'
-import { appLoader, pageLoader } from './loaders'
+import { appLoader, pageLoader, pluginLoader } from './loaders'
 import ProjectAliasPlugin from './ProjectAliasPlugin'
 import ResolverPlugin from './ResolverPlugin'
 
@@ -33,6 +33,7 @@ WeflowWebpackPlugin.target = WeflowMiniProgramTarget
 
 WeflowWebpackPlugin.appLoader = appLoader
 WeflowWebpackPlugin.pageLoader = pageLoader
+WeflowWebpackPlugin.pluginLoader = pluginLoader
 
 WeflowWebpackPlugin.ConfigChain = ConfigChain
 

@@ -8,7 +8,8 @@ export interface WeflowConfig {
   configureWebpack?: Configuration | ((config: Configuration) => Configuration)
   configureWebpackChain?: (config: WebpackChain) => void
   outputDir?: string
-  app?: string | boolean
+  app?: string
+  plugin?: string
   pages?: string[]
 }
 

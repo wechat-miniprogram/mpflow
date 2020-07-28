@@ -7,3 +7,7 @@ export const externalLoader = require.resolve('./external-loader')
 export const pageLoader = require.resolve('./page-loader')
 
 export const pageJsonLoader = require.resolve('./page-json-loader')
+
+export const pluginLoader = require.resolve('./plugin-loader')
+
+export const pluginJsonLoader = require.resolve('./plugin-json-loader')

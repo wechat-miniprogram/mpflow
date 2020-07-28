@@ -7,10 +7,17 @@ const base: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
     webpackConfig.mode(api.mode === 'production' ? 'production' : 'development').devtool(false)
 
-    if (config.app !== false) {
+    if (config.app) {
       webpackConfig
         .entry('app')
-        .add(`${WeflowPlugin.appLoader}!${api.resolve(typeof config.app === 'string' ? config.app : 'src/app')}`)
+        .add(`${WeflowPlugin.appLoader}!${api.resolve(config.app)}`)
+        .end()
+    }
+
+    if (config.plugin) {
+      webpackConfig
+        .entry('plugin')
+        .add(`${WeflowPlugin.pluginLoader}!${api.resolve(config.plugin)}`)
         .end()
     }
 

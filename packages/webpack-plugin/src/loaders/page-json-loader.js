@@ -7,6 +7,7 @@ import {
   getWeflowLoaders,
   resolveWithType,
   stringifyResource,
+  isRequest,
 } from './utils'
 
 const loaderName = 'page-json-loader'
@@ -27,6 +28,8 @@ export const pitch = asyncLoaderWrapper(async function () {
   if (moduleContent.usingComponents) {
     // 对 comp.json 中读取到的 usingComponents 分别设立为入口
     for (const componentRequest of Object.values(moduleContent.usingComponents)) {
+      if (!isRequest(componentRequest)) continue // 跳过 plugins:// 等等
+
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
       const chunkName = getPageOutputPath(appContext, outputPath, componentRequest, resolvedComponentRequest)
 
@@ -60,6 +63,8 @@ export const pitch = asyncLoaderWrapper(async function () {
   for (const importRequest of imports) {
     code += `require(${stringifyRequest(this, importRequest)});\n`
   }
+
+  code += `\nmodule.exports=${JSON.stringify(JSON.stringify(moduleContent, null, 2))};\n`
 
   return code
 })

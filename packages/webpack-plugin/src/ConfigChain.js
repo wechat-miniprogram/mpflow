@@ -1,11 +1,14 @@
 import Config from 'webpack-chain'
 import ChainedMap from 'webpack-chain/src/ChainedMap'
+import ChainedSet from 'webpack-chain/src/ChainedSet'
 import Resolve from 'webpack-chain/src/Resolve'
 import Rule from 'webpack-chain/src/Rule'
 
 class ResolveConfig extends ChainedMap {
   constructor(parent) {
     super(parent)
+
+    this.roots = new ChainedSet(this)
 
     this.sitemap = new Resolve(this)
     this.page = new Resolve(this)
@@ -18,6 +21,7 @@ class ResolveConfig extends ChainedMap {
   toConfig() {
     return this.clean({
       ...(this.entries() || {}),
+      roots: this.roots.values(),
       sitemap: this.sitemap.toConfig(),
       page: this.page.toConfig(),
       json: this.json.toConfig(),

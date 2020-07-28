@@ -1,5 +1,5 @@
 import { Plugin } from '@weflow/service-core'
-import WeflowPlugin from '@weflow/webpack-plugin'
+import WeflowPlugin, { ConfigChain } from '@weflow/webpack-plugin'
 
 const ChainedPlugin = require('webpack-chain/src/Plugin')
 
@@ -28,7 +28,13 @@ const weflow: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
     webpackConfig.plugins
       .getOrCompute('weflow', () => new PluginWeflow(webpackConfig, 'weflow') as any)
-      .use(WeflowPlugin, [new WeflowPlugin.ConfigChain() as any])
+      .use(WeflowPlugin, [new ConfigChain() as any])
+
+    webpackConfig.plugin('weflow').tap(([config]: [ConfigChain]) => {
+      config.resolve.roots.add(api.resolve('src'))
+
+      return [config]
+    })
   })
 }
 

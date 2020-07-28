@@ -1,8 +1,10 @@
 import { Compiler, Resolve, RuleSetRule } from 'webpack'
-import { ChainedMap, Resolve as ResolveChain, Rule as RuleChain } from 'webpack-chain'
+import { ChainedMap, Resolve as ResolveChain, Rule as RuleChain, TypedChainedSet } from 'webpack-chain'
 
 declare namespace WeflowPlugin {
   class ResolveConfigChain<T> extends ChainedMap<T> {
+    roots: TypedChainedSet<this, string>
+
     sitemap: ResolveChain<ResolveConfigChain<T>>
     page: ResolveChain<ResolveConfigChain<T>>
     json: ResolveChain<ResolveConfigChain<T>>
@@ -29,6 +31,7 @@ declare namespace WeflowPlugin {
 
   export interface Options {
     resolve?: {
+      roots?: string[]
       sitemap?: Resolve
       page?: Resolve
       json?: Resolve
@@ -55,6 +58,7 @@ declare class WeflowPlugin {
 
   static appLoader: string
   static pageLoader: string
+  static pluginLoader: string
 
   // static ConfigChain: typeof WeflowPlugin.ConfigChain
 }

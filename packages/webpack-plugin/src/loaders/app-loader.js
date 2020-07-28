@@ -49,11 +49,20 @@ export const pitch = asyncLoaderWrapper(async function () {
   // 加载 json
   const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
 
-  // 用 app-json-loader 解析 app.json 中的依赖
+  // 用 app-json-loader 解析 app.json 中的依赖, 并提取输出
   imports.push(
     stringifyResource(
       jsonRequest,
       [
+        {
+          loader: fileLoader,
+          options: {
+            name: 'app.json',
+          },
+        },
+        {
+          loader: extractLoader,
+        },
         {
           loader: appJsonLoader,
         },
@@ -65,22 +74,6 @@ export const pitch = asyncLoaderWrapper(async function () {
       {
         disabled: 'normal',
       },
-    ),
-  )
-  // 将 app.json 提取输出
-  imports.push(
-    stringifyResource(
-      jsonRequest,
-      [
-        {
-          loader: fileLoader,
-          options: {
-            name: 'app.json',
-          },
-        },
-        ...getWeflowLoaders(this, jsonRequest, 'json'),
-      ],
-      { disabled: 'normal' },
     ),
   )
 
