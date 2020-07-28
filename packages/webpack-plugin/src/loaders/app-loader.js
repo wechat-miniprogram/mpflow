@@ -12,6 +12,7 @@ const jsonLoader = require.resolve('json-loader')
  */
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
+  const appContext = options.appContext || this.context
 
   const imports = []
   let exports = null
@@ -65,6 +66,9 @@ export const pitch = asyncLoaderWrapper(async function () {
         },
         {
           loader: appJsonLoader,
+          options: {
+            appContext: appContext,
+          },
         },
         {
           loader: jsonLoader,

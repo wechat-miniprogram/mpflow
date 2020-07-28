@@ -1,10 +1,13 @@
 import { ConfigChain } from './ConfigChain'
 import LoaderRulesPlugin from './LoaderRulesPlugin'
 import { appLoader, pageLoader, pluginLoader } from './loaders'
-import ProjectAliasPlugin from './ProjectAliasPlugin'
 import ResolverPlugin from './ResolverPlugin'
+import TemplatePlugin from './TemplatePlugin'
 
 class WeflowWebpackPlugin {
+  /**
+   * @param {import('@weflow/webpack-plugin').Options} options
+   */
   constructor(options = {}) {
     this.options = options
   }
@@ -14,7 +17,7 @@ class WeflowWebpackPlugin {
 
     new ResolverPlugin(options.resolve).apply(compiler)
     new LoaderRulesPlugin(options.rules).apply(compiler)
-    new ProjectAliasPlugin().apply(compiler)
+    if (options.templates) new TemplatePlugin(options.templates).apply(compiler)
   }
 }
 

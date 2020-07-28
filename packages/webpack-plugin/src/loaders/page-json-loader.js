@@ -1,13 +1,14 @@
 import { getOptions, stringifyRequest } from 'loader-utils'
+import path from 'path'
 import { externalLoader, pageLoader } from './index'
 import {
   asyncLoaderWrapper,
   evalModuleBundleCode,
   getPageOutputPath,
   getWeflowLoaders,
+  isRequest,
   resolveWithType,
   stringifyResource,
-  isRequest,
 } from './utils'
 
 const loaderName = 'page-json-loader'
@@ -19,7 +20,9 @@ export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
 
   const appContext = options.appContext || this.context
-  const outputPath = options.outputPath || '/'
+  const outputPath =
+    options.outputPath ||
+    getPageOutputPath(appContext, '/', path.relative(appContext, this.resourcePath), this.resourcePath)
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 

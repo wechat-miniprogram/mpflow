@@ -1,4 +1,4 @@
-import { stringifyRequest } from 'loader-utils'
+import { getOptions, stringifyRequest } from 'loader-utils'
 import { externalLoader, pageLoader } from './index'
 import {
   asyncLoaderWrapper,
@@ -16,9 +16,8 @@ const loaderName = 'plugin-json-loader'
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
-  // const options = getOptions(this) || {}
-
-  const appContext = this.context
+  const options = getOptions(this) || {}
+  const appContext = options.appContext || this.context
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 

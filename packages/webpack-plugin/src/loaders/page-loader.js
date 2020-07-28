@@ -1,6 +1,7 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
+import path from 'path'
 import { pageJsonLoader } from './index'
-import { asyncLoaderWrapper, getWeflowLoaders, resolveWithType, stringifyResource } from './utils'
+import { asyncLoaderWrapper, getWeflowLoaders, resolveWithType, stringifyResource, getPageOutputPath } from './utils'
 
 const extractLoader = require.resolve('extract-loader')
 const fileLoader = require.resolve('file-loader')
@@ -13,7 +14,10 @@ const jsonLoader = require.resolve('json-loader')
  */
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
-  const { appContext, outputPath } = options
+  const appContext = options.appContext || this.context
+  const outputPath =
+    options.outputPath ||
+    getPageOutputPath(appContext, '/', path.relative(appContext, this.resourcePath), this.resourcePath)
 
   const imports = []
   let exports

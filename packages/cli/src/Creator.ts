@@ -84,8 +84,8 @@ export class Creator extends Generator {
 
     // 将 template 目录下的内容载入
     await this.render(this.templatePath, {
-      projectname: this.projectName,
-      appid: this.appId,
+      projectName: this.projectName,
+      appId: this.appId,
     })
 
     await this.runHooks(this.afterRenderHooks)

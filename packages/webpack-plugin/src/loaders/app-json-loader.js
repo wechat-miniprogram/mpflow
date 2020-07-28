@@ -1,4 +1,4 @@
-import { stringifyRequest } from 'loader-utils'
+import { stringifyRequest, getOptions } from 'loader-utils'
 import { externalLoader, pageLoader } from './index'
 import {
   asyncLoaderWrapper,
@@ -16,7 +16,8 @@ const loaderName = 'app-json-loader'
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
-  // const options = getOptions(this) || {}
+  const options = getOptions(this) || {}
+  const appContext = options.appContext || this.context
 
   const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
 
@@ -28,7 +29,7 @@ export const pitch = asyncLoaderWrapper(async function () {
       if (!isRequest(pageRequest)) continue // 跳过 plugins:// 等等
 
       const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
-      const chunkName = getPageOutputPath(this.context, '/', pageRequest, resolvedPageRequest)
+      const chunkName = getPageOutputPath(appContext, '/', pageRequest, resolvedPageRequest)
 
       imports.push(
         stringifyResource(
@@ -43,7 +44,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             {
               loader: pageLoader,
               options: {
-                appContext: this.context,
+                appContext: appContext,
                 outputPath: chunkName,
               },
             },

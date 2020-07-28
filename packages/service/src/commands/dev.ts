@@ -81,6 +81,8 @@ const dev: Plugin = (api, config) => {
     },
     async args => {
       api.mode = 'development'
+      process.env.BUILD_DEV = 'true'
+      api.reloadConfig() // 通过上面设置的环境变量重新加载 weflow.config.js
 
       const { default: webpack, ProgressPlugin } = await import('webpack')
 

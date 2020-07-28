@@ -177,8 +177,10 @@ export function resolveWithType(loader, type, request) {
 
 /**
  * 获取一个组件应该输出的路径位置
- * @param {string} appContext
- * @param {string} pageRequest
+ * @param {string} appContext app 根目录
+ * @param {string} currentPath 引用的组件的输出路径
+ * @param {string} rawRequest 用户直接在 usingComponents 语句中使用的字符串
+ * @param {string} pageRequest 解析后 page 真正所在的位置
  */
 export function getPageOutputPath(appContext, currentPath, rawRequest, pageRequest) {
   const relativePath = path.relative(

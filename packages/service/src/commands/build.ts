@@ -11,10 +11,17 @@ const build: Plugin = (api, config) => {
       },
     },
     async args => {
-      api.mode = args.dev ? 'development' : 'production'
+      const mode = (api.mode = args.dev ? 'development' : 'production')
+      if (mode === 'development') {
+        process.env.BUILD_DEV = 'true'
+      } else {
+        process.env.BUILD_PROD = 'true'
+      }
+      api.reloadConfig() // 通过上面设置的环境变量重新加载 weflow.config.js
 
-      const { default: chalk } = await import('chalk')
-      const { default: webpack } = await import('webpack')
+      const chalk = require('chalk') as typeof import('chalk')
+      const webpack = require('webpack') as typeof import('webpack')
+
       const webpackConfig = api.resolveWebpackConfig()
 
       webpack(webpackConfig, (err, stats) => {

@@ -5,19 +5,31 @@ import qs from 'querystring'
 
 const base: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
+    const sourceDir = config.sourceDir || 'src'
+    const miniprogramRoot = config.miniprogramRoot || ''
+    const pluginRoot = config.pluginRoot || ''
+
     webpackConfig.mode(api.mode === 'production' ? 'production' : 'development').devtool(false)
 
     if (config.app) {
       webpackConfig
         .entry('app')
-        .add(`${WeflowPlugin.appLoader}!${api.resolve(config.app)}`)
+        .add(
+          `${WeflowPlugin.appLoader}?${qs.stringify({
+            appContext: api.resolve(sourceDir, miniprogramRoot),
+          })}!${api.resolve(config.app)}`,
+        )
         .end()
     }
 
     if (config.plugin) {
       webpackConfig
         .entry('plugin')
-        .add(`${WeflowPlugin.pluginLoader}!${api.resolve(config.plugin)}`)
+        .add(
+          `${WeflowPlugin.pluginLoader}?${qs.stringify({
+            appContext: api.resolve(sourceDir, pluginRoot),
+          })}!${api.resolve(config.plugin)}`,
+        )
         .end()
     }
 
@@ -29,7 +41,7 @@ const base: Plugin = (api, config) => {
           .entry(basename)
           .add(
             `${WeflowPlugin.pageLoader}?${qs.stringify({
-              outputPath: basename + '/' + basename,
+              appContext: api.resolve(sourceDir, miniprogramRoot),
             })}!${api.resolve(pagePath)}`,
           )
           .end()
@@ -62,11 +74,11 @@ const base: Plugin = (api, config) => {
 
     webpackConfig.target(WeflowPlugin.target as any)
 
-    webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
-      {
-        patterns: [api.resolve('project.config.json')],
-      },
-    ])
+    // webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
+    //   {
+    //     patterns: [api.resolve('project.config.json')],
+    //   },
+    // ])
   })
 }
 

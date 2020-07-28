@@ -30,10 +30,23 @@ const weflow: Plugin = (api, config) => {
       .getOrCompute('weflow', () => new PluginWeflow(webpackConfig, 'weflow') as any)
       .use(WeflowPlugin, [new ConfigChain() as any])
 
-    webpackConfig.plugin('weflow').tap(([config]: [ConfigChain]) => {
-      config.resolve.roots.add(api.resolve('src'))
+    webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
+      weflowConfig.resolve.roots.add(api.resolve('src'))
 
-      return [config]
+      weflowConfig
+        .template('project.config.json')
+        .template(require.resolve('@weflow/service/template/project.config.json'))
+        .to('project.config.json')
+        .data({
+          appId: config.appId,
+          projectName: api.getProjectName(),
+          compileType: config.compileType,
+          miniprogramRoot: config.miniprogramRoot,
+          qcloudRoot: config.qcloudRoot,
+          pluginRoot: config.pluginRoot,
+        })
+
+      return [weflowConfig]
     })
   })
 }
