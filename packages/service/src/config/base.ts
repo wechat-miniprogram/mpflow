@@ -115,7 +115,13 @@ const base: Plugin = (api, config) => {
         })
       }
 
-      webpackConfig.plugin('clean').use(require('clean-webpack-plugin').CleanWebpackPlugin)
+      webpackConfig
+        .plugin('clean')
+        .use((require('clean-webpack-plugin') as typeof import('clean-webpack-plugin')).CleanWebpackPlugin, [
+          {
+            cleanStaleWebpackAssets: false,
+          },
+        ])
 
       // webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
       //   {

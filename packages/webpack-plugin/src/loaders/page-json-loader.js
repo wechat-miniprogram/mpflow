@@ -17,7 +17,7 @@ import {
 export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
 
-  this.cacheable()
+  this.cacheable(false) // 由于需要 addEntry 所以不能缓存
 
   const appContext = options.appContext || this.context
   const outputPath =

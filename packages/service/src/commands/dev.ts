@@ -36,7 +36,7 @@ interface DevContext {
 }
 
 const printStats = (compiler: MultiCompiler, stats: compilation.MultiStats) => {
-  process.stdout.write(stats.toString('errors-warnings') + '\n\n')
+  process.stdout.write(stats.toString('minimal') + '\n\n')
 }
 
 const setupHooks = (context: DevContext, firstDone: () => void) => {
