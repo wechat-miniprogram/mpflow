@@ -146,6 +146,7 @@ export async function addExternal(loaderContext, request, externalType, outputPa
  * @param {*} request
  */
 export function addDependency(loaderContext, request) {
+  loaderContext.addDependency(request)
   loaderContext._module.addDependency(new VirtualDependency(request))
 }
 
