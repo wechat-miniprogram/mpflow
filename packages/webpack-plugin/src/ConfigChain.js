@@ -67,7 +67,7 @@ class ProgramConfig extends ChainedMap {
   constructor(parent) {
     super(parent)
 
-    this.extend(['appId', 'projectName', 'compileType', 'miniprogramRoot', 'qcloudRoot', 'pluginRoot'])
+    this.extend(['appId', 'outputPath', 'projectName', 'compileType', 'miniprogramRoot', 'qcloudRoot', 'pluginRoot'])
   }
 
   toConfig() {

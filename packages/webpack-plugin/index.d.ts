@@ -24,6 +24,7 @@ declare namespace WeflowPlugin {
 
   class ProgramConfigChain<T> extends ChainedMap<T> {
     appId(value: string | undefined): this
+    outputPath(value: string | undefined): this
     projectName(value: string | undefined): this
     compileType(value: string | undefined): this
     miniprogramRoot(value: string | undefined): this
@@ -59,6 +60,7 @@ declare namespace WeflowPlugin {
     }
     program?: {
       appId?: string
+      outputPath?: string
       projectName?: string
       compileType?: string
       miniprogramRoot?: string

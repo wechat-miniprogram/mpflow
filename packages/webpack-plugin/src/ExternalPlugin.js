@@ -65,11 +65,15 @@ class ExternalPlugin {
         }
 
         if (jsFiles.length) {
-          await renderTemplate(`${outputPath}.js`, require.resolve('../template/page.js.ejs'), {
-            require,
-            outputPath,
-            jsFiles,
-          })
+          await renderTemplate(
+            `${outputPath}.js`,
+            type === 'main' ? require.resolve('../template/main.js.ejs') : require.resolve('../template/page.js.ejs'),
+            {
+              require,
+              outputPath,
+              jsFiles,
+            },
+          )
         }
 
         if (wxssFiles.length) {

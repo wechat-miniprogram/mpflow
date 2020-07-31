@@ -126,7 +126,7 @@ export class Creator extends Generator {
       let plugins: PluginOption[] = pluginNames.map(id => ({ id }))
 
       if (generateBuiltIns) {
-        plugins = [...localService.Runner.getBuiltInPlugins(), ...plugins]
+        plugins = [...localService.ServiceRunner.getBuiltInPlugins(), ...plugins]
       }
 
       const generator = new Generator(this.context, { plugins })

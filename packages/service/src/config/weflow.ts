@@ -1,5 +1,6 @@
 import { Plugin } from '@weflow/service-core'
 import WeflowPlugin, { ConfigChain } from '@weflow/webpack-plugin'
+import path from 'path'
 
 const ChainedPlugin = require('webpack-chain/src/Plugin')
 
@@ -25,24 +26,59 @@ class PluginWeflow extends ChainedPlugin {
 }
 
 const weflow: Plugin = (api, config) => {
-  api.configureWebpack(webpackConfig => {
-    webpackConfig.plugins
-      .getOrCompute('weflow', () => new PluginWeflow(webpackConfig, 'weflow') as any)
-      .use(WeflowPlugin, [new ConfigChain() as any])
+  let emitProjectConfig = false
 
-    webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
-      weflowConfig.resolve.roots.add(api.resolve('src'))
+  api.beforeConfigureWebpack(() => {
+    api.configureWebpack(webpackConfig => {
+      webpackConfig.plugins
+        .getOrCompute('weflow', () => new PluginWeflow(webpackConfig, 'weflow') as any)
+        .use(WeflowPlugin, [new ConfigChain() as any])
 
-      weflowConfig.program
-        .appId(config.appId)
-        .projectName(api.getProjectName())
-        .compileType(config.compileType)
-        .miniprogramRoot(config.miniprogramRoot)
-        .qcloudRoot(config.qcloudRoot)
-        .pluginRoot(config.pluginRoot)
+      webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
+        weflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src'))
 
-      return [weflowConfig]
+        // 找一个 webpack 生成 project.config.json
+        if (!emitProjectConfig) {
+          weflowConfig.program
+            .appId(config.appId)
+            .outputPath(
+              path.relative(
+                webpackConfig.output.get('path'),
+                api.resolve(config.outputDir || 'dist', 'project.config.json'),
+              ),
+            )
+            .projectName(api.getProjectName())
+            .compileType(config.compileType)
+            .miniprogramRoot(config.miniprogramRoot)
+            .qcloudRoot(config.qcloudRoot)
+            .pluginRoot(config.pluginRoot)
+
+          emitProjectConfig = true
+        }
+
+        return [weflowConfig]
+      })
     })
+
+    // app 构建的 root 设置为 miniprogramRoot
+    if (api.hasWebpackConfig('app')) {
+      api.configureWebpack('app', webpackConfig => {
+        webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
+          weflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.miniprogramRoot || ''))
+          return [weflowConfig]
+        })
+      })
+    }
+
+    // plugin 构建的 root 设置为 pluginRoot
+    if (api.hasWebpackConfig('plugin')) {
+      api.configureWebpack('plugin', webpackConfig => {
+        webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
+          weflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.pluginRoot || ''))
+          return [weflowConfig]
+        })
+      })
+    }
   })
 }
 

@@ -1,7 +1,7 @@
 import { Plugin } from '@weflow/service-core'
 import cp from 'child_process'
 import fs from 'fs'
-import { Compiler, Stats } from 'webpack'
+import { Compiler, Stats, MultiCompiler, compilation } from 'webpack'
 
 const getDevtoolCliPath = async () => {
   let cliPath: string
@@ -31,11 +31,11 @@ const openDevtool = async (path: string) => {
 }
 
 interface DevContext {
-  compiler: Compiler
-  stats?: Stats
+  compiler: MultiCompiler
+  stats?: compilation.MultiStats
 }
 
-const printStats = (compiler: Compiler, stats: Stats) => {
+const printStats = (compiler: MultiCompiler, stats: compilation.MultiStats) => {
   process.stdout.write(stats.toString('errors-warnings') + '\n\n')
 }
 
@@ -46,7 +46,7 @@ const setupHooks = (context: DevContext, firstDone: () => void) => {
     context.stats = undefined
   }
 
-  const done = (stats: Stats) => {
+  const done = (stats: compilation.MultiStats) => {
     context.stats = stats
 
     process.nextTick(() => {
@@ -73,6 +73,7 @@ const dev: Plugin = (api, config) => {
   api.registerCommand(
     'dev',
     '启动开发模式构建',
+    {},
     {
       open: {
         boolean: true,
@@ -90,7 +91,7 @@ const dev: Plugin = (api, config) => {
         webpackConfig.plugin('progress').use(ProgressPlugin, [{}])
       })
 
-      const webpackConfig = api.resolveWebpackConfig()
+      const webpackConfig = await api.resolveWebpackConfigs()
 
       const compiler = webpack(webpackConfig)
 

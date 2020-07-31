@@ -4,6 +4,7 @@ const build: Plugin = (api, config) => {
   api.registerCommand(
     'build',
     '构建小程序',
+    {},
     {
       dev: {
         boolean: true,
@@ -16,15 +17,15 @@ const build: Plugin = (api, config) => {
       const chalk = require('chalk') as typeof import('chalk')
       const webpack = require('webpack') as typeof import('webpack')
 
-      const webpackConfig = api.resolveWebpackConfig()
+      const webpackConfigs = await api.resolveWebpackConfigs()
 
-      webpack(webpackConfig, (err, stats) => {
+      webpack(webpackConfigs, (err, stats) => {
         if (err) throw err
         process.stdout.write(
           stats.toString({
             colors: true,
             modules: false,
-            children: false,
+            children: true,
             chunks: false,
             chunkModules: false,
           }) + '\n\n',

@@ -26,9 +26,10 @@ class WeflowWebpackPlugin {
     new LoaderRulesPlugin(options.rules).apply(compiler)
 
     if (options.program) {
+      options.program.outputPath = options.program.outputPath || 'project.config.json'
       new TemplatePlugin({
         templatePath: require.resolve('../template/project.config.json.ejs'),
-        outputPath: 'project.config.json',
+        outputPath: options.program.outputPath,
         data: options.program,
       }).apply(compiler)
     }

@@ -1,0 +1,5 @@
+<% const path = require('path') %>
+<% jsFiles.forEach((file) => { %>
+require(<%- JSON.stringify(path.relative(path.dirname(outputPath), file)) %>);
+<% }) %>
+module.exports = global['webpackExports'];

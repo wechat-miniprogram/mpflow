@@ -66,7 +66,7 @@ export default asyncLoaderWrapper(async function (source) {
       stringifyResource(resolvedMainRequest, getWeflowLoaders(this, resolvedMainRequest, 'javascript'), {
         disabled: 'normal',
       }),
-      'js',
+      'main',
       'main',
     )
 

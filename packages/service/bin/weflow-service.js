@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { Runner } = require('../lib')
+const { ServiceRunner } = require('../lib')
 
-const runner = new Runner(process.cwd())
+const runner = new ServiceRunner(process.cwd())
 
 runner.run()

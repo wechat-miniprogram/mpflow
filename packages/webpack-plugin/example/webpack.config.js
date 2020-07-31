@@ -2,7 +2,7 @@ const path = require('path')
 const MpPlugin = require('../lib/cjs')
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
 
   context: __dirname,
 
@@ -16,7 +16,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: '_commons/[id].js',
-    chunkFilename: '_commons/[id].js'
+    chunkFilename: '_commons/[id].js',
+    libraryTarget: 'global',
+    library: 'webpackExports',
+    jsonpFunction: 'webpackModules',
+    globalObject: 'global'
   },
 
   optimization: {

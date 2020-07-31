@@ -4,118 +4,125 @@ import path from 'path'
 import qs from 'querystring'
 
 const base: Plugin = (api, config) => {
-  api.configureWebpack(webpackConfig => {
+  api.beforeConfigureWebpack(() => {
     const mode = api.mode
-    const app = config.app
-    const plugin = config.plugin
-    const pages = config.pages
+    const app = typeof config.app === 'function' ? config.app(mode) : config.app
+    const plugin = typeof config.plugin === 'function' ? config.plugin(mode) : config.plugin
+    const pages = typeof config.pages === 'function' ? config.pages(mode) : config.pages
     const sourceDir = config.sourceDir || 'src'
+
     const miniprogramRoot = config.miniprogramRoot || ''
     const pluginRoot = config.pluginRoot || ''
-
-    webpackConfig.mode(api.mode === 'production' ? 'production' : 'development').devtool(false)
+    const outputPath = api.resolve(config.outputDir || 'dist')
 
     if (app) {
-      const appEntry = typeof app === 'function' ? app(mode) : app
-      webpackConfig
-        .entry('app')
-        .add(
-          `${WeflowPlugin.appLoader}?${qs.stringify({
-            appContext: api.resolve(sourceDir, miniprogramRoot),
-          })}!${api.resolve(appEntry)}`,
-        )
-        .end()
+      api.addWebpackConfig('app', webpackConfig => {
+        webpackConfig
+          .name('app')
+          .entry('app')
+          .add(`${WeflowPlugin.appLoader}!${api.resolve(app)}`)
+          .end()
+
+        webpackConfig.output.path(path.join(outputPath, miniprogramRoot))
+      })
     }
 
     if (plugin) {
-      const pluginEntry = typeof plugin === 'function' ? plugin(mode) : plugin
-      webpackConfig
-        .entry('plugin')
-        .add(
-          `${WeflowPlugin.pluginLoader}?${qs.stringify({
-            appContext: api.resolve(sourceDir, pluginRoot),
-          })}!${api.resolve(pluginEntry)}`,
-        )
-        .end()
+      api.addWebpackConfig('plugin', webpackConfig => {
+        webpackConfig
+          .name('plugin')
+          .entry('plugin')
+          .add(`${WeflowPlugin.pluginLoader}!${api.resolve(plugin)}`)
+          .end()
+
+        webpackConfig.output.path(path.join(outputPath, pluginRoot))
+      })
     }
 
     if (pages) {
-      const pageEntries = typeof pages === 'function' ? pages(mode) : pages
-      pageEntries.forEach(pageEntry => {
-        const basename = path.basename(pageEntry, path.extname(pageEntry))
+      api.addWebpackConfig('pages', webpackConfig => {
+        pages.forEach(pageEntry => {
+          const basename = path.basename(pageEntry, path.extname(pageEntry))
 
-        webpackConfig
-          .entry(basename)
-          .add(
-            `${WeflowPlugin.pageLoader}?${qs.stringify({
-              appContext: api.resolve(sourceDir, miniprogramRoot),
-            })}!${api.resolve(pageEntry)}`,
-          )
-          .end()
+          webpackConfig
+            .name('pages')
+            .entry(basename)
+            .add(`${WeflowPlugin.pageLoader}!${api.resolve(pageEntry)}`)
+            .end()
+
+          webpackConfig.output.path(outputPath)
+        })
       })
     }
 
-    webpackConfig.context(api.getCwd())
+    api.configureWebpack(webpackConfig => {
+      webpackConfig.mode(mode === 'production' ? 'production' : 'development').devtool(false)
 
-    webpackConfig.output
-      .path(api.resolve(config.outputDir || 'dist'))
-      .filename('_commons/[name].js')
-      .chunkFilename('_commons/[name].js')
-      .globalObject('global')
+      webpackConfig.context(api.getCwd())
 
-    webpackConfig.resolve.extensions.add('.js').add('.json')
+      webpackConfig.output
+        .libraryTarget('commonjs2')
+        .filename('_commons/[name].js')
+        .chunkFilename('_commons/[name].js')
+        .library('webpackExports')
+        .libraryTarget('global')
+        .globalObject('global')
+        .jsonpFunction('webpackModules')
 
-    webpackConfig.module
-      .rule('json-type')
-      .test(/\.json$/)
-      .type('javascript/auto')
+      webpackConfig.resolve.extensions.add('.js').add('.json')
 
-    webpackConfig.module
-      .rule('json')
-      .test(/\.json$/)
-      .use('json')
-      .loader(require.resolve('json-loader'))
+      webpackConfig.module
+        .rule('json-type')
+        .test(/\.json$/)
+        .type('javascript/auto')
 
-    webpackConfig.module
-      .rule('wxs')
-      .test(/\.wxs$/)
-      .pre()
-      .use('raw-loader')
-      .loader(require.resolve('raw-loader'))
+      webpackConfig.module
+        .rule('json')
+        .test(/\.json$/)
+        .use('json')
+        .loader(require.resolve('json-loader'))
 
-    webpackConfig.target(WeflowPlugin.target as any)
+      webpackConfig.module
+        .rule('wxs')
+        .test(/\.wxs$/)
+        .pre()
+        .use('raw-loader')
+        .loader(require.resolve('raw-loader'))
 
-    if (mode === 'production') {
-      webpackConfig.optimization.runtimeChunk('single').splitChunks({
-        chunks: 'all',
-        minSize: 0,
-        maxSize: 0,
-        minChunks: 1,
-        maxAsyncRequests: 100,
-        maxInitialRequests: 100,
-        automaticNameDelimiter: '~',
-        name: true,
-        cacheGroups: {
-          vendors: {
-            test: /[\\/]node_modules[\\/]/,
-            priority: -10,
+      webpackConfig.target(WeflowPlugin.target as any)
+
+      if (mode === 'production') {
+        webpackConfig.optimization.runtimeChunk('single').splitChunks({
+          chunks: 'all',
+          minSize: 0,
+          maxSize: 0,
+          minChunks: 1,
+          maxAsyncRequests: 100,
+          maxInitialRequests: 100,
+          automaticNameDelimiter: '~',
+          name: true,
+          cacheGroups: {
+            vendors: {
+              test: /[\\/]node_modules[\\/]/,
+              priority: -10,
+            },
+            common: {
+              minChunks: 2,
+              priority: -20,
+              reuseExistingChunk: true,
+            },
           },
-          common: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-          },
-        },
-      })
-    }
+        })
+      }
 
-    webpackConfig.plugin('clean').use(require('clean-webpack-plugin').CleanWebpackPlugin)
+      webpackConfig.plugin('clean').use(require('clean-webpack-plugin').CleanWebpackPlugin)
 
-    // webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
-    //   {
-    //     patterns: [api.resolve('project.config.json')],
-    //   },
-    // ])
+      // webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
+      //   {
+      //     patterns: [api.resolve('project.config.json')],
+      //   },
+      // ])
+    })
   })
 }
 
