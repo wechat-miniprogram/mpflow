@@ -1,0 +1,6 @@
+{
+  "pages": {
+    "aaa": "pages/index/index"
+  },
+  "main": "app.js"
+}

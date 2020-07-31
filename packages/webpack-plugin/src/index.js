@@ -1,8 +1,12 @@
+import AssetPlugin from './AssetPlugin'
 import { ConfigChain } from './ConfigChain'
+import ExternalPlugin from './ExternalPlugin'
 import LoaderRulesPlugin from './LoaderRulesPlugin'
 import { appLoader, pageLoader, pluginLoader } from './loaders'
 import ResolverPlugin from './ResolverPlugin'
+import target from './target'
 import TemplatePlugin from './TemplatePlugin'
+import VirtualPlugin from './VirtualPlugin'
 
 class WeflowWebpackPlugin {
   /**
@@ -15,24 +19,23 @@ class WeflowWebpackPlugin {
   apply(compiler) {
     const options = this.options
 
+    new AssetPlugin().apply(compiler)
+    new VirtualPlugin().apply(compiler)
+    new ExternalPlugin().apply(compiler)
     new ResolverPlugin(options.resolve).apply(compiler)
     new LoaderRulesPlugin(options.rules).apply(compiler)
-    if (options.templates) new TemplatePlugin(options.templates).apply(compiler)
+
+    if (options.program) {
+      new TemplatePlugin({
+        templatePath: require.resolve('../template/project.config.json.ejs'),
+        outputPath: 'project.config.json',
+        data: options.program,
+      }).apply(compiler)
+    }
   }
 }
 
-function WeflowMiniProgramTarget(compiler) {
-  const NodeTemplatePlugin = require('webpack/lib/node/NodeTemplatePlugin')
-  const FunctionModulePlugin = require('webpack/lib/FunctionModulePlugin')
-  const NodeSourcePlugin = require('webpack/lib/node/NodeSourcePlugin')
-  const LoaderTargetPlugin = require('webpack/lib/LoaderTargetPlugin')
-  new NodeTemplatePlugin().apply(compiler)
-  new FunctionModulePlugin().apply(compiler)
-  new NodeSourcePlugin(compiler.options.node).apply(compiler)
-  new LoaderTargetPlugin('web').apply(compiler)
-}
-
-WeflowWebpackPlugin.target = WeflowMiniProgramTarget
+WeflowWebpackPlugin.target = target
 
 WeflowWebpackPlugin.appLoader = appLoader
 WeflowWebpackPlugin.pageLoader = pageLoader

@@ -6,7 +6,7 @@
     "target": "esnext",
     "module": "commonjs",
     "moduleResolution": "node",
-    "allowJs": false,
+    "allowJs": true,
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "noImplicitThis": true,

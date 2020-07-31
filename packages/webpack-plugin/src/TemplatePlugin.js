@@ -5,7 +5,10 @@ const PLUGIN_NAME = 'Weflow Template Plugin'
 
 export default class TemplatePlugin {
   /**
-   * @param {import('@weflow/webpack-plugin').Options['templates']} options
+   * @param {object} options
+   * @param {string} options.templatePath
+   * @param {string} options.outputPath
+   * @param {*} [options.data]
    */
   constructor(options = {}) {
     this.options = options
@@ -16,6 +19,7 @@ export default class TemplatePlugin {
    * @param {import('webpack').Compiler} compiler
    */
   apply(compiler) {
+    const { templatePath, outputPath, data } = this.options
     compiler.hooks.thisCompilation.tap(PLUGIN_NAME, compilation => {
       const resolver = compiler.resolverFactory.get('normal')
       const context = compiler.options.context
@@ -28,47 +32,29 @@ export default class TemplatePlugin {
 
       compilation.hooks.additionalAssets.tapAsync(PLUGIN_NAME, async callback => {
         try {
-          const files = await Promise.all(
-            this.options.map(async ({ template, to, data }) => {
-              try {
-                const resolvedTemplatePath = await resolveRequest(template)
+          const resolvedTemplatePath = await resolveRequest(templatePath)
 
-                compilation.fileDependencies.add(resolvedTemplatePath)
+          compilation.fileDependencies.add(resolvedTemplatePath)
 
-                const templateContent = await new Promise((resolve, reject) =>
-                  inputFileSystem.readFile(resolvedTemplatePath, (err, contents) => (err ? reject(err) : resolve(contents.toString('utf-8')))),
-                )
-
-                const content = new RawSource(ejs.render(templateContent, data || {}, { async: false }))
-
-                return {
-                  to,
-                  content,
-                }
-              } catch (err) {
-                compilation.errors.push(err)
-
-                return null
-              }
-            }),
+          const templateContent = await new Promise((resolve, reject) =>
+            inputFileSystem.readFile(resolvedTemplatePath, (err, contents) =>
+              err ? reject(err) : resolve(contents.toString('utf-8')),
+            ),
           )
 
-          files.forEach(file => {
-            if (!file) return
-            const { to, content } = file
+          const content = new RawSource(ejs.render(templateContent, data || {}, { async: false }))
 
-            if (typeof compilation.emitAsset !== 'function') {
-              compilation.assets[to] = content
+          if (typeof compilation.emitAsset !== 'function') {
+            compilation.assets[outputPath] = content
 
-              return
-            }
+            return
+          }
 
-            if (compilation.getAsset(to)) {
-              return
-            }
+          if (compilation.getAsset(outputPath)) {
+            return
+          }
 
-            compilation.emitAsset(to, content)
-          })
+          compilation.emitAsset(outputPath, content)
 
           callback()
         } catch (err) {

@@ -1,3 +1,4 @@
 .b {
   color: blue;
+  background: url('./image.png');
 }

@@ -93,7 +93,7 @@ export default plugin(
         return
       }
 
-      // atRule.remove()
+      atRule.remove()
 
       if (isRequestable) {
         const importKey = url
@@ -101,7 +101,7 @@ export default plugin(
 
         if (!placeholderName) {
           const importName = `___WXSS_LOADER_AT_RULE_IMPORT_${placeholderMap.size}___`
-          const replacerName = `___WXSS_LOADER_AT_RULE_REPLACER_${placeholderMap.size}___`
+          // const replacerName = `___WXSS_LOADER_AT_RULE_REPLACER_${placeholderMap.size}___`
           placeholderName = `___WXSS_LOADER_AT_RULE_PLACEHOLDER_${placeholderMap.size}___`
           placeholderMap.set(importKey, placeholderName)
 
@@ -124,22 +124,22 @@ export default plugin(
             },
           }
 
-          // var replacerName = exports.u(importName)
-          // "@import url" => "@import " + replacerName + ""
-          const replacerMessage: PluginReplaceMessage = {
-            type: 'replacer',
-            plugin: pluginName,
-            value: {
-              pattern: new RegExp(placeholderName, 'g'),
-              target: `exports.u(${importName})`,
-              replacerName,
-            },
-          }
+          // // var replacerName = exports.u(importName)
+          // // "@import url" => "@import " + replacerName + ""
+          // const replacerMessage: PluginReplaceMessage = {
+          //   type: 'replacer',
+          //   plugin: pluginName,
+          //   value: {
+          //     pattern: new RegExp(placeholderName, 'g'),
+          //     target: `exports.u(${importName})`,
+          //     replacerName,
+          //   },
+          // }
 
-          result.messages.push(importMessage, childImportMessage, replacerMessage)
+          result.messages.push(importMessage, childImportMessage /*, replacerMessage*/)
         }
 
-        atRule.params = `"${placeholderName}"`
+        // atRule.params = `"${placeholderName}"`
       }
     })
   },

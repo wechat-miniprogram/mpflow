@@ -1,27 +1,25 @@
-import { getOptions, stringifyRequest } from 'loader-utils'
-import { externalLoader, pageLoader } from './index'
+import { getOptions } from 'loader-utils'
+import { pageLoader } from './index'
 import {
+  addExternal,
   asyncLoaderWrapper,
-  evalModuleBundleCode,
   getPageOutputPath,
   getWeflowLoaders,
   isRequest,
   resolveWithType,
   stringifyResource,
-} from './utils'
-
-const loaderName = 'plugin-json-loader'
+} from '../utils'
 
 /**
  * @type {import('webpack').loader.Loader}
  */
-export const pitch = asyncLoaderWrapper(async function () {
+export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
   const appContext = options.appContext || this.context
 
-  const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
+  this.cacheable()
 
-  const imports = []
+  const moduleContent = JSON.parse(source)
 
   if (moduleContent.publicComponents || moduleContent.pages) {
     // 对 plugin.json 中读取到的 publicComponents 和 pages 分别设立为入口
@@ -36,16 +34,11 @@ export const pitch = asyncLoaderWrapper(async function () {
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
       const chunkName = getPageOutputPath(appContext, '/', pageRequest, resolvedComponentRequest)
 
-      imports.push(
+      await addExternal(
+        this,
         stringifyResource(
           resolvedComponentRequest,
           [
-            {
-              loader: externalLoader,
-              options: {
-                name: chunkName,
-              },
-            },
             {
               loader: pageLoader,
               options: {
@@ -57,6 +50,8 @@ export const pitch = asyncLoaderWrapper(async function () {
           ],
           { disabled: 'normal' },
         ),
+        'page',
+        chunkName,
       )
     }
   }
@@ -66,34 +61,17 @@ export const pitch = asyncLoaderWrapper(async function () {
 
     const resolvedMainRequest = await resolveWithType(this, 'miniprogram/javascript', mainRequest)
 
-    imports.push(
-      stringifyResource(
-        resolvedMainRequest,
-        [
-          {
-            loader: externalLoader,
-            options: {
-              name: 'main',
-            },
-          },
-          ...getWeflowLoaders(this, resolvedMainRequest, 'javascript'),
-        ],
-        { disabled: 'normal' },
-      ),
+    await addExternal(
+      this,
+      stringifyResource(resolvedMainRequest, getWeflowLoaders(this, resolvedMainRequest, 'javascript'), {
+        disabled: 'normal',
+      }),
+      'js',
+      'main',
     )
 
     moduleContent.main = 'main.js'
   }
 
-  let code = '//\n'
-
-  for (const importRequest of imports) {
-    code += `require(${stringifyRequest(this, importRequest)});\n`
-  }
-
-  code += `\nmodule.exports=${JSON.stringify(JSON.stringify(moduleContent, null, 2))};\n`
-
-  return code
+  return JSON.stringify(moduleContent, null, 2)
 })
-
-export default source => source

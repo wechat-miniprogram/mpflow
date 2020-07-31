@@ -1,6 +1,6 @@
 import { getOptions } from 'loader-utils'
 import SingleEntryDependency from 'webpack/lib/dependencies/SingleEntryDependency'
-import { asyncLoaderWrapper } from './utils'
+import { asyncLoaderWrapper } from '../utils'
 
 const externalLoader = source => source
 
@@ -12,10 +12,13 @@ export default externalLoader
 export const pitch = asyncLoaderWrapper(async function (request) {
   const options = getOptions(this) || {}
 
+  // this.cacheable()
+
   this.addDependency(request)
 
   await new Promise((resolve, reject) => {
-    this._compilation.addEntry(this.context, new SingleEntryDependency('!!' + request), options.name, err =>
+    const compilation = this._compilation
+    this.compilation.addEntry(this.context, new SingleEntryDependency('!!' + request), String(this._compilation.entries.length), err =>
       err ? reject(err) : resolve(),
     )
   })

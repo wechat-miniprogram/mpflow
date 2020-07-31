@@ -1,27 +1,23 @@
-import { stringifyRequest, getOptions } from 'loader-utils'
-import { externalLoader, pageLoader } from './index'
+import { getOptions } from 'loader-utils'
+import { assetLoader, pageLoader } from './index'
 import {
+  addDependency,
+  addExternal,
   asyncLoaderWrapper,
-  evalModuleBundleCode,
   getPageOutputPath,
   getWeflowLoaders,
   isRequest,
   resolveWithType,
   stringifyResource,
-} from './utils'
+} from '../utils'
 
-const loaderName = 'app-json-loader'
-
-/**
- * @type {import('webpack').loader.Loader}
- */
-export const pitch = asyncLoaderWrapper(async function () {
+export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
   const appContext = options.appContext || this.context
 
-  const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
+  this.cacheable()
 
-  const imports = []
+  const moduleContent = JSON.parse(source)
 
   if (Array.isArray(moduleContent.pages)) {
     // 对 app.json 中读取到的 pages 分别设立为入口
@@ -31,16 +27,11 @@ export const pitch = asyncLoaderWrapper(async function () {
       const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
       const chunkName = getPageOutputPath(appContext, '/', pageRequest, resolvedPageRequest)
 
-      imports.push(
+      await addExternal(
+        this,
         stringifyResource(
           resolvedPageRequest,
           [
-            {
-              loader: externalLoader,
-              options: {
-                name: chunkName,
-              },
-            },
             {
               loader: pageLoader,
               options: {
@@ -54,6 +45,8 @@ export const pitch = asyncLoaderWrapper(async function () {
             disabled: 'normal',
           },
         ),
+        'page',
+        chunkName,
       )
     }
   }
@@ -63,14 +56,16 @@ export const pitch = asyncLoaderWrapper(async function () {
     const sitemapRequest = moduleContent.sitemapLocation
     const resolvedSitemapRequest = await resolveWithType(this, 'miniprogram/sitemap', sitemapRequest)
 
-    imports.push(
+    addDependency(
+      this,
       stringifyResource(
         resolvedSitemapRequest,
         [
           {
-            loader: require.resolve('file-loader'),
+            loader: assetLoader,
             options: {
-              name: 'sitemap.json',
+              type: 'miniprogram/json',
+              outputPath: 'sitemap.json',
             },
           },
           ...getWeflowLoaders(this, resolvedSitemapRequest, 'sitemap'),
@@ -84,15 +79,5 @@ export const pitch = asyncLoaderWrapper(async function () {
     moduleContent.sitemapLocation = 'sitemap.json'
   }
 
-  let code = '//\n'
-
-  for (const importRequest of imports) {
-    code += `require(${stringifyRequest(this, importRequest)});\n`
-  }
-
-  code += `\nmodule.exports=${JSON.stringify(JSON.stringify(moduleContent, null, 2))};\n`
-
-  return code
+  return JSON.stringify(moduleContent, null, 2)
 })
-
-export default source => source

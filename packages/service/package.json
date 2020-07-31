@@ -17,8 +17,7 @@
   },
   "files": [
     "bin",
-    "lib",
-    "template"
+    "lib"
   ],
   "repository": {
     "type": "git",
@@ -36,6 +35,7 @@
     "@weflow/wxml-loader": "^0.0.1",
     "@weflow/wxss-loader": "^0.0.1",
     "chalk": "^4.1.0",
+    "clean-webpack-plugin": "^3.0.0",
     "cli-highlight": "^2.1.4",
     "copy-webpack-plugin": "^6.0.3",
     "deepmerge": "^4.2.2",

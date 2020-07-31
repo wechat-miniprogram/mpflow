@@ -27,8 +27,6 @@ module.exports = {
       {
         test: /\.wxml$/,
         use: [
-          "file-loader",
-          "extract-loader",
           loader,
         ]
       }, {

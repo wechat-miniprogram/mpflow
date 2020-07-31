@@ -1,27 +1,29 @@
 class WxssModule {
-  // imports: [string, string, string, string][]
-  // moduleId: string
-  // url: string
-  // outputPath: string
-  exports: string
+  exports: [string, string][]
 
   constructor() {
-    // this.imports = []
+    this.exports = []
   }
 
   toString() {
-    return this.exports
+    return this.exports.map(([, content]) => content).join('\n')
+  }
+
+  /**
+   * 添加自身
+   */
+  e(moduleId: string, content: string) {
+    this.exports.push([moduleId, content])
   }
 
   /**
    * 添加子模块
    */
-  // i(importModule: WxssModule) {
-  //   for (const imported of importModule.imports) {
-  //     this.imports.push(imported)
-  //   }
-  //   this.imports.push([importModule.moduleId, importModule.exports, importModule.url, importModule.outputPath])
-  // }
+  i(importModule: WxssModule) {
+    importModule.exports.forEach(imported => {
+      this.exports.push(imported)
+    })
+  }
 
   /**
    * 处理 url

@@ -1,13 +1,18 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
 import path from 'path'
-import { pageJsonLoader } from './index'
-import { asyncLoaderWrapper, getWeflowLoaders, resolveWithType, stringifyResource, getPageOutputPath } from './utils'
+import {
+  addDependency,
+  asyncLoaderWrapper,
+  getPageOutputPath,
+  getWeflowLoaders,
+  markAsExternal,
+  resolveWithType,
+  stringifyResource,
+} from '../utils'
+import { assetLoader, pageJsonLoader } from './index'
 
-const extractLoader = require.resolve('extract-loader')
-const fileLoader = require.resolve('file-loader')
 const wxssLoader = require.resolve('@weflow/wxss-loader')
 const wxmlLoader = require.resolve('@weflow/wxml-loader')
-const jsonLoader = require.resolve('json-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -19,25 +24,25 @@ export const pitch = asyncLoaderWrapper(async function () {
     options.outputPath ||
     getPageOutputPath(appContext, '/', path.relative(appContext, this.resourcePath), this.resourcePath)
 
-  const imports = []
-  let exports
+  this.cacheable()
+
+  markAsExternal(this._module, 'page', outputPath)
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 
   // 加载 wxml
   const wxmlRequest = await resolveWithType(this, 'miniprogram/wxml', resolveName)
-  imports.push(
+  addDependency(
+    this,
     stringifyResource(
       wxmlRequest,
       [
         {
-          loader: fileLoader,
+          loader: assetLoader,
           options: {
-            name: `${outputPath}.wxml`,
+            type: 'miniprogram/wxml',
+            outputDir: path.dirname(outputPath),
           },
-        },
-        {
-          loader: extractLoader,
         },
         {
           loader: wxmlLoader,
@@ -51,18 +56,16 @@ export const pitch = asyncLoaderWrapper(async function () {
   // 加载 wxss
   try {
     const wxssRequest = await resolveWithType(this, 'miniprogram/wxss', resolveName)
-    imports.push(
+    addDependency(
+      this,
       stringifyResource(
         wxssRequest,
         [
           {
-            loader: fileLoader,
+            loader: assetLoader,
             options: {
-              name: `${outputPath}.wxss`,
+              type: 'miniprogram/wxss',
             },
-          },
-          {
-            loader: extractLoader,
           },
           {
             loader: wxssLoader,
@@ -80,18 +83,17 @@ export const pitch = asyncLoaderWrapper(async function () {
   try {
     const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
     // 用 page-json-loader 解析 page.json 中的依赖, 并提取输出
-    imports.push(
+    addDependency(
+      this,
       stringifyResource(
         jsonRequest,
         [
           {
-            loader: fileLoader,
+            loader: assetLoader,
             options: {
-              name: `${outputPath}.json`,
+              type: 'miniprogram/json',
+              outputPath: `${outputPath}.json`,
             },
-          },
-          {
-            loader: extractLoader,
           },
           {
             loader: pageJsonLoader,
@@ -99,9 +101,6 @@ export const pitch = asyncLoaderWrapper(async function () {
               appContext,
               outputPath,
             },
-          },
-          {
-            loader: jsonLoader,
           },
           ...getWeflowLoaders(this, jsonRequest, 'json'),
         ],
@@ -116,17 +115,9 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   // 加载 js 并且导出
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
-  exports = stringifyResource(jsRequest, getWeflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
+  const exports = stringifyResource(jsRequest, getWeflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
-  let code = ''
-
-  for (const importRequest of imports) {
-    code += `require(${stringifyRequest(this, importRequest)});\n`
-  }
-
-  if (exports) code += `\n module.exports = require(${stringifyRequest(this, exports)})`
-
-  return code
+  return `module.exports = require(${stringifyRequest(this, exports)})`
 })
 
 export default () => {}

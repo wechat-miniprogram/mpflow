@@ -1,11 +1,5 @@
 import { Compiler, Resolve, RuleSetRule } from 'webpack'
-import Config, {
-  ChainedMap,
-  Resolve as ResolveChain,
-  Rule as RuleChain,
-  TypedChainedSet,
-  TypedChainedMap,
-} from 'webpack-chain'
+import { ChainedMap, Resolve as ResolveChain, Rule as RuleChain, TypedChainedSet } from 'webpack-chain'
 
 declare namespace WeflowPlugin {
   class ResolveConfigChain<T> extends ChainedMap<T> {
@@ -28,18 +22,19 @@ declare namespace WeflowPlugin {
     wxss(name: string): RuleChain<RulesConfigChain<T>>
   }
 
-  class TemplatesConfigChain<T> extends ChainedMap<T> {
-    template(value: string): this
-    to(value: string): this
-    data(value: any): this
+  class ProgramConfigChain<T> extends ChainedMap<T> {
+    appId(value: string | undefined): this
+    projectName(value: string | undefined): this
+    compileType(value: string | undefined): this
+    miniprogramRoot(value: string | undefined): this
+    qcloudRoot(value: string | undefined): this
+    pluginRoot(value: any): this
   }
 
   export class ConfigChain extends ChainedMap<void> {
     resolve: ResolveConfigChain<ConfigChain>
     rules: RulesConfigChain<ConfigChain>
-    templates: TypedChainedMap<this, TemplatesConfigChain<ConfigChain>>
-
-    template(name: string): TemplatesConfigChain<ConfigChain>
+    program: ProgramConfigChain<ConfigChain>
 
     toConfig(): Options
   }
@@ -62,20 +57,14 @@ declare namespace WeflowPlugin {
       wxml?: RuleSetRule[]
       wxss?: RuleSetRule[]
     }
-    templates?: {
-      /**
-       * ejs 模板路径
-       */
-      template?: string
-      /**
-       * 模板输出路径
-       */
-      to?: string
-      /**
-       * 模板 ejs 渲染数据
-       */
-      data?: any
-    }[]
+    program?: {
+      appId?: string
+      projectName?: string
+      compileType?: string
+      miniprogramRoot?: string
+      qcloudRoot?: string
+      pluginRoot?: string
+    }
   }
 }
 

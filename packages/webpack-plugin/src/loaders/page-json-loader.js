@@ -1,32 +1,30 @@
-import { getOptions, stringifyRequest } from 'loader-utils'
+import { getOptions } from 'loader-utils'
 import path from 'path'
-import { externalLoader, pageLoader } from './index'
+import { pageLoader } from './index'
 import {
+  addExternal,
   asyncLoaderWrapper,
-  evalModuleBundleCode,
   getPageOutputPath,
   getWeflowLoaders,
   isRequest,
   resolveWithType,
   stringifyResource,
-} from './utils'
-
-const loaderName = 'page-json-loader'
+} from '../utils'
 
 /**
  * @type {import('webpack').loader.Loader}
  */
-export const pitch = asyncLoaderWrapper(async function () {
+export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
+
+  this.cacheable()
 
   const appContext = options.appContext || this.context
   const outputPath =
     options.outputPath ||
     getPageOutputPath(appContext, '/', path.relative(appContext, this.resourcePath), this.resourcePath)
 
-  const { exports: moduleContent } = await evalModuleBundleCode(loaderName, this)
-
-  const imports = []
+  const moduleContent = JSON.parse(source)
 
   if (moduleContent.usingComponents) {
     // 对 comp.json 中读取到的 usingComponents 分别设立为入口
@@ -36,16 +34,11 @@ export const pitch = asyncLoaderWrapper(async function () {
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
       const chunkName = getPageOutputPath(appContext, outputPath, componentRequest, resolvedComponentRequest)
 
-      imports.push(
+      await addExternal(
+        this,
         stringifyResource(
           resolvedComponentRequest,
           [
-            {
-              loader: externalLoader,
-              options: {
-                name: chunkName,
-              },
-            },
             {
               loader: pageLoader,
               options: {
@@ -57,19 +50,11 @@ export const pitch = asyncLoaderWrapper(async function () {
           ],
           { disabled: 'normal' },
         ),
+        'page',
+        chunkName,
       )
     }
   }
 
-  let code = '//\n'
-
-  for (const importRequest of imports) {
-    code += `require(${stringifyRequest(this, importRequest)});\n`
-  }
-
-  code += `\nmodule.exports=${JSON.stringify(JSON.stringify(moduleContent, null, 2))};\n`
-
-  return code
+  return JSON.stringify(moduleContent, null, 2)
 })
-
-export default source => source

@@ -5,44 +5,51 @@ import qs from 'querystring'
 
 const base: Plugin = (api, config) => {
   api.configureWebpack(webpackConfig => {
+    const mode = api.mode
+    const app = config.app
+    const plugin = config.plugin
+    const pages = config.pages
     const sourceDir = config.sourceDir || 'src'
     const miniprogramRoot = config.miniprogramRoot || ''
     const pluginRoot = config.pluginRoot || ''
 
     webpackConfig.mode(api.mode === 'production' ? 'production' : 'development').devtool(false)
 
-    if (config.app) {
+    if (app) {
+      const appEntry = typeof app === 'function' ? app(mode) : app
       webpackConfig
         .entry('app')
         .add(
           `${WeflowPlugin.appLoader}?${qs.stringify({
             appContext: api.resolve(sourceDir, miniprogramRoot),
-          })}!${api.resolve(config.app)}`,
+          })}!${api.resolve(appEntry)}`,
         )
         .end()
     }
 
-    if (config.plugin) {
+    if (plugin) {
+      const pluginEntry = typeof plugin === 'function' ? plugin(mode) : plugin
       webpackConfig
         .entry('plugin')
         .add(
           `${WeflowPlugin.pluginLoader}?${qs.stringify({
             appContext: api.resolve(sourceDir, pluginRoot),
-          })}!${api.resolve(config.plugin)}`,
+          })}!${api.resolve(pluginEntry)}`,
         )
         .end()
     }
 
-    if (config.pages) {
-      config.pages.forEach(pagePath => {
-        const basename = path.basename(pagePath, path.extname(pagePath))
+    if (pages) {
+      const pageEntries = typeof pages === 'function' ? pages(mode) : pages
+      pageEntries.forEach(pageEntry => {
+        const basename = path.basename(pageEntry, path.extname(pageEntry))
 
         webpackConfig
           .entry(basename)
           .add(
             `${WeflowPlugin.pageLoader}?${qs.stringify({
               appContext: api.resolve(sourceDir, miniprogramRoot),
-            })}!${api.resolve(pagePath)}`,
+            })}!${api.resolve(pageEntry)}`,
           )
           .end()
       })
@@ -50,7 +57,11 @@ const base: Plugin = (api, config) => {
 
     webpackConfig.context(api.getCwd())
 
-    webpackConfig.output.path(api.resolve(config.outputDir || 'dist'))
+    webpackConfig.output
+      .path(api.resolve(config.outputDir || 'dist'))
+      .filename('_commons/[name].js')
+      .chunkFilename('_commons/[name].js')
+      .globalObject('global')
 
     webpackConfig.resolve.extensions.add('.js').add('.json')
 
@@ -73,6 +84,32 @@ const base: Plugin = (api, config) => {
       .loader(require.resolve('raw-loader'))
 
     webpackConfig.target(WeflowPlugin.target as any)
+
+    if (mode === 'production') {
+      webpackConfig.optimization.runtimeChunk('single').splitChunks({
+        chunks: 'all',
+        minSize: 0,
+        maxSize: 0,
+        minChunks: 1,
+        maxAsyncRequests: 100,
+        maxInitialRequests: 100,
+        automaticNameDelimiter: '~',
+        name: true,
+        cacheGroups: {
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            priority: -10,
+          },
+          common: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+        },
+      })
+    }
+
+    webpackConfig.plugin('clean').use(require('clean-webpack-plugin').CleanWebpackPlugin)
 
     // webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
     //   {

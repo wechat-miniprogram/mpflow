@@ -21,7 +21,7 @@ const plugin: Plugin = (api, config) => {
       .loader(webpackConfig.module.rule('js').use('babel-loader').get('loader'))
       .options(webpackConfig.module.rule('js').use('babel-loader').get('options'))
 
-    webpackConfig.plugin('for-ts-checker').use(require('fork-ts-checker-webpack-plugin'), [{}])
+    webpackConfig.plugin('fork-ts-checker').use(require('fork-ts-checker-webpack-plugin'), [{}])
 
     webpackConfig.plugin('weflow').tap(([config]: [ConfigChain]) => {
       config.resolve.page.extensions.add('.ts').add('.tsx')

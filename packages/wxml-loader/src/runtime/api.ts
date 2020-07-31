@@ -1,10 +1,26 @@
 class WxmlModule {
+  imports: [string, string, string][]
+  moduleId: string
   exports: string
+  url: string
 
-  constructor() {}
+  constructor() {
+    this.imports = []
+  }
 
   toString() {
     return this.exports
+  }
+
+  /**
+   * 处理引用
+   * @param module
+   */
+  i(module: WxmlModule) {
+    module.imports.forEach(imported => {
+      this.imports.push(imported)
+    })
+    this.imports.push([module.moduleId, module.exports, module.url])
   }
 
   /**

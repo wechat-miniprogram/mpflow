@@ -23,17 +23,6 @@ export class BaseAPI<S extends BaseService> {
     return path.resolve(this.service.context, ...paths)
   }
 
-  reloadConfig(): void {
-    const config = this.service
-    const newConfig = this.service.resolveConfig()
-    Object.keys(this.service.config).forEach(key => {
-      if (!(key in newConfig)) {
-        delete this.service.config[key as keyof WeflowConfig]
-      }
-    })
-    Object.assign(config, newConfig)
-  }
-
   hasPlugin(id: string): boolean {
     return this.service.pluginOptions.some(p => p.id === id)
   }
@@ -78,13 +67,10 @@ export class BaseService {
    */
   public config: WeflowConfig
 
-  private inlineConfig?: WeflowConfig
-
   constructor(context: string, { plugins, pkg, project, config }: BaseServiceOptions = {}) {
     this.context = context
     this.pkg = this.resolvePkg(pkg, context)
     this.project = this.resolveProject(project, context)
-    this.inlineConfig = config
     this.config = this.resolveConfig(config, context)
     this.pluginOptions = this.resolvePluginOptions(plugins)
   }
@@ -122,10 +108,7 @@ export class BaseService {
    * @param inlineConfig
    * @param context
    */
-  resolveConfig(
-    inlineConfig: WeflowConfig | undefined = this.inlineConfig,
-    context: string = this.context,
-  ): WeflowConfig {
+  resolveConfig(inlineConfig?: WeflowConfig, context: string = this.context): WeflowConfig {
     if (inlineConfig) return inlineConfig
     const configPath = path.resolve(context, 'weflow.config.js')
     if (fs.existsSync(configPath)) {

@@ -48,11 +48,11 @@ function getModuleCode(
     ? `var exports = ___WXML_LOADER_API_IMPORT___();\n`
     : `exports = ___WXML_LOADER_API_IMPORT___();\n`
 
-  // for (const item of childImports) {
-  //   const { importName } = item
+  for (const item of childImports) {
+    const { importName } = item
 
-  //   beforeCode += `exports.i(${importName});\n`
-  // }
+    beforeCode += `exports.i(${importName});\n`
+  }
 
   for (const item of replacers) {
     const { pattern, replacementName, target } = item
@@ -62,8 +62,8 @@ function getModuleCode(
     code = code.replace(pattern, () => `" + ${replacementName} + "`)
   }
 
-  // beforeCode += 'exports.moduleId = module.id;\n'
-  // beforeCode += `exports.url = ${url};\n`
+  beforeCode += 'exports.moduleId = module.id;\n'
+  beforeCode += `exports.url = ${url};\n`
   // beforeCode += `exports.outputPath = ${outputPath};\n`
 
   return `${beforeCode}\nexports.exports = ${code};\n`
@@ -84,9 +84,9 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content) {
 
   const { messages } = pluginRunner([importPlugin()]).process(ast)
 
-  const imports = []
-  const childImports = []
-  const replacers = []
+  const imports: PluginImportMessage['value'][] = []
+  const childImports: PluginChildImportMessage['value'][] = []
+  const replacers: PluginReplaceMessage['value'][] = []
   for (const message of messages) {
     switch (message.type) {
       case 'import':
@@ -103,7 +103,7 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content) {
 
   const context = options.context || this.rootContext
 
-  const url = interpolateName(this, options.name || '[name].[hash:8].[ext]', {
+  const url = interpolateName(this, options.name || '[name].[ext]', {
     context,
     content,
     regExp: options.regExp,

@@ -53,37 +53,39 @@ function getModuleCode(
   result: postcss.Result,
   childImports: PluginChildImportMessage['value'][],
   replacers: PluginReplaceMessage['value'][],
-  url: string,
-  outputPath: string,
+  // url: string,
+  // outputPath: string,
   esModule: boolean,
 ) {
   const { css } = result
-  let code = JSON.stringify(css)
+  let content = JSON.stringify(css)
   let beforeCode = ''
 
   beforeCode += esModule
     ? `var exports = ___WXSS_LOADER_API_IMPORT___();\n`
     : `exports = ___WXSS_LOADER_API_IMPORT___();\n`
 
-  // for (const item of childImports) {
-  //   const { importName } = item
+  for (const item of childImports) {
+    const { importName } = item
 
-  //   beforeCode += `exports.i(${importName});\n`
-  // }
+    beforeCode += `exports.i(${importName});\n`
+  }
 
   for (const item of replacers) {
     const { pattern, replacerName, target } = item
 
     beforeCode += `var ${replacerName} = ${target};\n`
 
-    code = code.replace(pattern, () => `" + ${replacerName} + "`)
+    content = content.replace(pattern, () => `" + ${replacerName} + "`)
   }
+
+
 
   // beforeCode += 'exports.moduleId = module.id;\n'
   // beforeCode += `exports.url = ${url};\n`
   // beforeCode += `exports.outputPath = ${outputPath};\n`
 
-  return `${beforeCode}\nexports.exports = ${code};\n`
+  return `${beforeCode}\nexports.e(module.id, ${content});\n`
 }
 
 function getExportCode(esModule: boolean) {
@@ -135,21 +137,21 @@ const wxssLoader: loader.Loader = function wxssLoader(content) {
         }
       }
 
-      const context = options.context || this.rootContext
+      // const context = options.context || this.rootContext
 
-      const url = interpolateName(this, options.name || '[name].[hash:8].[ext]', {
-        context,
-        content,
-        regExp: options.regExp,
-      })
+      // const url = interpolateName(this, options.name || '[name].[hash:8].[ext]', {
+      //   context,
+      //   content,
+      //   regExp: options.regExp,
+      // })
 
-      const outputPath = JSON.stringify(path.posix.join(options.outputPath || '', url))
-      const publicPath = `__webpack_public_path__ + ${outputPath}`
+      // const outputPath = JSON.stringify(path.posix.join(options.outputPath || '', url))
+      // const publicPath = `__webpack_public_path__ + ${outputPath}`
 
       const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
 
       const importCode = getImportCode(this, imports, esModule)
-      const moduleCode = getModuleCode(result, childImports, replacers, publicPath, outputPath, esModule)
+      const moduleCode = getModuleCode(result, childImports, replacers, /*publicPath, outputPath,*/ esModule)
       const exportCode = getExportCode(esModule)
 
       return callback(null, `${importCode}${moduleCode}${exportCode}`)

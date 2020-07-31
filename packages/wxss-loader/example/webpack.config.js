@@ -2,7 +2,7 @@ const path = require('path')
 const loader = require.resolve('../lib/cjs')
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
 
   context: __dirname,
 

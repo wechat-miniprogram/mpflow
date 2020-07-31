@@ -11,13 +11,7 @@ const build: Plugin = (api, config) => {
       },
     },
     async args => {
-      const mode = (api.mode = args.dev ? 'development' : 'production')
-      if (mode === 'development') {
-        process.env.BUILD_DEV = 'true'
-      } else {
-        process.env.BUILD_PROD = 'true'
-      }
-      api.reloadConfig() // 通过上面设置的环境变量重新加载 weflow.config.js
+      api.mode = args.dev ? 'development' : 'production'
 
       const chalk = require('chalk') as typeof import('chalk')
       const webpack = require('webpack') as typeof import('webpack')

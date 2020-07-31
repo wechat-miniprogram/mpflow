@@ -146,6 +146,6 @@ export class Runner extends BaseService {
    */
   async run(argv: string[] = process.argv.slice(2)): Promise<void> {
     await this.init()
-    this.program.help().parse(argv)
+    this.program.help().demandCommand().parse(argv)
   }
 }

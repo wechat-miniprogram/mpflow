@@ -47,15 +47,15 @@ export interface WeflowConfig {
   /**
    * 打包 app 路径
    */
-  app?: string
+  app?: string | ((mode: string) => string)
   /**
    * 打包 plugin 路径
    */
-  plugin?: string
+  plugin?: string | ((mode: string) => string)
   /**
    * 打包 page 路径
    */
-  pages?: string[]
+  pages?: string[] | ((mode: string) => string[])
 }
 
 export interface Plugin {

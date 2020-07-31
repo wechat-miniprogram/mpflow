@@ -63,12 +63,11 @@ class RulesConfig extends ChainedMap {
   }
 }
 
-class TemplatesConfig extends ChainedMap {
-  constructor(parent, name) {
+class ProgramConfig extends ChainedMap {
+  constructor(parent) {
     super(parent)
-    this.name = name
 
-    this.extend(['template', 'to', 'data'])
+    this.extend(['appId', 'projectName', 'compileType', 'miniprogramRoot', 'qcloudRoot', 'pluginRoot'])
   }
 
   toConfig() {
@@ -82,15 +81,11 @@ export class ConfigChain extends ChainedMap {
 
     this.resolve = new ResolveConfig(this)
     this.rules = new RulesConfig(this)
-    this.templates = new ChainedMap(this)
+    this.program = new ProgramConfig(this)
   }
 
   static toString(config, options) {
     return Config.toString(config, options)
-  }
-
-  template(name) {
-    return this.templates.getOrCompute(name, () => new TemplatesConfig(this, name))
   }
 
   toConfig() {
@@ -98,7 +93,7 @@ export class ConfigChain extends ChainedMap {
       ...(this.entries() || {}),
       resolve: this.resolve.toConfig(),
       rules: this.rules.toConfig(),
-      templates: this.templates.values().map(template => template.toConfig()),
+      program: this.program.toConfig(),
     })
   }
 

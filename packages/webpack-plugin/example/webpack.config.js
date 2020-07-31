@@ -2,18 +2,46 @@ const path = require('path')
 const MpPlugin = require('../lib/cjs')
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
 
   context: __dirname,
 
   entry: {
     app: `${MpPlugin.appLoader}!./app`,
+    // plugin: `${MpPlugin.pluginLoader}!./plugin.json`
   },
 
   devtool: 'none',
 
   output: {
     path: path.resolve(__dirname, 'dist'),
+    filename: '_commons/[id].js',
+    chunkFilename: '_commons/[id].js'
+  },
+
+  optimization: {
+    runtimeChunk: 'single', // 必需字段，不能修改
+    splitChunks: { // 代码分割配置，不建议修改
+      chunks: 'all',
+      minSize: 0,
+      maxSize: 0,
+      minChunks: 1,
+      maxAsyncRequests: 100,
+      maxInitialRequests: 100,
+      automaticNameDelimiter: '~',
+      name: true,
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10
+        },
+        default: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true
+        }
+      }
+    },
   },
 
   module: {
@@ -26,25 +54,28 @@ module.exports = {
         test: /\.wxml$/,
         use: [
           {
-            loader: 'file-loader',
-            options: {
-              name: '/_templates/[name].[contenthash:8].[ext]'
-            }
-          },
-          {
-            loader: 'extract-loader',
-          },
-          {
             loader: '@weflow/wxml-loader'
+          }
+        ]
+      },
+      {
+        test: /\.wxss$/,
+        use: [
+          {
+            loader: '@weflow/wxss-loader'
           }
         ]
       },
     ]
   },
 
-  target: MpPlugin.target,
+  // target: MpPlugin.target,
 
   plugins: [
-    new MpPlugin({}),
+    new MpPlugin({
+      resolve: {
+        roots: [__dirname]
+      }
+    }),
   ],
 }
