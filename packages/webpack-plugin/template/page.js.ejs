@@ -1,4 +1,13 @@
-<% const path = require('path') %>
-<% jsFiles.forEach((file) => { %>
-require(<%- JSON.stringify(path.relative(path.dirname(outputPath), file)) %>);
-<% }) %>
+<%
+  const path = require('path')
+  function getRelativePath (file) {
+    let relativePath = path.relative(path.dirname(outputPath), file)
+    if (relativePath[0] !== '.') relativePath = './' + relativePath
+    return JSON.stringify(relativePath)
+  }
+-%>
+module.exports = require(/* runtime */<%- getRelativePath(jsFiles[0]) %>)([
+<% for(var i = 1; i < jsFiles.length; ++i) { -%>
+  require(<%- getRelativePath(jsFiles[i]) %>),
+<% } -%>
+]);

@@ -28,64 +28,69 @@ class ExternalPlugin {
     })
 
     compiler.hooks.emit.tapAsync(PLUGIN_NAME, async (compilation, callback) => {
-      const entryNames = Array.from(compilation.entrypoints.keys())
+      try {
+        const entryNames = Array.from(compilation.entrypoints.keys())
 
-      for (const entryName of entryNames) {
-        const entryPoint = compilation.entrypoints.get(entryName)
-        const entryPointFiles = entryPoint.getFiles()
+        for (const entryName of entryNames) {
+          const entryPoint = compilation.entrypoints.get(entryName)
+          const entryPointFiles = entryPoint.getFiles()
 
-        const externalInfo = isExternalEntryPoint(entryPoint)
-        if (!externalInfo) return
+          const externalInfo = isExternalEntryPoint(entryPoint)
+          if (!externalInfo) return
 
-        const { type, outputPath } = externalInfo
+          const { type, outputPath } = externalInfo
 
-        const jsFiles = entryPointFiles.filter(filename =>
-          ModuleFilenameHelpers.matchObject({ test: /\.js$/ }, filename),
-        )
-        const wxssFiles = entryPointFiles.filter(filename =>
-          ModuleFilenameHelpers.matchObject({ test: /\.wxss$/ }, filename),
-        )
+          const jsFiles = entryPointFiles.filter(filename =>
+            ModuleFilenameHelpers.matchObject({ test: /\.js$/ }, filename),
+          )
+          const wxssFiles = entryPointFiles.filter(filename =>
+            ModuleFilenameHelpers.matchObject({ test: /\.wxss$/ }, filename),
+          )
 
-        const renderTemplate = async (filename, templatePath, data) => {
-          const contentStr = await new Promise((resolve, reject) => {
-            ejs.renderFile(templatePath, data, (err, content) => (err ? reject(err) : resolve(content)))
-          })
-          const content = new RawSource(contentStr)
+          const renderTemplate = async (filename, templatePath, data) => {
+            const contentStr = await new Promise((resolve, reject) => {
+              ejs.renderFile(templatePath, data, (err, content) => (err ? reject(err) : resolve(content)))
+            })
+            const content = new RawSource(contentStr)
 
-          if (typeof compilation.emitAsset !== 'function') {
-            compilation.assets[filename] = content
-            return
+            if (typeof compilation.emitAsset !== 'function') {
+              compilation.assets[filename] = content
+              return
+            }
+
+            if (compilation.getAsset(filename)) {
+              return
+            }
+
+            compilation.emitAsset(filename, content)
           }
 
-          if (compilation.getAsset(filename)) {
-            return
+          if (jsFiles.length) {
+            await renderTemplate(
+              `${outputPath}.js`,
+              type === 'main' ? require.resolve('../template/main.js.ejs') : require.resolve('../template/page.js.ejs'),
+              {
+                require,
+                outputPath,
+                jsFiles,
+              },
+            )
           }
 
-          compilation.emitAsset(filename, content)
-        }
-
-        if (jsFiles.length) {
-          await renderTemplate(
-            `${outputPath}.js`,
-            type === 'main' ? require.resolve('../template/main.js.ejs') : require.resolve('../template/page.js.ejs'),
-            {
+          if (wxssFiles.length) {
+            await renderTemplate(`${outputPath}.wxss`, require.resolve('../template/page.wxss.ejs'), {
               require,
               outputPath,
-              jsFiles,
-            },
-          )
+              wxssFiles,
+            })
+          }
         }
 
-        if (wxssFiles.length) {
-          await renderTemplate(`${outputPath}.wxss`, require.resolve('../template/page.wxss.ejs'), {
-            require,
-            outputPath,
-            wxssFiles,
-          })
-        }
+        callback()
+      } catch (e) {
+        console.error(e)
+        callback(e)
       }
-
-      callback()
     })
   }
 }

@@ -257,10 +257,8 @@ export function stringifyPackage(pkg: Record<string, any>): string {
  * @param context
  */
 export function getLocalService(context: string): typeof import('@weflow/service') {
-  const servicePath = require.resolve('@weflow/service', { paths: [context] })
-
   try {
-    return require(servicePath)
+    return require(require.resolve('@weflow/service', { paths: [context] }))
   } catch (e) {
     throw new Error(`无法在执行路径 "${context}" 下找到 @weflow/service`)
   }

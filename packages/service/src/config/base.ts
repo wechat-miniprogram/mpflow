@@ -61,13 +61,13 @@ const base: Plugin = (api, config) => {
       webpackConfig.context(api.getCwd())
 
       webpackConfig.output
-        .libraryTarget('commonjs2')
+        // .libraryTarget('commonjs2')
         .filename('_commons/[name].js')
         .chunkFilename('_commons/[name].js')
-        .library('webpackExports')
-        .libraryTarget('global')
-        .globalObject('global')
-        .jsonpFunction('webpackModules')
+        // .library('webpackExports')
+        // .libraryTarget('global')
+        // .globalObject('global')
+        // .jsonpFunction('webpackModules')
 
       webpackConfig.resolve.extensions.add('.js').add('.json')
 

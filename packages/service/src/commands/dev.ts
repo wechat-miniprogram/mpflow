@@ -81,41 +81,46 @@ const dev: Plugin = (api, config) => {
       },
     },
     async args => {
-      api.mode = 'development'
+      try {
+        api.mode = 'development'
 
-      const { default: webpack, ProgressPlugin } = await import('webpack')
+        const { default: webpack, ProgressPlugin } = await import('webpack')
 
-      api.configureWebpack(webpackConfig => {
-        webpackConfig.watch(true)
+        api.configureWebpack(webpackConfig => {
+          webpackConfig.watch(true)
 
-        webpackConfig.plugin('progress').use(ProgressPlugin, [{}])
-      })
+          webpackConfig.plugin('progress').use(ProgressPlugin, [{}])
+        })
 
-      const webpackConfig = await api.resolveWebpackConfigs()
+        const webpackConfig = await api.resolveWebpackConfigs()
 
-      const compiler = webpack(webpackConfig)
+        const compiler = webpack(webpackConfig)
 
-      const context: DevContext = {
-        compiler,
-      }
-
-      setupHooks(context, () => {
-        if (args.open) {
-          openDevtool(api.resolve(config.outputDir || 'dist'))
+        const context: DevContext = {
+          compiler,
         }
-      })
 
-      compiler.watch(
-        {
-          aggregateTimeout: 1000,
-          poll: undefined,
-        },
-        err => {
-          if (err) {
-            console.error(err)
+        setupHooks(context, () => {
+          if (args.open) {
+            openDevtool(api.resolve(config.outputDir || 'dist'))
           }
-        },
-      )
+        })
+
+        compiler.watch(
+          {
+            aggregateTimeout: 1000,
+            poll: undefined,
+          },
+          err => {
+            if (err) {
+              console.error(err)
+            }
+          },
+        )
+      } catch (err) {
+        console.error(err)
+        process.exit(1)
+      }
     },
   )
 }

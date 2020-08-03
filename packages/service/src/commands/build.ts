@@ -31,19 +31,27 @@ const build: Plugin = (api, config) => {
 
       const webpackConfigs = await api.resolveWebpackConfigs()
 
-      webpack(webpackConfigs, (err, stats) => {
-        if (err) throw err
-        process.stdout.write(
-          stats.toString({
-            colors: true,
-            modules: false,
-            children: true,
-            chunks: false,
-            chunkModules: false,
-          }) + '\n\n',
-        )
-        console.log(chalk.cyan('Build complete.\n'))
-      })
+      try {
+        webpack(webpackConfigs, (err, stats) => {
+          if (err) {
+            console.error(err)
+            process.exit(1)
+          }
+          process.stdout.write(
+            stats.toString({
+              colors: true,
+              modules: false,
+              children: true,
+              chunks: false,
+              chunkModules: false,
+            }) + '\n\n',
+          )
+          console.log(chalk.cyan('Build complete.\n'))
+        })
+      } catch (err) {
+        console.error(err)
+        process.exit(1)
+      }
     },
   )
 }
