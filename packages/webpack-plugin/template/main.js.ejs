@@ -6,8 +6,11 @@
     return JSON.stringify(relativePath)
   }
 -%>
-module.exports = require(/* runtime */<%- getRelativePath(jsFiles[0]) %>)([
+module.exports = require(/* runtime */<%- getRelativePath(jsFiles[0]) %>)
+<% if (jsFiles.length > 1) { -%>
+([
 <% for(var i = 1; i < jsFiles.length; ++i) { -%>
   require(<%- getRelativePath(jsFiles[i]) %>),
 <% } -%>
 ]);
+<% } -%>
