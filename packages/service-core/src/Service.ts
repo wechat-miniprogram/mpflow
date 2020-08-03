@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { Plugin, WeflowConfig } from './type'
 
-export class BaseAPI<S extends BaseService> {
+export class BaseAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> {
   public id: string
   protected service: S
 
@@ -28,20 +28,20 @@ export class BaseAPI<S extends BaseService> {
   }
 }
 
-export interface PluginOption {
+export interface PluginInfo<P = Plugin> {
   id: string
-  module?: Plugin
+  module?: P
   config?: any
 }
 
 export interface BaseServiceOptions {
-  plugins?: PluginOption[]
+  plugins?: PluginInfo<any>[]
   project?: any
   pkg?: any
   config?: WeflowConfig
 }
 
-export class BaseService {
+export abstract class BaseService<P = Plugin> {
   /**
    * service 工作路径
    */
@@ -60,7 +60,7 @@ export class BaseService {
   /**
    * 插件列表
    */
-  public pluginOptions: PluginOption[]
+  public pluginOptions: PluginInfo<P>[]
 
   /**
    * weflow.config.js 读取到的配置内容
@@ -72,7 +72,7 @@ export class BaseService {
     this.pkg = this.resolvePkg(pkg, context)
     this.project = this.resolveProject(project, context)
     this.config = this.resolveConfig(config, context)
-    this.pluginOptions = this.resolvePluginOptions(plugins)
+    this.pluginOptions = this.resolvePluginInfos(plugins)
   }
 
   /**
@@ -123,10 +123,10 @@ export class BaseService {
    * @param inlinePlugins
    * @param config
    */
-  resolvePluginOptions(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
+  resolvePluginInfos(inlinePlugins: PluginInfo<P>[] = [], config: WeflowConfig = this.config): PluginInfo<P>[] {
     if (inlinePlugins.length) return inlinePlugins
 
-    const projectPlugins: PluginOption[] = (config.plugins || []).map(id => {
+    const projectPlugins: PluginInfo<P>[] = (config.plugins || []).map(id => {
       return {
         id,
       }
@@ -139,13 +139,13 @@ export class BaseService {
    * 获取所有插件
    */
   resolvePlugins(
-    pluginOptions: PluginOption[] = this.pluginOptions,
+    pluginOptions: PluginInfo<P>[] = this.pluginOptions,
     context: string = this.context,
-  ): { id: string; plugin: Plugin; config?: any }[] {
+  ): { id: string; plugin: P; config?: any }[] {
     const interopRequireDefault = <T>(obj: T): T => (obj && (obj as any).__esModule ? (obj as any).default : obj)
 
     return pluginOptions.map(({ id, module, config }) => {
-      let plugin: Plugin = interopRequireDefault(module)!
+      let plugin: P = interopRequireDefault(module)!
 
       if (!plugin) {
         const pluginPath = require.resolve(id, { paths: [context] })

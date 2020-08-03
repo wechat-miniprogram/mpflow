@@ -7,8 +7,12 @@ const build: Plugin = (api, config) => {
     {},
     {
       dev: {
-        boolean: true,
+        type: 'boolean',
         description: '是否使用开发模式构建',
+      },
+      report: {
+        type: 'boolean',
+        description: '是否检查构建报告',
       },
     },
     async args => {
@@ -16,6 +20,14 @@ const build: Plugin = (api, config) => {
 
       const chalk = require('chalk') as typeof import('chalk')
       const webpack = require('webpack') as typeof import('webpack')
+
+      if (args.report) {
+        api.beforeConfigureWebpack(() => {
+          api.configureWebpack(webpackConfig => {
+            webpackConfig.plugin('bundle-analyzer').use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+          })
+        })
+      }
 
       const webpackConfigs = await api.resolveWebpackConfigs()
 

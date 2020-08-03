@@ -5,15 +5,18 @@ import {
   GeneratorAPI as IGeneratorAPI,
   ProcessFileHandler,
   ProcessFileAPI,
+  Plugin,
 } from '@weflow/service-core'
 import { Options as EjsOptions } from 'ejs'
 import minimatch from 'minimatch'
 import { loadFiles, mergePackage, removeFiles, renderFiles, stringifyPackage, writeFiles } from './utils'
 
-export class GeneratorAPI<T extends Generator = Generator> extends BaseAPI<T> implements IGeneratorAPI<T> {
+export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Generator<P> = Generator<P>>
+  extends BaseAPI<P, S>
+  implements IGeneratorAPI<P, S> {
   private depSources: Record<string, string>
 
-  constructor(id: string, service: T, depSources: Record<string, string>) {
+  constructor(id: string, service: S, depSources: Record<string, string>) {
     super(id, service)
     this.depSources = depSources
   }
@@ -42,7 +45,7 @@ export interface GeneratorOptions extends BaseServiceOptions {
   files?: Record<string, string>
 }
 
-export class Generator extends BaseService {
+export class Generator<P extends { generator?: any } = Plugin> extends BaseService<P> {
   /**
    * package.json 中依赖的来源
    */
@@ -98,7 +101,7 @@ export class Generator extends BaseService {
     const plugins = this.resolvePlugins()
 
     plugins.forEach(({ id, plugin }) => {
-      plugin.generator && plugin.generator(new GeneratorAPI(id, this, this.depSources), this.config)
+      plugin.generator && plugin.generator(new GeneratorAPI<P>(id, this, this.depSources), this.config)
     })
   }
 

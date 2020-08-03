@@ -3,8 +3,9 @@ import type WebpackChain from 'webpack-chain'
 import type { Arguments, Argv, CommandModule, InferredOptionTypes, Options, PositionalOptions } from 'yargs'
 import yargs from 'yargs/yargs'
 import { BaseAPI, BaseService, BaseServiceOptions } from './Service'
+import { Plugin } from './type'
 
-export abstract class BaseRunnerAPI<T extends Runner = Runner> extends BaseAPI<T> {
+export abstract class BaseRunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>> extends BaseAPI<P, S> {
   registerCommand<
     P extends Record<string, PositionalOptions> = Record<string, PositionalOptions>,
     O extends Record<string, Options> = Record<string, Options>
@@ -30,7 +31,7 @@ export abstract class BaseRunnerAPI<T extends Runner = Runner> extends BaseAPI<T
   }
 }
 
-export abstract class RunnerAPI<T extends Runner = Runner> extends BaseRunnerAPI<T> {
+export abstract class RunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>> extends BaseRunnerAPI<P, S> {
   mode: string
 
   abstract beforeConfigureWebpack(handler: () => void): void
@@ -47,7 +48,7 @@ export abstract class RunnerAPI<T extends Runner = Runner> extends BaseRunnerAPI
 
 export interface RunnerOptions extends BaseServiceOptions {}
 
-export class Runner extends BaseService {
+export class Runner<P = Plugin> extends BaseService<P> {
   /**
    * CLI 操作对象
    */

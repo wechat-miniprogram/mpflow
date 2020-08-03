@@ -1,6 +1,7 @@
 import type { Options as EjsOptions } from 'ejs'
+import type { Transform } from 'jscodeshift'
 import type { BaseAPI, BaseService } from './Service'
-import { Transform } from 'jscodeshift'
+import type { Plugin } from './type'
 
 export interface ProcessFileInfo {
   path: string
@@ -17,7 +18,7 @@ export interface ProcessFileHandler {
   (fileInfo: ProcessFileInfo, api: ProcessFileAPI): void
 }
 
-export interface GeneratorAPI<T extends BaseService = BaseService> extends BaseAPI<T> {
+export interface GeneratorAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> extends BaseAPI<P, S> {
   /**
    * 拓展 package.json
    * @param fields

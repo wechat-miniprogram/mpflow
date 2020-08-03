@@ -1,8 +1,11 @@
-import { Plugin, PluginOption } from '@weflow/service-core'
+import { Plugin, PluginInfo } from '@weflow/service-core'
 import { Generator, GeneratorAPI, GeneratorOptions } from './Generator'
 import { exec, getLocalService } from './utils'
 
-export class CreatorAPI<T extends Creator = Creator> extends GeneratorAPI<T> {
+export class CreatorAPI<
+  P extends { creator?: any; generator?: any } = CreatorPlugin,
+  S extends Creator<P> = Creator<P>
+> extends GeneratorAPI<P, S> {
   async exec(command: string, args?: string[]): Promise<void> {
     await exec(this.service.context, command, args)
   }
@@ -42,7 +45,7 @@ export interface CreatorOptions extends GeneratorOptions {
   appId: string
 }
 
-export class Creator extends Generator {
+export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugin> extends Generator<P> {
   /**
    * 模板目录
    */
@@ -99,22 +102,8 @@ export class Creator extends Generator {
     await this.install(['@weflow/plugin-babel', '@weflow/plugin-typescript', '@weflow/plugin-css'], true)
   }
 
-  /**
-   * 获取本地安装的 @weflow/service
-   * @param context
-   */
-  getLocalService(context: string = this.context): typeof import('@weflow/service') {
-    let localService: typeof import('@weflow/service')
-    try {
-      localService = getLocalService(context)
-    } catch (e) {
-      throw new Error('当前路径下无法找到 @weflow/service')
-    }
-    return localService
-  }
-
   async install(pluginNames: string[], generateBuiltIns = false): Promise<void> {
-    const localService = this.getLocalService(this.context)
+    const localService = getLocalService(this.context)
     await exec(this.context, 'yarn', ['install'])
 
     if (pluginNames.length) {
@@ -123,7 +112,7 @@ export class Creator extends Generator {
 
     if (generateBuiltIns || pluginNames.length) {
       // 执行 generator 从而执行插件的 generator
-      let plugins: PluginOption[] = pluginNames.map(id => ({ id }))
+      let plugins: PluginInfo[] = pluginNames.map(id => ({ id }))
 
       if (generateBuiltIns) {
         plugins = [...localService.ServiceRunner.getBuiltInPlugins(), ...plugins]
@@ -150,8 +139,8 @@ export class Creator extends Generator {
    * @param inlinePlugins
    * @param config
    */
-  resolvePluginOptions(inlinePlugins: PluginOption[] = []): PluginOption[] {
-    const buildInPlugins: PluginOption[] = [
+  resolvePluginInfos(inlinePlugins: PluginInfo<P>[] = []): PluginInfo<P>[] {
+    const buildInPlugins: PluginInfo<P>[] = [
       {
         id: '@weflow/cli/lib/creator-plugins/install-service',
         module: require('./creator-plugins/install-service'),
@@ -161,12 +150,12 @@ export class Creator extends Generator {
     return [...buildInPlugins, ...inlinePlugins]
   }
 
-  resolvePlugins(
-    pluginOptions: PluginOption[] = this.pluginOptions,
-    context: string = this.context,
-  ): { id: string; plugin: CreatorPlugin; config?: any }[] {
-    return super.resolvePlugins(pluginOptions, context)
-  }
+  // resolvePlugins(
+  //   pluginOptions: PluginInfo[] = this.pluginOptions,
+  //   context: string = this.context,
+  // ): { id: string; plugin: CreatorPlugin; config?: any }[] {
+  //   return super.resolvePlugins(pluginOptions, context)
+  // }
 
   /**
    * 执行所有的插件 generator
@@ -175,7 +164,7 @@ export class Creator extends Generator {
     const plugins = this.resolvePlugins()
 
     plugins.forEach(({ id, plugin }) => {
-      plugin.creator && plugin.creator(new CreatorAPI(id, this, this.depSources))
+      plugin.creator && plugin.creator(new CreatorAPI<P>(id, this, this.depSources))
     })
   }
 }

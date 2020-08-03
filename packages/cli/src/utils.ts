@@ -259,5 +259,9 @@ export function stringifyPackage(pkg: Record<string, any>): string {
 export function getLocalService(context: string): typeof import('@weflow/service') {
   const servicePath = require.resolve('@weflow/service', { paths: [context] })
 
-  return require(servicePath)
+  try {
+    return require(servicePath)
+  } catch (e) {
+    throw new Error(`无法在执行路径 "${context}" 下找到 @weflow/service`)
+  }
 }

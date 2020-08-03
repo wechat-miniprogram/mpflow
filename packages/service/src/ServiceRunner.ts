@@ -1,9 +1,9 @@
-import { PluginOption, Runner, RunnerAPI, RunnerOptions, WeflowConfig } from '@weflow/service-core'
+import { Plugin, PluginInfo, Runner, RunnerAPI, RunnerOptions, WeflowConfig } from '@weflow/service-core'
 import { Configuration } from 'webpack'
 import WebpackChain from 'webpack-chain'
 import { merge } from 'webpack-merge'
 
-export class ServiceRunnerAPI extends RunnerAPI<ServiceRunner> {
+export class ServiceRunnerAPI extends RunnerAPI<Plugin, ServiceRunner> {
   /**
    * 运行模式
    */
@@ -124,7 +124,7 @@ export class ServiceRunner extends Runner {
   /**
    * 获取内置组件列表
    */
-  static getBuiltInPlugins(): PluginOption[] {
+  static getBuiltInPlugins(): PluginInfo[] {
     return [
       {
         id: '@weflow/service/lib/config/base',
@@ -154,8 +154,8 @@ export class ServiceRunner extends Runner {
    * @param inlinePlugins
    * @param config
    */
-  resolvePluginOptions(inlinePlugins: PluginOption[] = [], config: WeflowConfig = this.config): PluginOption[] {
-    const projectPlugins = super.resolvePluginOptions(inlinePlugins, config)
+  resolvePluginInfos(inlinePlugins: PluginInfo[] = [], config: WeflowConfig = this.config): PluginInfo[] {
+    const projectPlugins = super.resolvePluginInfos(inlinePlugins, config)
     const builtInPlugins = ServiceRunner.getBuiltInPlugins()
 
     return [...builtInPlugins, ...projectPlugins]

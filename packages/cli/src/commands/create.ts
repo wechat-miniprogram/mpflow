@@ -2,9 +2,7 @@ import fs from 'fs-extra'
 import path from 'path'
 import { CliPlugin } from '../CliRunner'
 
-const create: CliPlugin = () => {}
-
-create.cliRunner = (api, config) => {
+const create: CliPlugin = (api, config) => {
   api.registerCommand(
     'create <appName>',
     '创建小程序',
