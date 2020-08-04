@@ -1,8 +1,5 @@
 import inquirer from 'inquirer'
 import { CreatorPlugin } from '../Creator'
-import { Generator } from '../Generator'
-
-const recommended: CreatorPlugin = () => {}
 
 const confirm = async (question: string): Promise<boolean> => {
   const { ans }: { ans: boolean } = await inquirer.prompt([
@@ -14,6 +11,11 @@ const confirm = async (question: string): Promise<boolean> => {
   ])
   return ans
 }
+
+/**
+ * 询问是否安装推荐的插件
+ */
+const recommended: CreatorPlugin = () => {}
 
 recommended.creator = api => {
   const pluginNames: string[] = []
@@ -42,22 +44,7 @@ recommended.creator = api => {
 
   api.tapInit(async () => {
     if (!pluginNames.length) return
-    await api.installNodeModules(pluginNames)
-
-    const plugins = pluginNames.map(id => ({ id }))
-
-    const generator = new Generator(api.getCwd(), { plugins })
-
-    // 将插件添加到 weflow.config.js
-    generator.processFile('weflow.config.js', (file, api) => {
-      api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
-        fieldName: 'plugins',
-        items: pluginNames,
-      })
-    })
-
-    await generator.generate()
-    await api.installNodeModules()
+    await api.installPlugins(pluginNames)
   })
 }
 

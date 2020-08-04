@@ -29,6 +29,10 @@ export class CreatorAPI<
     return this.service.installNodeModules(modules, options)
   }
 
+  async installPlugins(pluginNames: string[]): Promise<void> {
+    return this.service.installPlugin(pluginNames)
+  }
+
   tapPrepare(
     handler: (infos: {
       projectName: string
@@ -71,26 +75,26 @@ export interface CreatorPlugin extends Plugin {
 }
 
 export interface CreatorOptions extends GeneratorOptions {
-  templateName: string
-  projectName: string
-  appId: string
+  templateName?: string
+  projectName?: string
+  appId?: string
 }
 
 export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugin> extends Generator<P> {
   /**
    * 模板目录
    */
-  public templateName: string
+  public templateName?: string
 
   /**
    * 项目名称
    */
-  public projectName: string
+  public projectName?: string
 
   /**
    * 项目 APP id
    */
-  public appId: string
+  public appId?: string
 
   /**
    *
@@ -124,11 +128,6 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     init: new AsyncSeriesHook(),
   }
 
-  // public beforeRenderHooks: Array<() => Promise<void>> = []
-  // public afterRenderHooks: Array<() => Promise<void>> = []
-  // public beforeEmitHooks: Array<() => Promise<void>> = []
-  // public afterEmitHooks: Array<() => Promise<void>> = []
-
   constructor(context: string, { templateName, projectName, appId, ...options }: CreatorOptions) {
     super(context, options)
 
@@ -161,14 +160,6 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
       const localService = getLocalService(this.context)
       const plugins: PluginInfo[] = localService.ServiceRunner.getBuiltInPlugins()
       const generator = new Generator(this.context, { plugins })
-
-      // // 将插件添加到 weflow.config.js
-      // generator.processFile('weflow.config.js', (file, api) => {
-      //   api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
-      //     fieldName: 'plugins',
-      //     items: pluginNames,
-      //   })
-      // })
 
       await generator.generate()
     })
@@ -220,9 +211,9 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     await this.initPlugins()
 
     const { projectName, appId, templateName } = await this.hooks.prepare.promise({
-      projectName: this.projectName,
-      appId: this.appId,
-      templateName: this.templateName,
+      projectName: this.projectName || '',
+      appId: this.appId || '',
+      templateName: this.templateName || '',
     })
 
     const templatePath = await this.hooks.resolveTemplate.promise(templateName)
@@ -235,37 +226,29 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     await this.hooks.init.promise()
   }
 
-  // async install(pluginNames: string[], generateBuiltIns = false): Promise<void> {
-  //   const localService = getLocalService(this.context)
-  //   await exec(this.context, 'yarn', ['install'])
+  /**
+   * 安装插件到项目
+   * @param pluginNames
+   */
+  async installPlugin(pluginNames: string[]): Promise<void> {
+    if (!pluginNames.length) return
+    await this.installNodeModules(pluginNames)
 
-  //   if (pluginNames.length) {
-  //     await exec(this.context, 'yarn', ['link', ...pluginNames])
-  //   }
+    const plugins = pluginNames.map(id => ({ id }))
 
-  //   if (generateBuiltIns || pluginNames.length) {
-  //     // 执行 generator 从而执行插件的 generator
-  //     let plugins: PluginInfo[] = pluginNames.map(id => ({ id }))
+    const generator = new Generator(this.context, { plugins })
 
-  //     if (generateBuiltIns) {
-  //       plugins = [...localService.ServiceRunner.getBuiltInPlugins(), ...plugins]
-  //     }
+    // 将插件添加到 weflow.config.js
+    generator.processFile('weflow.config.js', (file, api) => {
+      api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
+        fieldName: 'plugins',
+        items: pluginNames,
+      })
+    })
 
-  //     const generator = new Generator(this.context, { plugins })
-
-  //     // 将插件添加到 weflow.config.js
-  //     generator.processFile('weflow.config.js', (file, api) => {
-  //       api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
-  //         fieldName: 'plugins',
-  //         items: pluginNames,
-  //       })
-  //     })
-
-  //     await generator.generate()
-
-  //     await exec(this.context, 'yarn', ['install'])
-  //   }
-  // }
+    await generator.generate()
+    await this.installNodeModules()
+  }
 
   /**
    * 获取所有插件

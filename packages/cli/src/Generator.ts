@@ -3,23 +3,22 @@ import {
   BaseService,
   BaseServiceOptions,
   GeneratorAPI as IGeneratorAPI,
-  ProcessFileHandler,
-  ProcessFileAPI,
   Plugin,
+  ProcessFileAPI,
+  ProcessFileHandler,
 } from '@weflow/service-core'
 import { Options as EjsOptions } from 'ejs'
 import minimatch from 'minimatch'
 import {
+  exec,
   loadFiles,
   mergePackage,
   removeFiles,
   renderFiles,
+  shouldUseYarn,
   stringifyPackage,
   writeFiles,
-  shouldUseYarn,
-  exec,
 } from './utils'
-import cp from 'child_process'
 
 export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Generator<P> = Generator<P>>
   extends BaseAPI<P, S>

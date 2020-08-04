@@ -21,6 +21,17 @@ export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
   }
 
   /**
+   * 为项目安装插件
+   * @param context
+   * @param pluginNames
+   */
+  async add(context: string, pluginNames: string[]): Promise<void> {
+    const creator = new Creator(context, {})
+
+    await creator.installPlugin(pluginNames)
+  }
+
+  /**
    * 将命令在 pwd 所在的 service 上执行
    * @param command
    */
@@ -75,6 +86,10 @@ export class CliRunner extends Runner<CliPlugin> {
         module: require('./commands/create'),
       },
       {
+        id: '@weflow/cli/lib/commands/add',
+        module: require('./commands/add'),
+      },
+      {
         id: '@weflow/cli/lib/commands/proxy',
         module: require('./commands/proxy'),
       },
@@ -82,13 +97,6 @@ export class CliRunner extends Runner<CliPlugin> {
 
     return [...buildInPlugins, ...inlinePlugins]
   }
-
-  // resolvePlugins(
-  //   pluginOptions: PluginInfo<CliPlugin>[] = this.pluginOptions,
-  //   context: string = this.context,
-  // ): { id: string; plugin: CliPlugin; config?: any }[] {
-  //   return super.resolvePlugins(pluginOptions, context)
-  // }
 
   /**
    * 初始化

@@ -275,3 +275,18 @@ export function shouldUseYarn(): boolean {
     return false
   }
 }
+
+export function getPaths(path: string): string[] {
+  const parts = path.split(/(.*?[\\/]+)/)
+  const paths = [path]
+  let part = parts[parts.length - 1]
+  path = path.substr(0, path.length - part.length - 1)
+  for (let i = parts.length - 2; i > 2; i -= 2) {
+    paths.push(path)
+    part = parts[i]
+    path = path.substr(0, path.length - part.length) || '/'
+  }
+  part = parts[1]
+  paths.push(part)
+  return paths
+}
