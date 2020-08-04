@@ -8,11 +8,11 @@ export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
    */
   async create(
     context: string,
-    templatePath: string,
+    templateName: string,
     { projectName, appId }: { projectName: string; appId: string },
   ): Promise<void> {
     const creator = new Creator(context, {
-      templatePath,
+      templateName,
       projectName,
       appId,
     })

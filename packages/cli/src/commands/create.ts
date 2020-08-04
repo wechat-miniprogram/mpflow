@@ -1,5 +1,4 @@
 import fs from 'fs-extra'
-import path from 'path'
 import { CliPlugin } from '../CliRunner'
 
 const create: CliPlugin = (api, config) => {
@@ -16,26 +15,30 @@ const create: CliPlugin = (api, config) => {
     {
       template: {
         type: 'string',
-        description: '创建小程序的模板路径',
-        default: path.join(path.dirname(require.resolve('@weflow/template-miniprogram/package.json')), 'template'),
+        description: '创建小程序的模板包名称',
+        default: '@weflow/template-miniprogram',
       },
       appId: {
         type: 'string',
         description: '创建小程序的 app id',
       },
     },
-    async ({ appName, template: templatePath, appId }) => {
-      const createPath = api.resolve(appName)
+    async ({ appName, template: templateName, appId }) => {
+      try {
+        const createPath = api.resolve(appName)
 
-      if (fs.existsSync(createPath)) throw new Error(`folder "${appName}" already exists`)
-      if (!fs.existsSync(templatePath)) throw new Error(`template "${templatePath}" doesn't exists`)
+        if (fs.existsSync(createPath)) throw new Error(`文件夹或文件 "${appName}" 已经存在`)
 
-      await fs.ensureDir(createPath)
+        await fs.ensureDir(createPath)
 
-      await api.create(createPath, templatePath, {
-        appId: appId || '',
-        projectName: appName,
-      })
+        await api.create(createPath, templateName, {
+          appId: appId || '',
+          projectName: appName,
+        })
+      } catch (err) {
+        console.error(err)
+        process.exit(1)
+      }
     },
   )
 }

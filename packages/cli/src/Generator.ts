@@ -9,7 +9,17 @@ import {
 } from '@weflow/service-core'
 import { Options as EjsOptions } from 'ejs'
 import minimatch from 'minimatch'
-import { loadFiles, mergePackage, removeFiles, renderFiles, stringifyPackage, writeFiles } from './utils'
+import {
+  loadFiles,
+  mergePackage,
+  removeFiles,
+  renderFiles,
+  stringifyPackage,
+  writeFiles,
+  shouldUseYarn,
+  exec,
+} from './utils'
+import cp from 'child_process'
 
 export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Generator<P> = Generator<P>>
   extends BaseAPI<P, S>
@@ -62,6 +72,11 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
   public filesToRemove: Set<string>
 
   /**
+   * 是否使用 yarn
+   */
+  private _shouldUseYarn: boolean | null = null
+
+  /**
    * 处理文件回调
    */
   public processFilesHandlers: { filter?: string; handler: ProcessFileHandler }[]
@@ -73,6 +88,28 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
     this.files = this.loadFiles(files)
     this.processFilesHandlers = []
     this.filesToRemove = new Set()
+  }
+
+  /**
+   * 是否应该使用 yarn
+   */
+  shouldUseYarn(): boolean {
+    if (this._shouldUseYarn === null) {
+      this._shouldUseYarn = shouldUseYarn()
+    }
+    return this._shouldUseYarn
+  }
+
+  async installNodeModules(modules?: string[], { saveDev }: { saveDev?: boolean } = {}): Promise<void> {
+    const useYarn = this.shouldUseYarn()
+    const command = useYarn ? 'yarnpkg' : 'npm'
+    const args: string[] = [useYarn && modules?.length ? 'add' : 'install', ...(modules || [])]
+
+    if (saveDev) {
+      args.push(useYarn ? '--dev' : '--save-dev')
+    }
+
+    return exec(this.context, command, args)
   }
 
   /**

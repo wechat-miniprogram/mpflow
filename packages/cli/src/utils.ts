@@ -263,3 +263,15 @@ export function getLocalService(context: string): typeof import('@weflow/service
     throw new Error(`无法在执行路径 "${context}" 下找到 @weflow/service`)
   }
 }
+
+/**
+ * 检测是否使用 yarn
+ */
+export function shouldUseYarn(): boolean {
+  try {
+    cp.execSync('yarnpkg --version', { stdio: 'ignore' })
+    return true
+  } catch (e) {
+    return false
+  }
+}
