@@ -265,6 +265,10 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
         id: '@weflow/cli/lib/creator-plugins/recommended',
         module: require('./creator-plugins/recommended'),
       },
+      {
+        id: '@weflow/cli/lib/creator-plugins/init-git',
+        module: require('./creator-plugins/init-git'),
+      },
     ]
 
     return [...buildInPlugins, ...inlinePlugins]
