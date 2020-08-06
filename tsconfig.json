@@ -1,9 +1,10 @@
 {
   "extends": "./tsconfig.base.json",
+
   "compilerOptions": {
+    "baseUrl": ".",
     "paths": {
       "@weflow/*": ["packages/*/src"]
     }
-  },
-  "include": ["typings", "packages/*/src"]
+  }
 }

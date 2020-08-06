@@ -1,9 +1,9 @@
-import { getOptions, interpolateName, isUrlRequest, stringifyRequest } from 'loader-utils'
-import path from 'path'
+import { getOptions, isUrlRequest, stringifyRequest } from 'loader-utils'
 import postcss from 'postcss'
 import { loader } from 'webpack'
 import { importPlugin, urlPlugin } from './plugins'
 import { PluginChildImportMessage, PluginImportMessage, PluginReplaceMessage } from './plugins/type'
+import validateOptions from 'schema-utils'
 
 class Warning extends Error {
   constructor(warning: postcss.Warning) {
@@ -53,8 +53,6 @@ function getModuleCode(
   result: postcss.Result,
   childImports: PluginChildImportMessage['value'][],
   replacers: PluginReplaceMessage['value'][],
-  // url: string,
-  // outputPath: string,
   esModule: boolean,
 ) {
   const { css } = result
@@ -79,12 +77,6 @@ function getModuleCode(
     content = content.replace(pattern, () => `" + ${replacerName} + "`)
   }
 
-
-
-  // beforeCode += 'exports.moduleId = module.id;\n'
-  // beforeCode += `exports.url = ${url};\n`
-  // beforeCode += `exports.outputPath = ${outputPath};\n`
-
   return `${beforeCode}\nexports.e(module.id, ${content});\n`
 }
 
@@ -92,8 +84,34 @@ function getExportCode(esModule: boolean) {
   return esModule ? 'export default exports;\n' : 'module.exports = exports;\n'
 }
 
+export interface Options {
+  sourceMap?: boolean
+  esModule?: boolean
+}
+
 const wxssLoader: loader.Loader = function wxssLoader(content) {
-  const options: any = getOptions(this) || {}
+  const options: Options = getOptions(this) || {}
+
+  validateOptions(
+    {
+      additionalProperties: false,
+      properties: {
+        sourceMap: {
+          description: 'Enables/Disables generation of source maps',
+          type: 'boolean',
+        },
+        esModule: {
+          description: 'Use the ES modules syntax',
+          type: 'boolean',
+        },
+      },
+    },
+    options,
+    {
+      name: 'WXSS Loader',
+      baseDataPath: 'options',
+    },
+  )
 
   this.cacheable()
 
@@ -136,17 +154,6 @@ const wxssLoader: loader.Loader = function wxssLoader(content) {
             break
         }
       }
-
-      // const context = options.context || this.rootContext
-
-      // const url = interpolateName(this, options.name || '[name].[hash:8].[ext]', {
-      //   context,
-      //   content,
-      //   regExp: options.regExp,
-      // })
-
-      // const outputPath = JSON.stringify(path.posix.join(options.outputPath || '', url))
-      // const publicPath = `__webpack_public_path__ + ${outputPath}`
 
       const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
 

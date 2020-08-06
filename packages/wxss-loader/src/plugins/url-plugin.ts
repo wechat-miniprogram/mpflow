@@ -23,6 +23,7 @@ function walkUrls(
   callback: (node: Node, url: string, needQuotes: boolean, isStringValue: boolean) => void,
 ) {
   parsed.walk(node => {
+    /* istanbul ignore next */
     if (node.type !== 'function') {
       return
     }
@@ -79,12 +80,14 @@ export default plugin(
 
       walkUrls(parsed, (node, url, needQuotes, isStringValue) => {
         // https://www.w3.org/TR/css-syntax-3/#typedef-url-token
+        /* istanbul ignore next */
         if (url.replace(/^[\s]+|[\s]+$/g, '').length === 0) {
           result.warn(`Unable to find uri in '${decl ? decl.toString() : decl}'`, { node: decl })
 
           return
         }
 
+        /* istanbul ignore next */
         if (options.filter && !options.filter(url)) {
           return
         }

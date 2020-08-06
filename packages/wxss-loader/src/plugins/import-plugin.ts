@@ -20,6 +20,7 @@ export default plugin(
       if (atRule.parent.type !== 'root') return
 
       // Nodes do not exists - `@import url('http://') :root {}`
+      /* istanbul ignore next */
       if (atRule.nodes) {
         result.warn("It looks like you didn't end your @import statement correctly. Child nodes are attached to it.", {
           node: atRule,
@@ -32,6 +33,7 @@ export default plugin(
 
       // No nodes - `@import ;`
       // Invalid type - `@import foo-bar;`
+      /* istanbul ignore next */
       if (nodes.length === 0 || (nodes[0].type !== 'string' && nodes[0].type !== 'function')) {
         result.warn(`Unable to find uri in "${atRule.toString()}"`, {
           node: atRule,
@@ -48,6 +50,7 @@ export default plugin(
         url = nodes[0].value
       } else if (nodes[0].type === 'function') {
         // Invalid function - `@import nourl(test.css);`
+        /* istanbul ignore next */
         if (nodes[0].value.toLowerCase() !== 'url') {
           result.warn(`Unable to find uri in "${atRule.toString()}"`, {
             node: atRule,
@@ -61,6 +64,7 @@ export default plugin(
       }
 
       // Empty url - `@import "";` or `@import url();`
+      /* istanbul ignore next */
       if (url.trim().length === 0) {
         result.warn(`Unable to find uri in "${atRule.toString()}"`, {
           node: atRule,
@@ -78,6 +82,7 @@ export default plugin(
         // \
         // \
         // ';
+        /* istanbul ignore next */
         if (url.trim().length === 0) {
           result.warn(`Unable to find uri in "${atRule.toString()}"`, {
             node: atRule,

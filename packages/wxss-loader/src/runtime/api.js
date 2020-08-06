@@ -1,6 +1,6 @@
-class WxssModule {
-  exports: [string, string][]
+/* istanbul ignore file */
 
+class WxssModule {
   constructor() {
     this.exports = []
   }
@@ -12,14 +12,14 @@ class WxssModule {
   /**
    * 添加自身
    */
-  e(moduleId: string, content: string) {
+  e(moduleId, content) {
     this.exports.push([moduleId, content])
   }
 
   /**
    * 添加子模块
    */
-  i(importModule: WxssModule) {
+  i(importModule) {
     importModule.exports.forEach(imported => {
       this.exports.push(imported)
     })
@@ -28,7 +28,7 @@ class WxssModule {
   /**
    * 处理 url
    */
-  u(url: any, options: any = {}) {
+  u(url, options = {}) {
     url = url && url.__esModule ? url.default : url
 
     if (typeof url === 'object' && url.url !== undefined) {

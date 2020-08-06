@@ -6,6 +6,7 @@
   "homepage": "",
   "license": "ISC",
   "main": "lib/cjs.js",
+  "types": "lib/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -18,16 +19,17 @@
     "url": "git@git.code.oa.com:wxweb/weflow.git"
   },
   "scripts": {
-    "build": "npm run build-js && npm run build-ts",
-    "build-js": "node ../../scripts/build-js",
-    "build-ts": "node ../../scripts/build-ts",
-    "test": "webpack --config ./example/webpack.config.js",
-    "test-debug": "node --inspect-brk node_modules/.bin/webpack --config ./example/webpack.config.js"
+    "build": "rimraf lib && npm run build-js && npm run build-ts",
+    "build-js": "babel src --config-file ../../babel.config.js --extensions .js,.ts -d ./lib --ignore \"**/*.test.{ts,js}\"",
+    "build-ts": "tsc -p tsconfig.build.json",
+    "test": "jest ./test --config ../../jest.config.js",
+    "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
     "loader-utils": "^2.0.0",
     "postcss": "^7.0.32",
-    "postcss-value-parser": "^4.1.0"
+    "postcss-value-parser": "^4.1.0",
+    "schema-utils": "^2.7.0"
   },
   "devDependencies": {
     "@types/webpack": "^4.41.17",
