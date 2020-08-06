@@ -1,0 +1,26 @@
+{
+  "name": "@weflow/test-utils",
+  "private": true,
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "src/index.ts",
+  "directories": {
+    "lib": "src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/weflow.git"
+  },
+  "scripts": {
+    "build": "echo \"skip\"",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "devDependencies": {
+    "memfs": "^3.2.0",
+    "webpack": "^4.44.1",
+    "webpack-merge": "^5.1.1"
+  }
+}
