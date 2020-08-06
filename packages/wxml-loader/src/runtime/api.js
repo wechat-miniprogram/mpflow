@@ -1,9 +1,6 @@
-class WxmlModule {
-  imports: [string, string, string][]
-  moduleId: string
-  exports: string
-  url: string
+/* istanbul ignore file */
 
+class WxmlModule {
   constructor() {
     this.imports = []
   }
@@ -16,7 +13,7 @@ class WxmlModule {
    * 处理引用
    * @param module
    */
-  i(module: WxmlModule) {
+  i(module) {
     module.imports.forEach(imported => {
       this.imports.push(imported)
     })
@@ -26,14 +23,14 @@ class WxmlModule {
   /**
    * 处理 inline
    */
-  l(module: any) {
+  l(module) {
     return module.__esModule ? module.default : module
   }
 
   /**
    * 处理 url
    */
-  u(url: any) {
+  u(url) {
     url = url && url.__esModule ? url.default : url
 
     if (typeof url === 'object' && url.url !== undefined) {

@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+
+  "compilerOptions": {
+    "outDir": "./lib",
+    "declaration": true,
+    "emitDeclarationOnly": true
+  },
+
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.test.ts"]
+}

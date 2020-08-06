@@ -9,6 +9,7 @@ import {
   pluginRunner,
 } from './plugins'
 import * as parser from './wxml-parser'
+import validateOptions from 'schema-utils'
 
 function getImportCode(
   loaderContext: loader.LoaderContext,
@@ -73,8 +74,49 @@ function getExportCode(esModule: boolean) {
   return esModule ? 'export default exports;\n' : 'module.exports = exports;\n'
 }
 
+export interface Options {
+  context?: string
+  name?: string
+  outputPath?: string
+  esModule?: boolean
+  sourceMap?: boolean
+}
+
 const wxmlLoader: loader.Loader = function wxmlLoader(content) {
-  const options: any = getOptions(this) || {}
+  const options: Options = getOptions(this) || {}
+
+  validateOptions(
+    {
+      additionalProperties: false,
+      properties: {
+        sourceMap: {
+          description: 'Enables/Disables generation of source maps',
+          type: 'boolean',
+        },
+        esModule: {
+          description: 'Use the ES modules syntax',
+          type: 'boolean',
+        },
+        context: {
+          description: 'A custom file context',
+          type: 'string',
+        },
+        name: {
+          description: 'The filename template for the target file(s)',
+          type: 'string',
+        },
+        outputPath: {
+          description: 'A filesystem path where the target file(s) will be placed',
+          type: 'string',
+        },
+      },
+    },
+    options,
+    {
+      name: 'WXML Loader',
+      baseDataPath: 'options',
+    },
+  )
 
   // const callback = this.async()
 
@@ -106,7 +148,6 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content) {
   const url = interpolateName(this, options.name || '[name].[ext]', {
     context,
     content,
-    regExp: options.regExp,
   })
 
   const outputPath = JSON.stringify(path.posix.join(options.outputPath || '', url))

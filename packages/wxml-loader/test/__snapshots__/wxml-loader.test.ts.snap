@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`wxml-loader should work: errors 1`] = `Array []`;
+
+exports[`wxml-loader should work: exports 1`] = `
+Object {
+  "default": WxmlModule {
+    "exports": "<import src=\\"b.wxml\\"/><wxs module=\\"foo\\">
+var some_msg = \\"hello world\\";
+module.exports = {
+  msg : some_msg,
+}
+</wxs><wxs module=\\"c\\">/* eslint-disable */
+var touchstart = function(event, ownerInstance) {
+  var ins = event.instance
+  var st = ins.getState()
+  if (st.disable) return // disable的逻辑
+  // console.log('touchstart st', JSON.stringify(st))
+  if (!st.size) return
+  // console.log('touchstart', JSON.stringify(event))
+  st.isMoving = true
+  st.startX = event.touches[0].pageX
+  st.startY = event.touches[0].pageY
+  st.firstAngle = 0
+}
+
+module.exports = {
+  touchstart: touchstart,
+}</wxs><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/>
+  {{foo.msg}}
+</view>",
+    "imports": Array [
+      Array [
+        "./b.wxml",
+        "<template name=\\"item\\"><text>{{text}}</text></template>",
+        "b.wxml",
+      ],
+    ],
+    "moduleId": "./a.wxml",
+    "url": "a.wxml",
+  },
+}
+`;
+
+exports[`wxml-loader should work: warnings 1`] = `Array []`;
+
+exports[`wxml-loader work with esModule: errors 1`] = `Array []`;
+
+exports[`wxml-loader work with esModule: exports 1`] = `
+Object {
+  "default": WxmlModule {
+    "exports": "<import src=\\"b.wxml\\"/><wxs module=\\"foo\\">
+var some_msg = \\"hello world\\";
+module.exports = {
+  msg : some_msg,
+}
+</wxs><wxs module=\\"c\\">/* eslint-disable */
+var touchstart = function(event, ownerInstance) {
+  var ins = event.instance
+  var st = ins.getState()
+  if (st.disable) return // disable的逻辑
+  // console.log('touchstart st', JSON.stringify(st))
+  if (!st.size) return
+  // console.log('touchstart', JSON.stringify(event))
+  st.isMoving = true
+  st.startX = event.touches[0].pageX
+  st.startY = event.touches[0].pageY
+  st.firstAngle = 0
+}
+
+module.exports = {
+  touchstart: touchstart,
+}</wxs><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/>
+  {{foo.msg}}
+</view>",
+    "imports": Array [
+      Array [
+        "./b.wxml",
+        "<template name=\\"item\\"><text>{{text}}</text></template>",
+        "b.wxml",
+      ],
+    ],
+    "moduleId": "./a.wxml",
+    "url": "a.wxml",
+  },
+}
+`;
+
+exports[`wxml-loader work with esModule: warnings 1`] = `Array []`;

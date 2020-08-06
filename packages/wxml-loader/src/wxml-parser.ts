@@ -416,7 +416,7 @@ export function walk(
     begin?: (elem: WxmlNode) => void
     end?: (elem: WxmlNode) => void
   },
-) {
+): void {
   for (const elem of ast) {
     handler.begin && handler.begin(elem)
     if (elem.type === 'element') walk(elem.children, handler)
