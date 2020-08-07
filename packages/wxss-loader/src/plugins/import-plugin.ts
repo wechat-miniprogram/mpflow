@@ -2,11 +2,11 @@
  * https://github.com/webpack-contrib/css-loader/blob/master/src/plugins/postcss-import-parser.js
  */
 
+import { isUrlRequest } from 'loader-utils'
 import { plugin } from 'postcss'
 import valueParser from 'postcss-value-parser'
-import { isUrlRequest } from 'loader-utils'
 import { normalizeUrl } from '../utils'
-import { PluginImportMessage, PluginChildImportMessage, PluginReplaceMessage } from './type'
+import { PluginChildImportMessage, PluginImportMessage } from './type'
 
 const pluginName = 'wxss-import-parser'
 
