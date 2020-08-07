@@ -6,13 +6,13 @@ describe('webpack-plugin examples', () => {
     const result = await runExample('app')
     expect(result.errors).toMatchSnapshot('errors')
     expect(result.warnings).toMatchSnapshot('warnings')
-    await expectToMatchExampleDist('app', result.assets)
+    await expectToMatchExampleDist(result.assets, 'app')
   })
 
   test('plugin', async () => {
     const result = await runExample('plugin')
     expect(result.errors).toMatchSnapshot('errors')
     expect(result.warnings).toMatchSnapshot('warnings')
-    await expectToMatchExampleDist('plugin', result.assets)
+    await expectToMatchExampleDist(result.assets, 'plugin')
   })
 })

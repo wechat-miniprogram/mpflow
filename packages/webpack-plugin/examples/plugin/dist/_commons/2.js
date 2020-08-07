@@ -101,9 +101,10 @@ module.exports = __webpack_require__(18)
 Page({
   data: {},
   onLoad: function () {
-    console.log('This is a plugin page!');
-  }
-});
+    console.log('This is a plugin page!')
+  },
+})
+
 
 /***/ })
 

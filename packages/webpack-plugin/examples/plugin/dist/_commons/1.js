@@ -97,19 +97,18 @@ Component({
       type: Array,
       value: [],
       observer: function (newVal, oldVal, changedPath) {
-        this.setData({ items: newVal });
-      }
-    }
+        this.setData({ items: newVal })
+      },
+    },
   },
 
   data: {
-    items: []
+    items: [],
   },
 
-  methods: {
-
-  }
+  methods: {},
 })
+
 
 /***/ }),
 

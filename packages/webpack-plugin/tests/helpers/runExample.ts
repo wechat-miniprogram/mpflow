@@ -1,4 +1,4 @@
-import { loaderTestUtils } from '@weflow/test-utils'
+import { webpackTestUtils } from '@weflow/test-utils'
 import path from 'path'
 import { Stats } from 'webpack'
 
@@ -11,12 +11,12 @@ export default async function runExample(
   assets: Record<string, string>
 }> {
   const exampleConfig = require(path.resolve(__dirname, '../../examples', example, 'webpack.config.js'))
-  const compiler = loaderTestUtils.getCompiler(exampleConfig)
+  const compiler = webpackTestUtils.getCompiler(exampleConfig)
 
-  const stats = await loaderTestUtils.compile(compiler)
-  const errors = loaderTestUtils.getErrors(stats)
-  const warnings = loaderTestUtils.getWarnings(stats)
-  const assets = loaderTestUtils.readAssets(compiler, stats)
+  const stats = await webpackTestUtils.compile(compiler)
+  const errors = webpackTestUtils.getErrors(stats)
+  const warnings = webpackTestUtils.getWarnings(stats)
+  const assets = webpackTestUtils.readAssets(compiler, stats)
 
   return {
     stats,

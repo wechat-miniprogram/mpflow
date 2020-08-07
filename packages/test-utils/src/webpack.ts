@@ -20,6 +20,7 @@ export function getCompiler(config: Configuration): Compiler {
         filename: '[name].bundle.js',
         chunkFilename: '[name].chunk.js',
         libraryTarget: 'commonjs2',
+        pathinfo: false,
       },
     },
     config,
@@ -36,13 +37,7 @@ export function getCompiler(config: Configuration): Compiler {
 
 export function compile(compiler: Compiler): Promise<Stats> {
   return new Promise((resolve, reject) => {
-    compiler.run((error, stats) => {
-      if (error) {
-        return reject(error)
-      }
-
-      return resolve(stats)
-    })
+    compiler.run((error, stats) => (error ? reject(error) : resolve(stats)))
   })
 }
 

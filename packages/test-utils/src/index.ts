@@ -1,3 +1,3 @@
-import * as loaderTestUtils from './loader'
+import * as webpackTestUtils from './webpack'
 
-export { loaderTestUtils }
+export { webpackTestUtils }
