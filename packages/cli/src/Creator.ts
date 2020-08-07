@@ -1,4 +1,4 @@
-import { Plugin, PluginInfo } from '@weflow/service-core'
+import { Plugin, PluginInfo } from '@mpflow/service-core'
 import axios from 'axios'
 import cp from 'child_process'
 import path from 'path'
@@ -153,8 +153,8 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     this.hooks.init.tapPromise('creator', async () => {
       // npm install
       await this.installNodeModules()
-      // npm install @weflow/service
-      await this.installNodeModules(['@weflow/service'])
+      // npm install @mpflow/service
+      await this.installNodeModules(['@mpflow/service'])
 
       // 执行内置插件的 generator
       const localService = getLocalService(this.context)
@@ -238,9 +238,9 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
 
     const generator = new Generator(this.context, { plugins })
 
-    // 将插件添加到 weflow.config.js
-    generator.processFile('weflow.config.js', (file, api) => {
-      api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
+    // 将插件添加到 mpflow.config.js
+    generator.processFile('mpflow.config.js', (file, api) => {
+      api.transform(require('@mpflow/service-core/lib/codemods/add-to-exports').default, {
         fieldName: 'plugins',
         items: pluginNames,
       })
@@ -258,15 +258,15 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
   resolvePluginInfos(inlinePlugins: PluginInfo<P>[] = []): PluginInfo<P>[] {
     const buildInPlugins: PluginInfo<P>[] = [
       {
-        id: '@weflow/cli/lib/creator-plugins/request-app-id',
+        id: '@mpflow/cli/lib/creator-plugins/request-app-id',
         module: require('./creator-plugins/request-app-id'),
       },
       {
-        id: '@weflow/cli/lib/creator-plugins/recommended',
+        id: '@mpflow/cli/lib/creator-plugins/recommended',
         module: require('./creator-plugins/recommended'),
       },
       {
-        id: '@weflow/cli/lib/creator-plugins/init-git',
+        id: '@mpflow/cli/lib/creator-plugins/init-git',
         module: require('./creator-plugins/init-git'),
       },
     ]

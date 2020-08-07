@@ -1,5 +1,5 @@
 {
-  "name": "weflow",
+  "name": "mpflow",
   "version": "0.0.1",
   "description": "enhanced cli tool for mp deveopers",
   "main": "index.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://git.code.oa.com/wxweb/weflow.git"
+    "url": "http://git.code.oa.com/wxweb/mpflow.git"
   },
   "author": "jimmytian",
   "license": "MIT",

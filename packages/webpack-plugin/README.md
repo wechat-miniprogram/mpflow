@@ -1,4 +1,4 @@
-# `@weflow/webpack-plugin`
+# `@mpflow/webpack-plugin`
 
 ## TODO
 

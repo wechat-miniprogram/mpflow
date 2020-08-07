@@ -1,4 +1,4 @@
-import { Plugin } from '@weflow/service-core'
+import { Plugin } from '@mpflow/service-core'
 
 const build: Plugin = (api, config) => {
   api.registerCommand(
@@ -59,7 +59,7 @@ const build: Plugin = (api, config) => {
 build.generator = (api, config) => {
   api.extendPackage({
     scripts: {
-      build: 'weflow-service build',
+      build: 'mpflow-service build',
     },
   })
 }

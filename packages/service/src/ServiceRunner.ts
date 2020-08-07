@@ -1,4 +1,4 @@
-import { Plugin, PluginInfo, Runner, RunnerAPI, RunnerOptions, WeflowConfig } from '@weflow/service-core'
+import { Plugin, PluginInfo, Runner, RunnerAPI, RunnerOptions, MpflowConfig } from '@mpflow/service-core'
 import { Configuration } from 'webpack'
 import WebpackChain from 'webpack-chain'
 import { merge } from 'webpack-merge'
@@ -127,23 +127,23 @@ export class ServiceRunner extends Runner {
   static getBuiltInPlugins(): PluginInfo[] {
     return [
       {
-        id: '@weflow/service/lib/config/base',
+        id: '@mpflow/service/lib/config/base',
         module: require('./config/base'),
       },
       {
-        id: '@weflow/service/lib/config/weflow',
-        module: require('./config/weflow'),
+        id: '@mpflow/service/lib/config/mpflow',
+        module: require('./config/mpflow'),
       },
       {
-        id: '@weflow/service/lib/commands/build',
+        id: '@mpflow/service/lib/commands/build',
         module: require('./commands/build'),
       },
       {
-        id: '@weflow/service/lib/commands/dev',
+        id: '@mpflow/service/lib/commands/dev',
         module: require('./commands/dev'),
       },
       {
-        id: '@weflow/service/lib/commands/inspect',
+        id: '@mpflow/service/lib/commands/inspect',
         module: require('./commands/inspect'),
       },
     ]
@@ -154,7 +154,7 @@ export class ServiceRunner extends Runner {
    * @param inlinePlugins
    * @param config
    */
-  resolvePluginInfos(inlinePlugins: PluginInfo[] = [], config: WeflowConfig = this.config): PluginInfo[] {
+  resolvePluginInfos(inlinePlugins: PluginInfo[] = [], config: MpflowConfig = this.config): PluginInfo[] {
     const projectPlugins = super.resolvePluginInfos(inlinePlugins, config)
     const builtInPlugins = ServiceRunner.getBuiltInPlugins()
 

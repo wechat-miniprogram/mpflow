@@ -1,7 +1,6 @@
-import { Plugin } from '@weflow/service-core'
-import WeflowPlugin from '@weflow/webpack-plugin'
+import { Plugin } from '@mpflow/service-core'
+import MpflowPlugin from '@mpflow/webpack-plugin'
 import path from 'path'
-import qs from 'querystring'
 
 const base: Plugin = (api, config) => {
   api.beforeConfigureWebpack(() => {
@@ -20,7 +19,7 @@ const base: Plugin = (api, config) => {
         webpackConfig
           .name('app')
           .entry('app')
-          .add(`${WeflowPlugin.appLoader}!${api.resolve(app)}`)
+          .add(`${MpflowPlugin.appLoader}!${api.resolve(app)}`)
           .end()
 
         webpackConfig.output.path(path.join(outputPath, miniprogramRoot))
@@ -32,7 +31,7 @@ const base: Plugin = (api, config) => {
         webpackConfig
           .name('plugin')
           .entry('plugin')
-          .add(`${WeflowPlugin.pluginLoader}!${api.resolve(plugin)}`)
+          .add(`${MpflowPlugin.pluginLoader}!${api.resolve(plugin)}`)
           .end()
 
         webpackConfig.output.path(path.join(outputPath, pluginRoot))
@@ -47,7 +46,7 @@ const base: Plugin = (api, config) => {
           webpackConfig
             .name('pages')
             .entry(basename)
-            .add(`${WeflowPlugin.pageLoader}!${api.resolve(pageEntry)}`)
+            .add(`${MpflowPlugin.pageLoader}!${api.resolve(pageEntry)}`)
             .end()
 
           webpackConfig.output.path(outputPath)
@@ -60,14 +59,7 @@ const base: Plugin = (api, config) => {
 
       webpackConfig.context(api.getCwd())
 
-      webpackConfig.output
-        // .libraryTarget('commonjs2')
-        .filename('_commons/[name].js')
-        .chunkFilename('_commons/[name].js')
-        // .library('webpackExports')
-        // .libraryTarget('global')
-        // .globalObject('global')
-        // .jsonpFunction('webpackModules')
+      webpackConfig.output.filename('_commons/[name].js').chunkFilename('_commons/[name].js')
 
       webpackConfig.resolve.extensions.add('.js').add('.json')
 
@@ -85,11 +77,31 @@ const base: Plugin = (api, config) => {
       webpackConfig.module
         .rule('wxs')
         .test(/\.wxs$/)
-        .pre()
         .use('raw-loader')
         .loader(require.resolve('raw-loader'))
 
-      webpackConfig.target(WeflowPlugin.target as any)
+      webpackConfig.module
+        .rule('wxss')
+        .test(/\.wxss$/)
+        .use('@mpflow/wxss-loader')
+        .loader(require.resolve('@mpflow/wxss-loader'))
+
+      webpackConfig.module
+        .rule('wxml')
+        .test(/\.wxml$/)
+        .use('@mpflow/wxml-loader')
+        .loader(require.resolve('@mpflow/wxml-loader'))
+
+      webpackConfig.module
+        .rule('images')
+        .test(/\.(png|jpg|jpeg|gif|svg|cer|mp3|aac|m4a|mp4|wav|ogg|silk)$/i)
+        .use('file-loader')
+        .loader(require.resolve('file-loader'))
+        .options({
+          name: '_assets/[name].[hash:8].[ext]',
+        })
+
+      webpackConfig.target(MpflowPlugin.target as any)
 
       if (mode === 'production') {
         webpackConfig.optimization.runtimeChunk('single').splitChunks({
@@ -122,12 +134,6 @@ const base: Plugin = (api, config) => {
             cleanStaleWebpackAssets: false,
           },
         ])
-
-      // webpackConfig.plugin('copy-project').use(require('copy-webpack-plugin'), [
-      //   {
-      //     patterns: [api.resolve('project.config.json')],
-      //   },
-      // ])
     })
   })
 }

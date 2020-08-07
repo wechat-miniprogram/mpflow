@@ -4,7 +4,7 @@ import ModuleFilenameHelpers from 'webpack/lib/ModuleFilenameHelpers'
 import ExternalDependency from './ExternalDependency'
 import { isExternalEntryPoint, markAsExternal } from './utils'
 
-const PLUGIN_NAME = 'Weflow External Plugin'
+const PLUGIN_NAME = 'Mpflow External Plugin'
 
 /**
  * 提供一个 ExternalDependency, 会将其所在的 chunk 标记为 external

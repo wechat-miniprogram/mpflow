@@ -2,7 +2,7 @@ import { getOptions, interpolateName, urlToRequest } from 'loader-utils'
 import {
   addDependency,
   asyncLoaderWrapper,
-  getWeflowLoaders,
+  getMpflowLoaders,
   markAsExternal,
   resolveWithType,
   stringifyResource,
@@ -43,7 +43,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             appContext,
           },
         },
-        ...getWeflowLoaders(this, jsonRequest, 'json'),
+        ...getMpflowLoaders(this, jsonRequest, 'json'),
       ],
       {
         disabled: 'normal',

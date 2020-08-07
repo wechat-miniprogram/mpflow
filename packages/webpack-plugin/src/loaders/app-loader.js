@@ -2,14 +2,14 @@ import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loa
 import {
   addDependency,
   asyncLoaderWrapper,
-  getWeflowLoaders,
+  getMpflowLoaders,
   markAsExternal,
   resolveWithType,
   stringifyResource,
 } from '../utils'
 import { appJsonLoader, assetLoader } from './index'
 
-const wxssLoader = require.resolve('@weflow/wxss-loader')
+const wxssLoader = require.resolve('@mpflow/wxss-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -41,7 +41,7 @@ export const pitch = asyncLoaderWrapper(async function () {
           {
             loader: wxssLoader,
           },
-          ...getWeflowLoaders(this, wxssRequest, 'wxss'),
+          ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],
         { disabled: 'normal' },
       ),
@@ -72,7 +72,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             appContext: appContext,
           },
         },
-        ...getWeflowLoaders(this, jsonRequest, 'json'),
+        ...getMpflowLoaders(this, jsonRequest, 'json'),
       ],
       {
         disabled: 'normal',
@@ -82,7 +82,7 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   // 加载 js 并且导出
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
-  const exports = stringifyResource(jsRequest, getWeflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
+  const exports = stringifyResource(jsRequest, getMpflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
   return `module.exports = require(${stringifyRequest(this, exports)})`
 })

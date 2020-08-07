@@ -1,5 +1,5 @@
 {
-  "name": "@weflow/template-miniprogram-plugin",
+  "name": "@mpflow/template-miniprogram-plugin",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
@@ -15,7 +15,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@git.code.oa.com:wxweb/weflow.git"
+    "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"

@@ -1,5 +1,5 @@
 {
-  "name": "@weflow/webpack-plugin",
+  "name": "@mpflow/webpack-plugin",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@git.code.oa.com:wxweb/weflow.git"
+    "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
   "scripts": {
     "build": "node ../../scripts/build",
@@ -40,8 +40,8 @@
     "webpack": "^4.43.0"
   },
   "dependencies": {
-    "@weflow/wxml-loader": "^0.0.1",
-    "@weflow/wxss-loader": "^0.0.1",
+    "@mpflow/wxml-loader": "^0.0.1",
+    "@mpflow/wxss-loader": "^0.0.1",
     "deepmerge": "^4.2.2",
     "ejs": "^3.1.3",
     "webpack-chain": "^6.5.0"

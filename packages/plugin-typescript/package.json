@@ -1,5 +1,5 @@
 {
-  "name": "@weflow/plugin-typescript",
+  "name": "@mpflow/plugin-typescript",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@git.code.oa.com:wxweb/weflow.git"
+    "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
   "scripts": {
     "build": "npm run build-js && npm run build-ts",
@@ -34,11 +34,11 @@
   },
   "devDependencies": {
     "@types/wechat-miniprogram": "^2.11.0",
-    "@weflow/service": "^0.0.1",
+    "@mpflow/service": "^0.0.1",
     "typescript": "^3.9.7",
     "webpack": "^4.43.0"
   },
   "peerDependencies": {
-    "@weflow/service": "*"
+    "@mpflow/service": "*"
   }
 }

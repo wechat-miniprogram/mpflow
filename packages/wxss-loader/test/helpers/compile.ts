@@ -1,5 +1,5 @@
-import { loaderTestUtils } from '@weflow/test-utils'
-import { Options } from '@weflow/wxss-loader'
+import { loaderTestUtils } from '@mpflow/test-utils'
+import { Options } from '@mpflow/wxss-loader'
 import { Stats } from 'webpack'
 import path from 'path'
 
@@ -19,7 +19,7 @@ export default async function compile(
       rules: [
         {
           test: /\.wxss$/,
-          loader: require.resolve('@weflow/wxss-loader'),
+          loader: require.resolve('@mpflow/wxss-loader'),
           options: loaderOptions,
         },
         {

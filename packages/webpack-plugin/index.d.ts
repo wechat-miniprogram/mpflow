@@ -1,7 +1,7 @@
 import { Compiler, Resolve, RuleSetRule } from 'webpack'
 import { ChainedMap, Resolve as ResolveChain, Rule as RuleChain, TypedChainedSet } from 'webpack-chain'
 
-declare namespace WeflowPlugin {
+declare namespace MpflowPlugin {
   class ResolveConfigChain<T> extends ChainedMap<T> {
     roots: TypedChainedSet<this, string>
 
@@ -70,8 +70,8 @@ declare namespace WeflowPlugin {
   }
 }
 
-declare class WeflowPlugin {
-  constructor(options?: WeflowPlugin.Options)
+declare class MpflowPlugin {
+  constructor(options?: MpflowPlugin.Options)
   apply(compiler: Compiler): void
 
   static target: (compiler: Compiler) => void
@@ -80,7 +80,7 @@ declare class WeflowPlugin {
   static pageLoader: string
   static pluginLoader: string
 
-  // static ConfigChain: typeof WeflowPlugin.ConfigChain
+  // static ConfigChain: typeof MpflowPlugin.ConfigChain
 }
 
-export = WeflowPlugin
+export = MpflowPlugin

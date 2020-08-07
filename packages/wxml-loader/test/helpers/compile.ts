@@ -1,5 +1,5 @@
-import { loaderTestUtils } from '@weflow/test-utils'
-import { Options } from '@weflow/wxml-loader'
+import { loaderTestUtils } from '@mpflow/test-utils'
+import { Options } from '@mpflow/wxml-loader'
 import { Stats } from 'webpack'
 import path from 'path'
 
@@ -19,7 +19,7 @@ export default async function compile(
       rules: [
         {
           test: /\.wxml$/,
-          loader: require.resolve('@weflow/wxml-loader'),
+          loader: require.resolve('@mpflow/wxml-loader'),
           options: loaderOptions,
         },
         {

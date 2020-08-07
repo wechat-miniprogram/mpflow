@@ -1,5 +1,5 @@
 const path = require('path')
-const weflowPlugin = require('@weflow/webpack-plugin')
+const mpflowPlugin = require('@mpflow/webpack-plugin')
 
 module.exports = {
   mode: 'development',
@@ -7,8 +7,8 @@ module.exports = {
   context: __dirname,
 
   entry: {
-    index: `${weflowPlugin.pageLoader}!./pages/index/index.js`,
-    logs: `${weflowPlugin.pageLoader}!./pages/logs/logs.js`,
+    index: `${mpflowPlugin.pageLoader}!./pages/index/index.js`,
+    logs: `${mpflowPlugin.pageLoader}!./pages/logs/logs.js`,
   },
 
   devtool: 'none',
@@ -57,7 +57,7 @@ module.exports = {
         test: /\.wxss$/,
         use: [
           {
-            loader: '@weflow/wxss-loader',
+            loader: '@mpflow/wxss-loader',
           },
         ],
       },
@@ -65,7 +65,7 @@ module.exports = {
         test: /\.wxml$/,
         use: [
           {
-            loader: '@weflow/wxml-loader',
+            loader: '@mpflow/wxml-loader',
           },
         ],
       },
@@ -89,10 +89,10 @@ module.exports = {
     ],
   },
 
-  target: weflowPlugin.target,
+  target: mpflowPlugin.target,
 
   plugins: [
-    new weflowPlugin({
+    new mpflowPlugin({
       resolve: {
         roots: [__dirname],
       },

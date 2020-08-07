@@ -1,7 +1,7 @@
 import VirtualDependency from './VirtualDependency'
 import VirtualModule from './VirtualModule'
 
-const PLUGIN_NAME = 'Weflow Virtual Plugin'
+const PLUGIN_NAME = 'Mpflow Virtual Plugin'
 
 /**
  * VirtualPlugin 提供了一个虚拟 VirtualModule

@@ -5,7 +5,7 @@ import {
   addExternal,
   asyncLoaderWrapper,
   getPageOutputPath,
-  getWeflowLoaders,
+  getMpflowLoaders,
   isRequest,
   resolveWithType,
   stringifyResource,
@@ -39,7 +39,7 @@ export default asyncLoaderWrapper(async function (source) {
                 outputPath: chunkName,
               },
             },
-            ...getWeflowLoaders(this, resolvedPageRequest, 'page'),
+            ...getMpflowLoaders(this, resolvedPageRequest, 'page'),
           ],
           {
             disabled: 'normal',
@@ -68,7 +68,7 @@ export default asyncLoaderWrapper(async function (source) {
               outputPath: 'sitemap.json',
             },
           },
-          ...getWeflowLoaders(this, resolvedSitemapRequest, 'sitemap'),
+          ...getMpflowLoaders(this, resolvedSitemapRequest, 'sitemap'),
         ],
         {
           disabled: 'normal',

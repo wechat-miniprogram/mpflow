@@ -1,5 +1,5 @@
 {
-  "name": "@weflow/service",
+  "name": "@mpflow/service",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
@@ -8,7 +8,7 @@
   "main": "lib/index.js",
   "type": "lib/index.d.ts",
   "bin": {
-    "weflow-service": "bin/weflow-service.js"
+    "mpflow-service": "bin/mpflow-service.js"
   },
   "directories": {
     "bin": "bin",
@@ -21,19 +21,19 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@git.code.oa.com:wxweb/weflow.git"
+    "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
   "scripts": {
-    "build": "npm run build-js && npm run build-ts",
+    "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
     "test": "tsc"
   },
   "dependencies": {
-    "@weflow/service-core": "^0.0.1",
-    "@weflow/webpack-plugin": "^0.0.1",
-    "@weflow/wxml-loader": "^0.0.1",
-    "@weflow/wxss-loader": "^0.0.1",
+    "@mpflow/service-core": "^0.0.1",
+    "@mpflow/webpack-plugin": "^0.0.1",
+    "@mpflow/wxml-loader": "^0.0.1",
+    "@mpflow/wxss-loader": "^0.0.1",
     "chalk": "^4.1.0",
     "clean-webpack-plugin": "^3.0.0",
     "cli-highlight": "^2.1.4",

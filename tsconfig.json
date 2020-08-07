@@ -4,7 +4,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@weflow/*": ["packages/*/src"]
+      "@mpflow/*": ["packages/*/src"]
     }
   }
 }

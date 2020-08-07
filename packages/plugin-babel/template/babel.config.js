@@ -1,5 +1,5 @@
 module.exports = {
   presets: [
-    '@weflow/plugin-babel/preset',
+    '@mpflow/plugin-babel/preset',
   ]
 }

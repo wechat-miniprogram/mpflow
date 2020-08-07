@@ -1,4 +1,4 @@
-import WebpackPlugin from '@weflow/webpack-plugin'
+import WebpackPlugin from '@mpflow/webpack-plugin'
 
 const { ConfigChain } = WebpackPlugin
 

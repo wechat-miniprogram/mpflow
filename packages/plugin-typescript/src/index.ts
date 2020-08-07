@@ -1,5 +1,5 @@
-import { Plugin } from '@weflow/service-core'
-import { ConfigChain } from '@weflow/webpack-plugin'
+import { Plugin } from '@mpflow/service-core'
+import { ConfigChain } from '@mpflow/webpack-plugin'
 import path from 'path'
 import pkg from '../package.json'
 
@@ -24,7 +24,7 @@ const plugin: Plugin = (api, config) => {
 
       webpackConfig.plugin('fork-ts-checker').use(require('fork-ts-checker-webpack-plugin'), [{}])
 
-      webpackConfig.plugin('weflow').tap(([config]: [ConfigChain]) => {
+      webpackConfig.plugin('mpflow').tap(([config]: [ConfigChain]) => {
         config.resolve.page.extensions.add('.ts').add('.tsx')
 
         config.resolve.javascript.extensions.add('.ts').add('.tsx')
@@ -50,11 +50,11 @@ plugin.generator = async api => {
     api.rename(file.path.replace(/\.js$/, '.ts'))
   })
 
-  if (api.hasPlugin('@weflow/plugin-babel')) {
+  if (api.hasPlugin('@mpflow/plugin-babel')) {
     api.processFile('babel.config.js', (file, api) => {
-      api.transform(require('@weflow/service-core/lib/codemods/add-to-exports').default, {
+      api.transform(require('@mpflow/service-core/lib/codemods/add-to-exports').default, {
         fieldName: 'presets',
-        items: ['@weflow/plugin-typescript/preset'],
+        items: ['@mpflow/plugin-typescript/preset'],
       })
     })
   }

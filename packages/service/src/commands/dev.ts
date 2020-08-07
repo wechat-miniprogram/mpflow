@@ -1,4 +1,4 @@
-import { Plugin } from '@weflow/service-core'
+import { Plugin } from '@mpflow/service-core'
 import cp from 'child_process'
 import fs from 'fs'
 import { Compiler, Stats, MultiCompiler, compilation } from 'webpack'
@@ -128,7 +128,7 @@ const dev: Plugin = (api, config) => {
 dev.generator = (api, config) => {
   api.extendPackage({
     scripts: {
-      dev: 'weflow-service dev',
+      dev: 'mpflow-service dev',
     },
   })
 }

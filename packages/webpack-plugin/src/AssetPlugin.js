@@ -3,7 +3,7 @@ import AssetDependency from './AssetDependency'
 import AssetModule from './AssetModule'
 import AssetModuleFactory from './AssetModuleFactory'
 
-const PLUGIN_NAME = 'Weflow Asset Plugin'
+const PLUGIN_NAME = 'Mpflow Asset Plugin'
 
 /**
  * AssetPlugin 会将通过 asset-loader 加载的模块抽离

@@ -3,12 +3,12 @@ import MiniprogramResolverPlugin from './resolvers/MiniprogramResolverPlugin'
 
 const deepMerge = (...objs) => objs.reduce((obj, rst) => deepmerge(rst, obj, { clone: false }), {})
 
-const PLUGIN_NAME = 'Weflow Resolver Plugin'
+const PLUGIN_NAME = 'Mpflow Resolver Plugin'
 
 /**
  * 注册小程序文件路径查找的插件
  */
-class WeflowResolverPlugin {
+class MpflowResolverPlugin {
   constructor(options = {}) {
     this.options = options
   }
@@ -127,4 +127,4 @@ class WeflowResolverPlugin {
   }
 }
 
-export default WeflowResolverPlugin
+export default MpflowResolverPlugin

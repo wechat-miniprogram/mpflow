@@ -17,8 +17,8 @@ import ExternalDependency from './ExternalDependency'
  * @param {string} type
  * @return {{ loader: string, options: any }[]}
  */
-export function getWeflowLoaders(loaderContext, resource, type) {
-  const ruleSets = loaderContext.__weflowRuleSets || {}
+export function getMpflowLoaders(loaderContext, resource, type) {
+  const ruleSets = loaderContext.__mpflowRuleSets || {}
 
   const resourceQuery = ''
   const resourcePath = resource

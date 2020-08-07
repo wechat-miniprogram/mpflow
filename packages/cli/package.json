@@ -1,10 +1,10 @@
 {
-  "name": "@weflow/cli",
+  "name": "@mpflow/cli",
   "version": "0.0.1",
-  "description": "weflow-cli",
+  "description": "mpflow-cli",
   "main": "lib/index.js",
   "bin": {
-    "weflow": "bin/weflow.js"
+    "mpflow": "bin/mpflow.js"
   },
   "scripts": {
     "build": "npm run build-js && npm run build-ts",
@@ -15,7 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@weflow/service-core": "^0.0.1",
+    "@mpflow/service-core": "^0.0.1",
     "axios": "^0.19.2",
     "deepmerge": "^4.2.2",
     "ejs": "^3.1.3",
@@ -37,6 +37,6 @@
     "@types/semver": "^7.3.1",
     "@types/tar": "^4.0.3",
     "@types/tmp": "^0.2.0",
-    "@weflow/service": "*"
+    "@mpflow/service": "*"
   }
 }

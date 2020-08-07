@@ -1,6 +1,6 @@
 import RuleSet from 'webpack/lib/RuleSet'
 
-const PLUGIN_NAME = 'Weflow Loader Rules Plugin'
+const PLUGIN_NAME = 'Mpflow Loader Rules Plugin'
 
 /**
  * LoaderRulesPlugin 将配置下发至 loader
@@ -31,7 +31,7 @@ class LoaderRulesPlugin {
     const ruleSets = this.ruleSets
     compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
       compilation.hooks.normalModuleLoader.tap(PLUGIN_NAME, context => {
-        context.__weflowRuleSets = ruleSets
+        context.__mpflowRuleSets = ruleSets
       })
     })
   }

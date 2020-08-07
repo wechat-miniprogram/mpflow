@@ -1,4 +1,4 @@
-import { BaseRunnerAPI, PluginInfo, Runner, RunnerOptions, WeflowConfig } from '@weflow/service-core'
+import { BaseRunnerAPI, PluginInfo, Runner, RunnerOptions, MpflowConfig } from '@mpflow/service-core'
 import { Creator } from './Creator'
 import { getLocalService } from './utils'
 
@@ -54,7 +54,7 @@ export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
 export interface CliRunnerOptions extends RunnerOptions {}
 
 export interface CliPlugin {
-  (api: CliRunnerAPI, config: WeflowConfig): void
+  (api: CliRunnerAPI, config: MpflowConfig): void
 }
 
 export interface CliPluginInfo extends PluginInfo<CliPlugin> {}
@@ -82,15 +82,15 @@ export class CliRunner extends Runner<CliPlugin> {
   resolvePluginInfos(inlinePlugins: PluginInfo<CliPlugin>[] = []): PluginInfo<CliPlugin>[] {
     const buildInPlugins: PluginInfo<CliPlugin>[] = [
       {
-        id: '@weflow/cli/lib/commands/create',
+        id: '@mpflow/cli/lib/commands/create',
         module: require('./commands/create'),
       },
       {
-        id: '@weflow/cli/lib/commands/add',
+        id: '@mpflow/cli/lib/commands/add',
         module: require('./commands/add'),
       },
       {
-        id: '@weflow/cli/lib/commands/proxy',
+        id: '@mpflow/cli/lib/commands/proxy',
         module: require('./commands/proxy'),
       },
     ]

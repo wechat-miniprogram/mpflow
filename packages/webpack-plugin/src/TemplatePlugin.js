@@ -1,7 +1,7 @@
 import ejs from 'ejs'
 import { RawSource } from 'webpack-sources'
 
-const PLUGIN_NAME = 'Weflow Template Plugin'
+const PLUGIN_NAME = 'Mpflow Template Plugin'
 
 /**
  * TemplatePlugin 会将一个 ejs 模板渲染后添加到产物中

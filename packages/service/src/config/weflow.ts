@@ -1,10 +1,10 @@
-import { Plugin } from '@weflow/service-core'
-import WeflowPlugin, { ConfigChain } from '@weflow/webpack-plugin'
+import { Plugin } from '@mpflow/service-core'
+import MpflowPlugin, { ConfigChain } from '@mpflow/webpack-plugin'
 import path from 'path'
 
 const ChainedPlugin = require('webpack-chain/src/Plugin')
 
-class PluginWeflow extends ChainedPlugin {
+class PluginMpflow extends ChainedPlugin {
   constructor(parent: any, name: string, type = 'plugin') {
     super(parent, name, type)
   }
@@ -25,21 +25,21 @@ class PluginWeflow extends ChainedPlugin {
   }
 }
 
-const weflow: Plugin = (api, config) => {
+const mpflow: Plugin = (api, config) => {
   let emitProjectConfig = false
 
   api.beforeConfigureWebpack(() => {
     api.configureWebpack(webpackConfig => {
       webpackConfig.plugins
-        .getOrCompute('weflow', () => new PluginWeflow(webpackConfig, 'weflow') as any)
-        .use(WeflowPlugin, [new ConfigChain() as any])
+        .getOrCompute('mpflow', () => new PluginMpflow(webpackConfig, 'mpflow') as any)
+        .use(MpflowPlugin, [new ConfigChain() as any])
 
-      webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
-        weflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src'))
+      webpackConfig.plugin('mpflow').tap(([mpflowConfig]: [ConfigChain]) => {
+        mpflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src'))
 
         // 找一个 webpack 生成 project.config.json
         if (!emitProjectConfig) {
-          weflowConfig.program
+          mpflowConfig.program
             .appId(config.appId)
             .outputPath(
               path.relative(
@@ -56,16 +56,16 @@ const weflow: Plugin = (api, config) => {
           emitProjectConfig = true
         }
 
-        return [weflowConfig]
+        return [mpflowConfig]
       })
     })
 
     // app 构建的 root 设置为 miniprogramRoot
     if (api.hasWebpackConfig('app')) {
       api.configureWebpack('app', webpackConfig => {
-        webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
-          weflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.miniprogramRoot || ''))
-          return [weflowConfig]
+        webpackConfig.plugin('mpflow').tap(([mpflowConfig]: [ConfigChain]) => {
+          mpflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.miniprogramRoot || ''))
+          return [mpflowConfig]
         })
       })
     }
@@ -73,13 +73,13 @@ const weflow: Plugin = (api, config) => {
     // plugin 构建的 root 设置为 pluginRoot
     if (api.hasWebpackConfig('plugin')) {
       api.configureWebpack('plugin', webpackConfig => {
-        webpackConfig.plugin('weflow').tap(([weflowConfig]: [ConfigChain]) => {
-          weflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.pluginRoot || ''))
-          return [weflowConfig]
+        webpackConfig.plugin('mpflow').tap(([mpflowConfig]: [ConfigChain]) => {
+          mpflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.pluginRoot || ''))
+          return [mpflowConfig]
         })
       })
     }
   })
 }
 
-export default weflow
+export default mpflow

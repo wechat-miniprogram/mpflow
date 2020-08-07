@@ -1,6 +1,6 @@
 import fs from 'fs'
 import path from 'path'
-import { Plugin, WeflowConfig } from './type'
+import { Plugin, MpflowConfig } from './type'
 
 export class BaseAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> {
   public id: string
@@ -38,7 +38,7 @@ export interface BaseServiceOptions {
   plugins?: PluginInfo<any>[]
   project?: any
   pkg?: any
-  config?: WeflowConfig
+  config?: MpflowConfig
 }
 
 export abstract class BaseService<P = Plugin> {
@@ -63,9 +63,9 @@ export abstract class BaseService<P = Plugin> {
   public pluginOptions: PluginInfo<P>[]
 
   /**
-   * weflow.config.js 读取到的配置内容
+   * mpflow.config.js 读取到的配置内容
    */
-  public config: WeflowConfig
+  public config: MpflowConfig
 
   constructor(context: string, { plugins, pkg, project, config }: BaseServiceOptions = {}) {
     this.context = context
@@ -104,13 +104,13 @@ export abstract class BaseService<P = Plugin> {
   }
 
   /**
-   * 解析 weflow.config.js
+   * 解析 mpflow.config.js
    * @param inlineConfig
    * @param context
    */
-  resolveConfig(inlineConfig?: WeflowConfig, context: string = this.context): WeflowConfig {
+  resolveConfig(inlineConfig?: MpflowConfig, context: string = this.context): MpflowConfig {
     if (inlineConfig) return inlineConfig
-    const configPath = path.resolve(context, 'weflow.config.js')
+    const configPath = path.resolve(context, 'mpflow.config.js')
     if (fs.existsSync(configPath)) {
       delete require.cache[configPath]
       return require(configPath)
@@ -123,7 +123,7 @@ export abstract class BaseService<P = Plugin> {
    * @param inlinePlugins
    * @param config
    */
-  resolvePluginInfos(inlinePlugins: PluginInfo<P>[] = [], config: WeflowConfig = this.config): PluginInfo<P>[] {
+  resolvePluginInfos(inlinePlugins: PluginInfo<P>[] = [], config: MpflowConfig = this.config): PluginInfo<P>[] {
     if (inlinePlugins.length) return inlinePlugins
 
     const projectPlugins: PluginInfo<P>[] = (config.plugins || []).map(id => {

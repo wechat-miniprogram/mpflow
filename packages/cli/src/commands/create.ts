@@ -16,7 +16,7 @@ const create: CliPlugin = (api, config) => {
       template: {
         type: 'string',
         description: '创建小程序的模板包名称',
-        default: '@weflow/template-miniprogram',
+        default: '@mpflow/template-miniprogram',
       },
       appId: {
         type: 'string',

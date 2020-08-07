@@ -4,7 +4,7 @@ import {
   addExternal,
   asyncLoaderWrapper,
   getPageOutputPath,
-  getWeflowLoaders,
+  getMpflowLoaders,
   isRequest,
   resolveWithType,
   stringifyResource,
@@ -46,7 +46,7 @@ export default asyncLoaderWrapper(async function (source) {
                 outputPath: chunkName,
               },
             },
-            ...getWeflowLoaders(this, resolvedComponentRequest, 'page'),
+            ...getMpflowLoaders(this, resolvedComponentRequest, 'page'),
           ],
           { disabled: 'normal' },
         ),
@@ -63,7 +63,7 @@ export default asyncLoaderWrapper(async function (source) {
 
     await addExternal(
       this,
-      stringifyResource(resolvedMainRequest, getWeflowLoaders(this, resolvedMainRequest, 'javascript'), {
+      stringifyResource(resolvedMainRequest, getMpflowLoaders(this, resolvedMainRequest, 'javascript'), {
         disabled: 'normal',
       }),
       'main',

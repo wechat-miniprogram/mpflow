@@ -1,5 +1,5 @@
 {
-  "name": "@weflow/service-core",
+  "name": "@mpflow/service-core",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
@@ -16,10 +16,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@git.code.oa.com:wxweb/weflow.git"
+    "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
   "scripts": {
-    "build": "npm run build-js && npm run build-ts",
+    "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
     "test": "echo \"Error: run tests from root\" && exit 1"

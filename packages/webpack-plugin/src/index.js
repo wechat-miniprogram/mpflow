@@ -8,9 +8,9 @@ import target from './target'
 import TemplatePlugin from './TemplatePlugin'
 import VirtualPlugin from './VirtualPlugin'
 
-class WeflowWebpackPlugin {
+class MpflowWebpackPlugin {
   /**
-   * @param {import('@weflow/webpack-plugin').Options} options
+   * @param {import('@mpflow/webpack-plugin').Options} options
    */
   constructor(options = {}) {
     this.options = options
@@ -44,12 +44,12 @@ class WeflowWebpackPlugin {
   }
 }
 
-WeflowWebpackPlugin.target = target
+MpflowWebpackPlugin.target = target
 
-WeflowWebpackPlugin.appLoader = appLoader
-WeflowWebpackPlugin.pageLoader = pageLoader
-WeflowWebpackPlugin.pluginLoader = pluginLoader
+MpflowWebpackPlugin.appLoader = appLoader
+MpflowWebpackPlugin.pageLoader = pageLoader
+MpflowWebpackPlugin.pluginLoader = pluginLoader
 
-WeflowWebpackPlugin.ConfigChain = ConfigChain
+MpflowWebpackPlugin.ConfigChain = ConfigChain
 
-module.exports = WeflowWebpackPlugin
+module.exports = MpflowWebpackPlugin

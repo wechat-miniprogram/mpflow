@@ -256,11 +256,11 @@ export function stringifyPackage(pkg: Record<string, any>): string {
  * 获取路径下的本地 service
  * @param context
  */
-export function getLocalService(context: string): typeof import('@weflow/service') {
+export function getLocalService(context: string): typeof import('@mpflow/service') {
   try {
-    return require(require.resolve('@weflow/service', { paths: [context] }))
+    return require(require.resolve('@mpflow/service', { paths: [context] }))
   } catch (e) {
-    throw new Error(`无法在执行路径 "${context}" 下找到 @weflow/service`)
+    throw new Error(`无法在执行路径 "${context}" 下找到 @mpflow/service`)
   }
 }
 

@@ -17,13 +17,13 @@ const create: CliPlugin = (api, config) => {
     {},
     async ({ pluginName }) => {
       try {
-        const checkInWeflowProject = (context: string) => fs.existsSync(path.join(context, 'weflow.config.js'))
+        const checkInMpflowProject = (context: string) => fs.existsSync(path.join(context, 'mpflow.config.js'))
 
-        // 向上查找 weflow.config.js
-        const context = getPaths(api.getCwd()).find(checkInWeflowProject)
+        // 向上查找 mpflow.config.js
+        const context = getPaths(api.getCwd()).find(checkInMpflowProject)
 
         if (!context) {
-          throw new Error('请在 weflow 项目中执行该命令')
+          throw new Error('请在 mpflow 项目中执行该命令')
         }
 
         await api.add(context, [pluginName])

@@ -1,4 +1,4 @@
-import { Plugin } from '@weflow/service-core'
+import { Plugin } from '@mpflow/service-core'
 import path from 'path'
 
 const plugin: Plugin = (api, config) => {

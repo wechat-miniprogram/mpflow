@@ -6,7 +6,7 @@ import {
   Plugin,
   ProcessFileAPI,
   ProcessFileHandler,
-} from '@weflow/service-core'
+} from '@mpflow/service-core'
 import { Options as EjsOptions } from 'ejs'
 import minimatch from 'minimatch'
 import {

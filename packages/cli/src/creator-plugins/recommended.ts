@@ -22,21 +22,21 @@ recommended.creator = api => {
   api.tapPrepare(async infos => {
     const useTs = await confirm('是否启用 Typescript ?')
     if (useTs) {
-      pluginNames.push('@weflow/plugin-babel', '@weflow/plugin-typescript')
+      pluginNames.push('@mpflow/plugin-babel', '@mpflow/plugin-typescript')
     }
 
     if (!useTs) {
       const useBabel = await confirm('是否启用 babel ?')
 
       if (useBabel) {
-        pluginNames.push('@weflow/plugin-babel')
+        pluginNames.push('@mpflow/plugin-babel')
       }
     }
 
     const useCss = await confirm('是否启用 css/less/sass/stylus ?')
 
     if (useCss) {
-      pluginNames.push('@weflow/plugin-css')
+      pluginNames.push('@mpflow/plugin-css')
     }
 
     return infos

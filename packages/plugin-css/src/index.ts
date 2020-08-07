@@ -1,5 +1,5 @@
-import { Plugin } from '@weflow/service'
-import { ConfigChain } from '@weflow/webpack-plugin'
+import { Plugin } from '@mpflow/service'
+import { ConfigChain } from '@mpflow/webpack-plugin'
 
 const plugin: Plugin = (api, config) => {
   api.beforeConfigureWebpack(() => {
@@ -15,10 +15,10 @@ const plugin: Plugin = (api, config) => {
             .options(options)
         }
 
-        webpackConfig.plugin('weflow').tap(([weflowPluginConfig]: [ConfigChain]) => {
-          weflowPluginConfig.resolve.wxss.extensions.add('.' + extension)
+        webpackConfig.plugin('mpflow').tap(([mpflowPluginConfig]: [ConfigChain]) => {
+          mpflowPluginConfig.resolve.wxss.extensions.add('.' + extension)
 
-          return [weflowPluginConfig]
+          return [mpflowPluginConfig]
         })
       }
 

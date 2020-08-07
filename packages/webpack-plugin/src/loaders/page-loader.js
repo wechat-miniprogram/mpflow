@@ -4,15 +4,15 @@ import {
   addDependency,
   asyncLoaderWrapper,
   getPageOutputPath,
-  getWeflowLoaders,
+  getMpflowLoaders,
   markAsExternal,
   resolveWithType,
   stringifyResource,
 } from '../utils'
 import { assetLoader, pageJsonLoader } from './index'
 
-const wxssLoader = require.resolve('@weflow/wxss-loader')
-const wxmlLoader = require.resolve('@weflow/wxml-loader')
+const wxssLoader = require.resolve('@mpflow/wxss-loader')
+const wxmlLoader = require.resolve('@mpflow/wxml-loader')
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -47,7 +47,7 @@ export const pitch = asyncLoaderWrapper(async function () {
         {
           loader: wxmlLoader,
         },
-        ...getWeflowLoaders(this, wxmlRequest, 'wxml'),
+        ...getMpflowLoaders(this, wxmlRequest, 'wxml'),
       ],
       { disabled: 'normal' },
     ),
@@ -70,7 +70,7 @@ export const pitch = asyncLoaderWrapper(async function () {
           {
             loader: wxssLoader,
           },
-          ...getWeflowLoaders(this, wxssRequest, 'wxss'),
+          ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],
         { disabled: 'normal' },
       ),
@@ -102,7 +102,7 @@ export const pitch = asyncLoaderWrapper(async function () {
               outputPath,
             },
           },
-          ...getWeflowLoaders(this, jsonRequest, 'json'),
+          ...getMpflowLoaders(this, jsonRequest, 'json'),
         ],
         {
           disabled: 'normal',
@@ -115,7 +115,7 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   // 加载 js 并且导出
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
-  const exports = stringifyResource(jsRequest, getWeflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
+  const exports = stringifyResource(jsRequest, getMpflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
   return `module.exports = require(${stringifyRequest(this, exports)})`
 })

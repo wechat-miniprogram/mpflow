@@ -1,4 +1,4 @@
-import { webpackTestUtils } from '@weflow/test-utils'
+import { webpackTestUtils } from '@mpflow/test-utils'
 import path from 'path'
 
 export default function expectToMatchExampleDist(assets: Record<string, string>, example: string): Promise<void> {

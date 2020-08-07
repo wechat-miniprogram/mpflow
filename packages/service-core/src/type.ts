@@ -3,17 +3,17 @@ import WebpackChain from 'webpack-chain'
 import { GeneratorAPI } from './Generator'
 import { RunnerAPI } from './Runner'
 
-export interface WeflowConfig {
+export interface MpflowConfig {
   /**
-   * weflow 要使用的插件列表
+   * mpflow 要使用的插件列表
    */
   plugins?: string[]
   /**
-   * weflow 打包调整 webpack 配置
+   * mpflow 打包调整 webpack 配置
    */
   configureWebpack?: Configuration | ((config: Configuration) => Configuration)
   /**
-   * weflow 打包调整 webpack 配置
+   * mpflow 打包调整 webpack 配置
    */
   configureWebpackChain?: (config: WebpackChain) => void
   /**
@@ -59,7 +59,7 @@ export interface WeflowConfig {
 }
 
 export interface Plugin {
-  (api: RunnerAPI, config: WeflowConfig): void
+  (api: RunnerAPI, config: MpflowConfig): void
 
-  generator?: (api: GeneratorAPI, config: WeflowConfig) => void
+  generator?: (api: GeneratorAPI, config: MpflowConfig) => void
 }
