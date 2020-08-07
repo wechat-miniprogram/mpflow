@@ -1,4 +1,4 @@
-packages/*/lib
-packages/*/example
-packages/*/template
-packages/*/__tests__
+packages/**/lib
+packages/**/dist
+packages/**/template
+packages/**/coverage

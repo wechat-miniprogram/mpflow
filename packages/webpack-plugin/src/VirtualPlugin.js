@@ -3,6 +3,10 @@ import VirtualModule from './VirtualModule'
 
 const PLUGIN_NAME = 'Weflow Virtual Plugin'
 
+/**
+ * VirtualPlugin 提供了一个虚拟 VirtualModule
+ * VirtualModule 在最后生成阶段不会产生任何代码
+ */
 class VirtualPlugin {
   constructor(options) {
     this.options = options

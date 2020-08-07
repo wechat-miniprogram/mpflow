@@ -44,4 +44,4 @@ WeflowWebpackPlugin.pluginLoader = pluginLoader
 
 WeflowWebpackPlugin.ConfigChain = ConfigChain
 
-export default WeflowWebpackPlugin
+module.exports = WeflowWebpackPlugin

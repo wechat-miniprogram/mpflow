@@ -2,13 +2,14 @@ import { ConcatSource, OriginalSource, RawSource } from 'webpack-sources'
 import AssetDependency from './AssetDependency'
 import AssetModule from './AssetModule'
 import AssetModuleFactory from './AssetModuleFactory'
-import { isExternalEntryPoint } from './utils'
-import ModuleFilenameHelpers from 'webpack/lib/ModuleFilenameHelpers'
-import ejs from 'ejs'
 
 const PLUGIN_NAME = 'Weflow Asset Plugin'
 
-class MpAssetPlugin {
+/**
+ * AssetPlugin 会将通过 asset-loader 加载的模块抽离
+ * 渲染成独立文件
+ */
+class AssetPlugin {
   constructor(options) {
     this.options = options
   }
@@ -246,8 +247,6 @@ class MpAssetPlugin {
         return result
       })
     })
-
-
   }
 }
-export default MpAssetPlugin
+export default AssetPlugin

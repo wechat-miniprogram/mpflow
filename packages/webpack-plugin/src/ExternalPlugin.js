@@ -6,6 +6,10 @@ import { isExternalEntryPoint, markAsExternal } from './utils'
 
 const PLUGIN_NAME = 'Weflow External Plugin'
 
+/**
+ * 提供一个 ExternalDependency, 会将其所在的 chunk 标记为 external
+ * 被标记为 external 的 chunk 会渲染出小程序页面的入口 js 和 wxss
+ */
 class ExternalPlugin {
   constructor(options) {
     this.options = options

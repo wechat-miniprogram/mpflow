@@ -2,6 +2,9 @@ import RuleSet from 'webpack/lib/RuleSet'
 
 const PLUGIN_NAME = 'Weflow Loader Rules Plugin'
 
+/**
+ * LoaderRulesPlugin 将配置下发至 loader
+ */
 class LoaderRulesPlugin {
   constructor(options = {}) {
     const { sitemap, page, json, javascript, wxml, wxss } = {

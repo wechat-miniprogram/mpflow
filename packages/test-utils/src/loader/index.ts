@@ -3,6 +3,8 @@ import path from 'path'
 import webpack, { Compiler, Configuration, Stats } from 'webpack'
 import merge from 'webpack-merge'
 import Module from 'module'
+import glob from 'glob'
+import fs from 'fs'
 
 export function getCompiler(config: Configuration): Compiler {
   const fullConfig = merge(
@@ -12,6 +14,7 @@ export function getCompiler(config: Configuration): Compiler {
       target: 'node',
       optimization: {
         minimize: false,
+        namedModules: false,
       },
       output: {
         filename: '[name].bundle.js',
@@ -52,7 +55,8 @@ function removeCWD(str: string): string {
     cwd = cwd.replace(/\\/g, '/')
   }
 
-  return str.replace(/\(from .*?\)/, '(from `replaced original path`)').replace(new RegExp(cwd, 'g'), '')
+  return str.replace(new RegExp(cwd, 'g'), '')
+  // return str.replace(/\(from .*?\)/, '(from `replaced original path`)').replace(new RegExp(cwd, 'g'), '')
 }
 
 export function normalizeErrors(errors: Error[]): string[] {
@@ -108,6 +112,36 @@ export function readAsset(asset: string, compiler: Compiler, stats: Stats): stri
   return data
 }
 
+export function readAssets(compiler: Compiler, stats: Stats): Record<string, string> {
+  const assets: Record<string, string> = {}
+
+  Object.keys(stats.compilation.assets).forEach(asset => {
+    assets[asset] = readAsset(asset, compiler, stats)
+  })
+
+  return assets
+}
+
 export function getExecutedCode<T = any>(asset: string, compiler: Compiler, stats: Stats): T {
   return execute<T>(readAsset(asset, compiler, stats))
+}
+
+export async function expectAssetToMatchDir(assets: Record<string, string>, dirname: string): Promise<void> {
+  const fileNameList = Object.keys(assets).sort()
+  const realFileNameList = await new Promise<string[]>((resolve, reject) =>
+    glob('**/*', { cwd: dirname, nodir: true }, (err, fileNameList) =>
+      err ? reject(err) : resolve(fileNameList.sort()),
+    ),
+  )
+
+  expect(fileNameList).toEqual(realFileNameList)
+
+  for (const fileName of fileNameList) {
+    const content = assets[fileName]
+    const realContent = await new Promise<string>((resolve, reject) =>
+      fs.readFile(path.join(dirname, fileName), 'utf8', (err, data) => (err ? reject(err) : resolve(data))),
+    )
+
+    expect(content).toEqual(realContent)
+  }
 }

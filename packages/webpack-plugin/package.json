@@ -5,7 +5,7 @@
   "author": "chyizheng <chyizheng@tencent.com>",
   "homepage": "",
   "license": "ISC",
-  "main": "lib/cjs.js",
+  "main": "lib/index.js",
   "types": "index.d.ts",
   "engines": {
     "node": ">= 10"
@@ -20,12 +20,16 @@
     "url": "git@git.code.oa.com:wxweb/weflow.git"
   },
   "scripts": {
-    "build": "node ../../scripts/build-js",
-    "test": "rm -rf ./example/dist && webpack --config ./example/webpack.config.js",
-    "test-debug": "node --inspect-brk node_modules/.bin/webpack --config ./example/webpack.config.js"
+    "build": "rimraf lib && npm run build-js",
+    "build-js": "babel src --config-file ../../babel.config.js --extensions .js,.ts -d ./lib --ignore \"**/*.test.{ts,js}\"",
+    "test": "jest ./test --config ../../jest.config.js",
+    "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "devDependencies": {
     "enhanced-resolve": "^4.2.0",
+    "file-loader": "^6.0.0",
+    "json-loader": "^0.5.7",
+    "raw-loader": "^4.0.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.12"
   },
