@@ -19,9 +19,9 @@
     "url": "git@git.code.oa.com:wxweb/weflow.git"
   },
   "scripts": {
-    "build": "rimraf lib && npm run build-js && npm run build-ts",
-    "build-js": "babel src --config-file ../../babel.config.js --extensions .js,.ts -d ./lib --ignore \"**/*.test.{ts,js}\"",
-    "build-ts": "tsc -p tsconfig.build.json",
+    "build": "node ../../scripts/build",
+    "build-js": "node ../../scripts/build-js",
+    "build-ts": "node ../../scripts/build-ts",
     "test": "jest ./test --config ../../jest.config.js",
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
