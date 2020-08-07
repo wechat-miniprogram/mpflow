@@ -73,6 +73,11 @@ module.exports = {
       resolve: {
         roots: [__dirname],
       },
+      program: {
+        appId: 'wx123',
+        projectName: 'app example',
+        compileType: 'miniprogram',
+      },
     }),
   ],
 }

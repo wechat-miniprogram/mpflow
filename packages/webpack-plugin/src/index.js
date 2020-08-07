@@ -30,7 +30,15 @@ class WeflowWebpackPlugin {
       new TemplatePlugin({
         templatePath: require.resolve('../template/project.config.json.ejs'),
         outputPath: options.program.outputPath,
-        data: options.program,
+        data: {
+          appId: '',
+          compileType: '',
+          projectName: '',
+          miniprogramRoot: '',
+          pluginRoot: '',
+          qcloudRoot: '',
+          ...options.program,
+        },
       }).apply(compiler)
     }
   }

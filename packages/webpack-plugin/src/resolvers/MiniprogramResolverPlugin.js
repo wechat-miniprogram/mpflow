@@ -8,7 +8,7 @@ export default class MiniprogramResolverPlugin {
    *
    * @param {object} options
    * @param {boolean} [options.moduleToRelative] 当使用模块路径无法找到时，作为相对路径查找
-   * @param {string[]} [options.roots] 作为小程序的根路径
+   * @param {string[]} [options.roots] 小程序的根路径
    * @param {boolean} [options.usePkgField] 当无法找到对应文件时，尝试通过 package.json 中定义的 miniprogram 字段作为路径查找
    */
   constructor(options) {
@@ -32,13 +32,7 @@ export default class MiniprogramResolverPlugin {
 
     if (roots && roots.length) {
       // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
-      plugins.push(
-        new RootsPlugin('after-described-resolve', new Set(roots), 'relative'),
-
-        // new AbsoluteKindPlugin('after-after-described-resolve', 'miniprogram-absolute'),
-        // // 向上路径查找 project.config.json, 用其中 miniprogramRoot 作为根路径
-        // new ProjectConfigFileRootPlugin('miniprogram-absolute', 'project.config.json', 'miniprogramRoot', 'resolve'),
-      )
+      plugins.push(new RootsPlugin('after-described-resolve', new Set(roots), 'relative'))
     }
 
     if (usePkgField) {

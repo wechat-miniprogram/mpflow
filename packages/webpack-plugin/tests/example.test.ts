@@ -15,4 +15,11 @@ describe('webpack-plugin examples', () => {
     expect(result.warnings).toMatchSnapshot('warnings')
     await expectToMatchExampleDist(result.assets, 'plugin')
   })
+
+  test('splitChunk', async () => {
+    const result = await runExample('splitChunk')
+    expect(result.errors).toMatchSnapshot('errors')
+    expect(result.warnings).toMatchSnapshot('warnings')
+    await expectToMatchExampleDist(result.assets, 'splitChunk')
+  })
 })

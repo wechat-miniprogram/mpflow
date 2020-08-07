@@ -7,7 +7,8 @@ module.exports = {
   context: __dirname,
 
   entry: {
-    app: `${weflowPlugin.pluginLoader}!./plugin.json`,
+    index: `${weflowPlugin.pageLoader}!./pages/index/index.js`,
+    logs: `${weflowPlugin.pageLoader}!./pages/logs/logs.js`,
   },
 
   devtool: 'none',
@@ -22,6 +23,28 @@ module.exports = {
 
   optimization: {
     namedModules: false,
+    runtimeChunk: 'single',
+    splitChunks: {
+      chunks: 'all',
+      minSize: 0,
+      maxSize: 0,
+      minChunks: 1,
+      maxAsyncRequests: 100,
+      maxInitialRequests: 100,
+      automaticNameDelimiter: '~',
+      name: true,
+      cacheGroups: {
+        vendors: {
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10,
+        },
+        common: {
+          minChunks: 2,
+          priority: -20,
+          reuseExistingChunk: true,
+        },
+      },
+    },
   },
 
   module: {
@@ -72,11 +95,6 @@ module.exports = {
     new weflowPlugin({
       resolve: {
         roots: [__dirname],
-      },
-      program: {
-        appId: 'wx123',
-        projectName: 'app example',
-        compileType: 'plugin',
       },
     }),
   ],

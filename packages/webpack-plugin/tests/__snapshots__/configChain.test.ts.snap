@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ConfigChain should work: toConfig 1`] = `
+Object {
+  "program": Object {
+    "appId": "wx123",
+    "compileType": "miniprogram",
+    "miniprogramRoot": "/miniprogram",
+    "pluginRoot": "/plugin",
+    "projectName": "test",
+    "qcloudRoot": "/cloud",
+  },
+  "resolve": Object {
+    "javascript": Object {
+      "extensions": Array [
+        ".ts",
+      ],
+    },
+    "roots": Array [
+      "/virtualRoot",
+    ],
+    "wxss": Object {
+      "extensions": Array [
+        ".css",
+        ".less",
+        ".sass",
+        ".scss",
+        ".stylus",
+      ],
+    },
+  },
+  "rules": Object {
+    "wxss": Array [
+      Object {
+        "test": /\\\\\\.less\\$/,
+        "use": Array [
+          Object {
+            "loader": "less-loader",
+          },
+        ],
+      },
+      Object {
+        "test": /\\\\\\.sass\\$/,
+        "use": Array [
+          Object {
+            "loader": "sass-loader",
+            "options": Object {
+              "indentedSyntax": true,
+            },
+          },
+        ],
+      },
+      Object {
+        "test": /\\\\\\.scss\\$/,
+        "use": Array [
+          Object {
+            "loader": "sass-loader",
+          },
+        ],
+      },
+      Object {
+        "test": /\\\\\\.stylus\\$/,
+        "use": Array [
+          Object {
+            "loader": "stylus-loader",
+          },
+        ],
+      },
+    ],
+  },
+}
+`;
+
+exports[`ConfigChain should work: toString 1`] = `
+"{
+  resolve: {
+    roots: [
+      '/virtualRoot'
+    ],
+    javascript: {
+      extensions: [
+        '.ts'
+      ]
+    },
+    wxss: {
+      extensions: [
+        '.css',
+        '.less',
+        '.sass',
+        '.scss',
+        '.stylus'
+      ]
+    }
+  },
+  rules: {
+    wxss: [
+      /* config.module.rule('less') */
+      {
+        test: /\\\\.less$/,
+        use: [
+          /* config.module.rule('less').use('less-loader') */
+          {
+            loader: 'less-loader'
+          }
+        ]
+      },
+      /* config.module.rule('sass') */
+      {
+        test: /\\\\.sass$/,
+        use: [
+          /* config.module.rule('sass').use('sass-loader') */
+          {
+            loader: 'sass-loader',
+            options: {
+              indentedSyntax: true
+            }
+          }
+        ]
+      },
+      /* config.module.rule('scss') */
+      {
+        test: /\\\\.scss$/,
+        use: [
+          /* config.module.rule('scss').use('sass-loader') */
+          {
+            loader: 'sass-loader'
+          }
+        ]
+      },
+      /* config.module.rule('stylus') */
+      {
+        test: /\\\\.stylus$/,
+        use: [
+          /* config.module.rule('stylus').use('stylus-loader') */
+          {
+            loader: 'stylus-loader'
+          }
+        ]
+      }
+    ]
+  },
+  program: {
+    appId: 'wx123',
+    compileType: 'miniprogram',
+    projectName: 'test',
+    miniprogramRoot: '/miniprogram',
+    pluginRoot: '/plugin',
+    qcloudRoot: '/cloud'
+  }
+}"
+`;
