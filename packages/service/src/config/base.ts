@@ -134,6 +134,8 @@ const base: Plugin = (api, config) => {
             cleanStaleWebpackAssets: false,
           },
         ])
+
+      webpackConfig.plugin('progress').use((require('webpack') as typeof import('webpack')).ProgressPlugin, [{}])
     })
   })
 }

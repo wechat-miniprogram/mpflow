@@ -1,19 +1,34 @@
 {
   "name": "@mpflow/cli",
   "version": "0.0.1",
-  "description": "mpflow-cli",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
   "main": "lib/index.js",
+  "type": "lib/index.d.ts",
   "bin": {
     "mpflow": "bin/mpflow.js"
   },
+  "directories": {
+    "bin": "bin",
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "bin",
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/mpflow.git"
+  },
   "scripts": {
-    "build": "npm run build-js && npm run build-ts",
+    "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@mpflow/service-core": "^0.0.1",
     "axios": "^0.19.2",
