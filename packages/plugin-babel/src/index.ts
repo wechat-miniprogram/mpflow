@@ -21,6 +21,12 @@ const plugin: Plugin = (api, config) => {
 
 plugin.generator = api => {
   api.render(path.resolve(__dirname, '../template'))
+
+  api.processFile('src/**/*.js', (file, api) => {
+    api.transform(require('5to6-codemod/transforms/cjs'), {})
+    api.transform(require('5to6-codemod/transforms/no-strict'), {})
+    api.transform(require('5to6-codemod/transforms/exports'), {})
+  })
 }
 
 export default plugin
