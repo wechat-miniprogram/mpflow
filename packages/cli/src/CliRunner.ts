@@ -1,6 +1,7 @@
 import { BaseRunnerAPI, PluginInfo, Runner, RunnerOptions, MpflowConfig } from '@mpflow/service-core'
 import { Creator } from './Creator'
 import { getLocalService } from './utils'
+import { Generator } from './Generator'
 
 export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
   /**
@@ -29,6 +30,17 @@ export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
     const creator = new Creator(context, {})
 
     await creator.installPlugin(pluginNames)
+  }
+
+  /**
+   * 触发插件 generator
+   * @param command
+   * @param description
+   */
+  async generate(context: string, pluginNames: string[]): Promise<void> {
+    const generator = new Generator(context, { plugins: pluginNames.map(id => ({ id })) })
+
+    await generator.generate()
   }
 
   /**
@@ -88,6 +100,10 @@ export class CliRunner extends Runner<CliPlugin> {
       {
         id: '@mpflow/cli/lib/commands/add',
         module: require('./commands/add'),
+      },
+      {
+        id: '@mpflow/cli/lib/commands/generate',
+        module: require('./commands/generate'),
       },
       {
         id: '@mpflow/cli/lib/commands/proxy',

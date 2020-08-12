@@ -196,22 +196,22 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
    */
   doProcessFiles(): void {
     for (const originFilePath in this.files) {
-      let outFilePath = originFilePath
-      let outFileContent = this.files[originFilePath]
+      const originFileContent = this.files[originFilePath]
+
+      const fileInfo = {
+        path: originFilePath,
+        source: originFileContent,
+      }
 
       this.processFilesHandlers.forEach(({ filter, handler }) => {
-        if (filter && !minimatch(outFilePath, filter)) return
-        const fileInfo = {
-          path: outFilePath,
-          source: outFileContent,
-        }
+        if (filter && !minimatch(fileInfo.path, filter)) return
 
         const processFileAPI: ProcessFileAPI = {
           rename: name => {
-            outFilePath = name
+            fileInfo.path = name
           },
           replace: content => {
-            outFileContent = content
+            fileInfo.source = content
           },
           transform: (transform, options) => {
             const jscodeshift = require('jscodeshift') as typeof import('jscodeshift')
@@ -229,16 +229,16 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
               options,
             )
 
-            if (out) outFileContent = out
+            if (out) fileInfo.source = out
           },
         }
 
         handler(fileInfo, processFileAPI)
       })
 
-      this.files[outFilePath] = outFileContent
-      if (outFilePath !== originFilePath) {
-        this.filesToRemove.delete(outFilePath)
+      this.files[fileInfo.path] = fileInfo.source
+      if (fileInfo.path !== originFilePath) {
+        this.filesToRemove.delete(fileInfo.path)
         this.filesToRemove.add(originFilePath)
         delete this.files[originFilePath]
       }
