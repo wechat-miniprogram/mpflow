@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
 
-  "include": ["src/**/*.ts"],
+  "include": ["../../typings", "src/**/*.ts"],
   "exclude": ["**/__tests__/**"]
 }
