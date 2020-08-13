@@ -26,7 +26,7 @@ plugin.generator = async api => {
     const name = path.basename(filePath, path.extname(filePath))
     api.renderFile(
       path.resolve(__dirname, '../template/comp.test.js'),
-      path.resolve(filePath, `../__test__/${name}.test.js`),
+      path.join(filePath, `../__test__/${name}.test.js`),
       {
         additionalData: {
           name,
