@@ -31,6 +31,10 @@ recommended.creator = api => {
       pluginNames.push('@mpflow/plugin-css')
     }
 
+    if (await confirm('是否启用 单元测试 ?')) {
+      pluginNames.push('@mpflow/plugin-unit-test')
+    }
+
     return infos
   })
 
