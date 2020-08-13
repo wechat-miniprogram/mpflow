@@ -18,7 +18,7 @@ export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
       appId,
     })
 
-    await creator.generate()
+    await creator.create()
   }
 
   /**
@@ -40,7 +40,7 @@ export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
   async generate(context: string, pluginNames: string[]): Promise<void> {
     const generator = new Generator(context, { plugins: pluginNames.map(id => ({ id })) })
 
-    await generator.generate()
+    await generator.generate(false)
   }
 
   /**
@@ -72,11 +72,6 @@ export interface CliPlugin {
 export interface CliPluginInfo extends PluginInfo<CliPlugin> {}
 
 export class CliRunner extends Runner<CliPlugin> {
-  /**
-   * 插件列表
-   */
-  public pluginOptions: CliPluginInfo[]
-
   /**
    * 是否初始化过
    */

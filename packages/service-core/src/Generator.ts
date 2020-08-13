@@ -11,6 +11,7 @@ export interface ProcessFileInfo {
 export interface ProcessFileAPI {
   rename: (path: string) => void
   replace: (content: string) => void
+  remove: (remove?: boolean) => void
   transform: (transform: Transform, options?: any) => void
 }
 
@@ -28,7 +29,24 @@ export interface GeneratorAPI<P = Plugin, S extends BaseService<P> = BaseService
   /**
    * 将某个目录下的文件渲染
    */
-  render(source: string, additionalData?: Record<string, any>, ejsOptions?: EjsOptions): void
+  renderDir(
+    source: string,
+    targetPath?: string,
+    options?: {
+      pattern?: string
+      additionalData?: Record<string, any>
+      ejsOptions?: EjsOptions
+    },
+  ): void
+
+  /**
+   * 渲染特定文件
+   */
+  renderFile(
+    sourcePath: string,
+    targetPath: string,
+    options?: { additionalData?: Record<string, any>; ejsOptions?: EjsOptions },
+  ): void
 
   /**
    * 处理文件

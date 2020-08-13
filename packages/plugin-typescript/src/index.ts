@@ -1,7 +1,6 @@
-import { Plugin } from '@mpflow/service-core'
+import { Plugin } from '@mpflow/service'
 import { ConfigChain } from '@mpflow/webpack-plugin'
 import path from 'path'
-import pkg from '../package.json'
 
 const plugin: Plugin = (api, config) => {
   api.beforeConfigureWebpack(() => {
@@ -36,6 +35,7 @@ const plugin: Plugin = (api, config) => {
 }
 
 plugin.generator = async api => {
+  const pkg = require('../package.json')
   api.extendPackage({
     dependencies: {
       typescript: pkg.devDependencies.typescript,
@@ -43,7 +43,7 @@ plugin.generator = async api => {
     },
   })
 
-  api.render(path.resolve(__dirname, '../template'))
+  api.renderDir(path.resolve(__dirname, '../template'))
 
   api.processFile('src/**/*.js', (file, api) => {
     // js 文件重命名为 ts 文件

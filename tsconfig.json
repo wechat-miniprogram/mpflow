@@ -6,5 +6,7 @@
     "paths": {
       "@mpflow/*": ["packages/*/src"]
     }
-  }
+  },
+
+  "include": ["./typings", "**/*.ts"]
 }

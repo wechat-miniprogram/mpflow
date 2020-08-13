@@ -18,6 +18,5 @@
     "lib": ["esnext"],
     "types": ["node", "jest"]
   },
-  "include": ["./typings"],
   "exclude": ["node_modules", "lib"]
 }

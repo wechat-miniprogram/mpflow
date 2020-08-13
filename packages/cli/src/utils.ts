@@ -21,30 +21,16 @@ export function loadFiles(source: string): Record<string, string> {
   return files
 }
 
-// /**
-//  * 读取某个文件
-//  * @param source
-//  */
-// export function loadFiles(source: string): Record<string, string> {
-//   const filePaths = glob.sync('**/*', { nodir: true, cwd: source, ignore: ['node_modules/**'] })
-//   const files: Record<string, string> = {}
-
-//   for (const filePath of filePaths) {
-//     files[filePath] = fs.readFileSync(path.resolve(source, filePath), 'utf-8')
-//   }
-
-//   return files
-// }
-
 /**
  * 将某个目录下的文件渲染
  */
 export function renderFiles(
   source: string,
+  pattern: string,
   additionalData: Record<string, any> = {},
   ejsOptions: EjsOptions = {},
 ): Record<string, string> {
-  const filePaths = glob.sync('**/*', { nodir: true, cwd: source })
+  const filePaths = glob.sync(pattern, { nodir: true, cwd: source })
   const files: Record<string, string> = {}
 
   for (const rawPath of filePaths) {
@@ -110,6 +96,21 @@ export async function removeFiles(context: string, files: Iterable<string>): Pro
     const filePath = path.join(context, name)
     await fs.unlink(filePath)
   }
+}
+
+/**
+ * 将虚拟文件树同步到文件系统
+ * @param context
+ * @param files
+ */
+export async function syncFiles(context: string, files: Record<string, string>): Promise<void> {
+  const filePaths = glob.sync('**/*', { nodir: true, cwd: context, ignore: ['node_modules/**'] })
+
+  const filesToRemove = new Set(filePaths)
+  Object.keys(files).forEach(file => filesToRemove.delete(file))
+
+  await removeFiles(context, filesToRemove)
+  await writeFiles(context, files)
 }
 
 /**
@@ -274,6 +275,25 @@ export function shouldUseYarn(): boolean {
   } catch (e) {
     return false
   }
+}
+
+/**
+ * 安装 node modules
+ */
+export function installNodeModules(
+  context: string,
+  modules?: string[],
+  { saveDev }: { saveDev?: boolean } = {},
+): Promise<void> {
+  const useYarn = shouldUseYarn()
+  const command = useYarn ? 'yarnpkg' : 'npm'
+  const args: string[] = [useYarn && modules?.length ? 'add' : 'install', ...(modules || [])]
+
+  if (saveDev) {
+    args.push(useYarn ? '--dev' : '--save-dev')
+  }
+
+  return exec(context, command, args)
 }
 
 export function getPaths(path: string): string[] {

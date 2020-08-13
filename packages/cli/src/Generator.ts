@@ -6,18 +6,20 @@ import {
   Plugin,
   ProcessFileAPI,
   ProcessFileHandler,
+  ProcessFileInfo,
 } from '@mpflow/service-core'
 import { Options as EjsOptions } from 'ejs'
 import minimatch from 'minimatch'
+import path from 'path'
+import { AsyncSeriesHook, AsyncSeriesWaterfallHook } from 'tapable'
 import {
-  exec,
+  installNodeModules,
   loadFiles,
   mergePackage,
-  removeFiles,
+  renderFile,
   renderFiles,
-  shouldUseYarn,
   stringifyPackage,
-  writeFiles,
+  syncFiles,
 } from './utils'
 
 export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Generator<P> = Generator<P>>
@@ -38,14 +40,33 @@ export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Gene
     mergePackage(this.service.pkg, toMerge, this.id, this.depSources)
   }
 
-  render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): void {
-    return this.service.render(source, additionalData, ejsOptions)
+  renderDir(
+    source: string,
+    targetPath?: string,
+    options?: {
+      pattern?: string
+      additionalData?: Record<string, any>
+      ejsOptions?: EjsOptions
+    },
+  ): void {
+    return this.service.renderDir(source, targetPath, options)
+  }
+
+  renderFile(
+    source: string,
+    targetPath: string,
+    options?: {
+      additionalData?: Record<string, any>
+      ejsOptions?: EjsOptions
+    },
+  ): void {
+    return this.service.renderFile(source, targetPath, options)
   }
 
   processFile(handler: ProcessFileHandler): void
   processFile(filter: string, handler: ProcessFileHandler): void
   processFile(filter: any, handler?: any): void {
-    this.service.processFile(filter, handler)
+    this.service.processFile(this.id, filter, handler)
   }
 }
 
@@ -61,54 +82,79 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
   public depSources: Record<string, string>
 
   /**
-   * 虚拟文件树
+   * 生成文件任务队列
    */
-  public files: Record<string, string>
+  public renderTaskQueue: (() => Promise<Record<string, string>>)[]
 
   /**
-   * 需要删除的文件列表
+   *
    */
-  public filesToRemove: Set<string>
+  public hooks = {
+    /**
+     * 加载阶段，加载文件系统中的文件
+     */
+    load: new AsyncSeriesHook<string, ProcessFileInfo[]>(['context', 'queue']),
+    /**
+     * 生成阶段
+     */
+    generate: new AsyncSeriesHook<Record<string, string>, (() => Promise<Record<string, string>>)[], ProcessFileInfo[]>(
+      ['files', 'renderQueue', 'processQueue'],
+    ),
+    /**
+     * 处理阶段，根据已有文件进行对应处理
+     */
+    process: new AsyncSeriesWaterfallHook<ProcessFileInfo | null, never, never>(['info']),
+    /**
+     * 写入阶段，将新生成的或处理后的文件写入文件系统
+     */
+    write: new AsyncSeriesHook<Record<string, string>>(['files']),
+  }
 
-  /**
-   * 是否使用 yarn
-   */
-  private _shouldUseYarn: boolean | null = null
-
-  /**
-   * 处理文件回调
-   */
-  public processFilesHandlers: { filter?: string; handler: ProcessFileHandler }[]
-
-  constructor(context: string, { depSources, files, ...options }: GeneratorOptions = {}) {
+  constructor(context: string, { depSources, files: innerFiles, ...options }: GeneratorOptions = {}) {
     super(context, options)
 
     this.depSources = depSources || {}
-    this.files = this.loadFiles(files)
-    this.processFilesHandlers = []
-    this.filesToRemove = new Set()
-  }
 
-  /**
-   * 是否应该使用 yarn
-   */
-  shouldUseYarn(): boolean {
-    if (this._shouldUseYarn === null) {
-      this._shouldUseYarn = shouldUseYarn()
-    }
-    return this._shouldUseYarn
-  }
+    this.hooks.load.tapPromise('generator', async (context, queue) => {
+      const files = {
+        ...loadFiles(context),
+        ...(innerFiles || {}),
+      }
 
-  async installNodeModules(modules?: string[], { saveDev }: { saveDev?: boolean } = {}): Promise<void> {
-    const useYarn = this.shouldUseYarn()
-    const command = useYarn ? 'yarnpkg' : 'npm'
-    const args: string[] = [useYarn && modules?.length ? 'add' : 'install', ...(modules || [])]
+      Object.keys(files).forEach(path => queue.push({ path, source: files[path] }))
+    })
 
-    if (saveDev) {
-      args.push(useYarn ? '--dev' : '--save-dev')
-    }
+    this.hooks.generate.tapPromise('generator', async (files, renderQueue, processQueue) => {
+      do {
+        while (renderQueue.length) {
+          const renderTask = renderQueue.shift()!
+          const files = await renderTask()
+          Object.keys(files).forEach(path => processQueue.push({ path, source: files[path] }))
+        }
+        while (processQueue.length) {
+          const fileInfo = processQueue.shift()
+          const processedFileInfo = await this.hooks.process.promise(fileInfo)
 
-    return exec(this.context, command, args)
+          if (processedFileInfo) {
+            const { path, source } = processedFileInfo
+            files[path] = source
+          }
+        }
+      } while (renderQueue.length || processQueue.length)
+    })
+
+    // 默认对 package.json 做处理
+    this.hooks.process.tap('generator', fileInfo => {
+      if (fileInfo && fileInfo.path === 'package.json') {
+        fileInfo.source = stringifyPackage(this.pkg)
+      }
+      return fileInfo
+    })
+
+    // 同步到文件系统
+    this.hooks.write.tapPromise('generator', async files => {
+      await syncFiles(this.context, files)
+    })
   }
 
   /**
@@ -121,13 +167,23 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
     }
   }
 
-  async generate(): Promise<void> {
+  /**
+   * 触发 generator
+   * @param installModules
+   */
+  async generate(installModules = false): Promise<void> {
+    const processFileQueue: ProcessFileInfo[] = []
+    const files: Record<string, string> = {}
+    this.renderTaskQueue = []
+
     await this.initPlugins()
 
-    this.generatePackage()
-    this.doProcessFiles()
-    await this.writeFiles()
-    await this.removeFiles()
+    await this.hooks.load.promise(this.context, processFileQueue)
+    await this.hooks.generate.promise(files, this.renderTaskQueue, processFileQueue)
+
+    await this.hooks.write.promise(files)
+
+    if (installModules) await installNodeModules(this.context)
   }
 
   /**
@@ -142,106 +198,104 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
   }
 
   /**
-   * 生成 package.json
+   * 将一个目录渲染到虚拟树中
    */
-  generatePackage(): void {
-    this.files['package.json'] = stringifyPackage(this.pkg)
-  }
+  renderDir(
+    source: string,
+    targetPath = '',
+    options: { pattern?: string; additionalData?: Record<string, any>; ejsOptions?: EjsOptions } = {},
+  ): void {
+    this.renderTaskQueue.push(async () => {
+      const { pattern, additionalData, ejsOptions } = {
+        pattern: '**/*',
+        additionalData: {},
+        ejsOptions: {},
+        ...options,
+      }
+      const files = renderFiles(source, pattern, additionalData, ejsOptions)
 
+      for (const originFilePath in files) {
+        const filePath = path.join(targetPath, originFilePath)
+        if (originFilePath !== filePath) {
+          files[filePath] = files[originFilePath]
+          delete files[originFilePath]
+        }
+      }
+
+      return files
+    })
+  }
   /**
    * 将一个目录渲染到虚拟树中
    */
-  render(source: string, additionalData: Record<string, any> = {}, ejsOptions: EjsOptions = {}): void {
-    const files = renderFiles(source, additionalData, ejsOptions)
-    Object.assign(this.files, files)
-  }
+  renderFile(
+    source: string,
+    targetPath: string,
+    options: { additionalData?: Record<string, any>; ejsOptions?: EjsOptions } = {},
+  ): void {
+    this.renderTaskQueue.push(async () => {
+      const { additionalData, ejsOptions } = {
+        additionalData: {},
+        ejsOptions: {},
+        ...options,
+      }
+      const fileContent = renderFile(source, additionalData, ejsOptions)
 
-  /**
-   * 将文件写入磁盘
-   */
-  async writeFiles(): Promise<void> {
-    await writeFiles(this.context, this.files)
-  }
-
-  /**
-   * 删除多余文件
-   */
-  async removeFiles(): Promise<void> {
-    removeFiles(this.context, this.filesToRemove)
+      return {
+        [targetPath]: fileContent,
+      }
+    })
   }
 
   /**
    * 注册文件处理回调
    * @param handler
    */
-  processFile(handler: ProcessFileHandler): void
-  processFile(filter: string, handler: ProcessFileHandler): void
-  processFile(filter: ProcessFileHandler | string, handler?: ProcessFileHandler): void {
-    const { processFilesHandlers } = this
-    if (!handler) {
-      processFilesHandlers.push({
-        filter: '',
-        handler: filter as ProcessFileHandler,
-      })
-    } else {
-      processFilesHandlers.push({
-        filter: filter as string,
-        handler,
-      })
-    }
-  }
+  processFile(id: string, handler: ProcessFileHandler): void
+  processFile(id: string, filter: string, handler: ProcessFileHandler): void
+  processFile(id: string, a: ProcessFileHandler | string, b?: ProcessFileHandler): void {
+    const filter = b ? (a as string) : undefined
+    const handler = b ? (b as ProcessFileHandler) : (a as ProcessFileHandler)
 
-  /**
-   * 处理文件内容
-   */
-  doProcessFiles(): void {
-    for (const originFilePath in this.files) {
-      const originFileContent = this.files[originFilePath]
+    this.hooks.process.tapPromise(id, async fileInfo => {
+      if (!fileInfo) return null
+      if (filter && !minimatch(fileInfo.path, filter)) return fileInfo
+      let removed = false
 
-      const fileInfo = {
-        path: originFilePath,
-        source: originFileContent,
+      const processFileAPI: ProcessFileAPI = {
+        rename: name => {
+          fileInfo.path = name
+        },
+        replace: content => {
+          fileInfo.source = content
+        },
+        remove: (remove = true) => {
+          removed = remove
+        },
+        transform: (transform, options) => {
+          const jscodeshift = require('jscodeshift') as typeof import('jscodeshift')
+          // const j = jscodeshift.withParser('ts')
+          const j = jscodeshift
+
+          const out = transform(
+            fileInfo,
+            {
+              j,
+              jscodeshift: j,
+              report: () => {},
+              stats: () => {},
+            },
+            options,
+          )
+
+          if (out) fileInfo.source = out
+        },
       }
 
-      this.processFilesHandlers.forEach(({ filter, handler }) => {
-        if (filter && !minimatch(fileInfo.path, filter)) return
+      handler(fileInfo, processFileAPI)
 
-        const processFileAPI: ProcessFileAPI = {
-          rename: name => {
-            fileInfo.path = name
-          },
-          replace: content => {
-            fileInfo.source = content
-          },
-          transform: (transform, options) => {
-            const jscodeshift = require('jscodeshift') as typeof import('jscodeshift')
-            // const j = jscodeshift.withParser('ts')
-            const j = jscodeshift
-
-            const out = transform(
-              fileInfo,
-              {
-                j,
-                jscodeshift: j,
-                report: () => {},
-                stats: () => {},
-              },
-              options,
-            )
-
-            if (out) fileInfo.source = out
-          },
-        }
-
-        handler(fileInfo, processFileAPI)
-      })
-
-      this.files[fileInfo.path] = fileInfo.source
-      if (fileInfo.path !== originFilePath) {
-        this.filesToRemove.delete(fileInfo.path)
-        this.filesToRemove.add(originFilePath)
-        delete this.files[originFilePath]
-      }
-    }
+      if (removed) return null // 提前结束 process hook, 阻止继续执行
+      return fileInfo
+    })
   }
 }

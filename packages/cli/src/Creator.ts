@@ -1,4 +1,4 @@
-import { Plugin, PluginInfo } from '@mpflow/service-core'
+import { BaseAPI, BaseService, Plugin, PluginInfo } from '@mpflow/service-core'
 import axios from 'axios'
 import cp from 'child_process'
 import path from 'path'
@@ -6,27 +6,19 @@ import Stream from 'stream'
 import { AsyncSeriesHook, AsyncSeriesWaterfallHook } from 'tapable'
 import tar from 'tar'
 import tmp from 'tmp'
-import { Generator, GeneratorAPI, GeneratorOptions } from './Generator'
-import { exec, getLocalService } from './utils'
+import { Generator, GeneratorOptions } from './Generator'
+import { exec, getLocalService, installNodeModules, renderFiles, syncFiles } from './utils'
 
 export class CreatorAPI<
   P extends { creator?: any; generator?: any } = CreatorPlugin,
   S extends Creator<P> = Creator<P>
-> extends GeneratorAPI<P, S> {
+> extends BaseAPI<P, S> {
   async exec(command: string, args?: string[]): Promise<void> {
     await exec(this.service.context, command, args)
   }
 
-  async processFiles(handler: (name: string, content: string) => Promise<void>): Promise<void> {
-    const { files } = this.service
-    for (const name in files) {
-      const content = files[name]
-      await handler(name, content)
-    }
-  }
-
   async installNodeModules(modules?: string[], options: { saveDev?: boolean } = {}): Promise<void> {
-    return this.service.installNodeModules(modules, options)
+    return installNodeModules(this.service.context, modules, options)
   }
 
   async installPlugins(pluginNames: string[]): Promise<void> {
@@ -80,7 +72,7 @@ export interface CreatorOptions extends GeneratorOptions {
   appId?: string
 }
 
-export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugin> extends Generator<P> {
+export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugin> extends BaseService<P> {
   /**
    * 模板目录
    */
@@ -113,19 +105,27 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     /**
      * 将模板渲染到内存中的虚拟文件系统
      */
-    render: new AsyncSeriesHook<{ projectName: string; appId: string; templatePath: string }, never, never>(['infos']),
+    render: new AsyncSeriesHook<
+      { projectName: string; appId: string; templatePath: string },
+      Record<string, string>,
+      never
+    >(['infos', 'files']),
     /**
      * 将渲染模板输出前回调
      */
-    beforeEmit: new AsyncSeriesHook(),
+    beforeEmit: new AsyncSeriesHook<Record<string, string>>(['files']),
     /**
      * 将渲染模板真正输出到目录
      */
-    emit: new AsyncSeriesHook(),
+    emit: new AsyncSeriesHook<string, Record<string, string>>(['context', 'files']),
     /**
      * 初始化项目
      */
-    init: new AsyncSeriesHook(),
+    init: new AsyncSeriesHook<string>(['context']),
+    /**
+     * 初始化结束后
+     */
+    afterInit: new AsyncSeriesHook<string>(['context']),
   }
 
   constructor(context: string, { templateName, projectName, appId, ...options }: CreatorOptions) {
@@ -139,29 +139,31 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
       return this.getTemplatePath(templateName)
     })
 
-    this.hooks.render.tapPromise('creator', async ({ projectName, appId, templatePath }) => {
-      await this.render(templatePath, {
+    this.hooks.render.tapPromise('creator', async ({ projectName, appId, templatePath }, files) => {
+      const rendered = await renderFiles(templatePath, '**/*', {
         projectName,
         appId,
       })
+      Object.assign(files, rendered)
     })
 
-    this.hooks.emit.tapPromise('creator', async () => {
-      await this.writeFiles()
+    this.hooks.emit.tapPromise('creator', async (context, files) => {
+      await syncFiles(context, files)
     })
 
-    this.hooks.init.tapPromise('creator', async () => {
+    this.hooks.init.tapPromise('creator', async context => {
       // npm install
-      await this.installNodeModules()
+      await installNodeModules(context)
+      // await this.installNodeModules()
       // npm install @mpflow/service
-      await this.installNodeModules(['@mpflow/service'])
+      await installNodeModules(this.context, ['@mpflow/service'])
 
       // 执行内置插件的 generator
       const localService = getLocalService(this.context)
       const plugins: PluginInfo[] = localService.ServiceRunner.getBuiltInPlugins()
       const generator = new Generator(this.context, { plugins })
 
-      await generator.generate()
+      await generator.generate(false)
     })
   }
 
@@ -207,7 +209,7 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     return localTemplatePath
   }
 
-  async generate(): Promise<void> {
+  async create(): Promise<void> {
     await this.initPlugins()
 
     const { projectName, appId, templateName } = await this.hooks.prepare.promise({
@@ -217,13 +219,15 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     })
 
     const templatePath = await this.hooks.resolveTemplate.promise(templateName)
+    const files: Record<string, string> = {}
 
-    await this.hooks.render.promise({ projectName, appId, templatePath })
+    await this.hooks.render.promise({ projectName, appId, templatePath }, files)
 
-    await this.hooks.beforeEmit.promise()
-    await this.hooks.emit.promise()
+    await this.hooks.beforeEmit.promise(files)
+    await this.hooks.emit.promise(this.context, files)
 
-    await this.hooks.init.promise()
+    await this.hooks.init.promise(this.context)
+    await this.hooks.afterInit.promise(this.context)
   }
 
   /**
@@ -232,22 +236,19 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
    */
   async installPlugin(pluginNames: string[]): Promise<void> {
     if (!pluginNames.length) return
-    await this.installNodeModules(pluginNames)
+    await installNodeModules(this.context, pluginNames)
 
-    const plugins = pluginNames.map(id => ({ id }))
-
-    const generator = new Generator(this.context, { plugins })
+    const generator = new Generator(this.context, { plugins: pluginNames.map(id => ({ id })) })
 
     // 将插件添加到 mpflow.config.js
-    generator.processFile('mpflow.config.js', (file, api) => {
+    generator.processFile('creator', 'mpflow.config.js', (file, api) => {
       api.transform(require('@mpflow/service-core/lib/codemods/add-to-exports').default, {
         fieldName: 'plugins',
         items: pluginNames,
       })
     })
 
-    await generator.generate()
-    await this.installNodeModules()
+    await generator.generate(true)
   }
 
   /**
@@ -281,7 +282,7 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     const plugins = this.resolvePlugins()
 
     plugins.forEach(({ id, plugin }) => {
-      plugin.creator && plugin.creator(new CreatorAPI<P>(id, this, this.depSources))
+      plugin.creator && plugin.creator(new CreatorAPI<P>(id, this))
     })
   }
 }

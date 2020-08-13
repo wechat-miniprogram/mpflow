@@ -20,22 +20,14 @@ const recommended: CreatorPlugin = () => {}
 recommended.creator = api => {
   const pluginNames: string[] = []
   api.tapPrepare(async infos => {
-    const useTs = await confirm('是否启用 Typescript ?')
-    if (useTs) {
-      pluginNames.push('@mpflow/plugin-babel', '@mpflow/plugin-typescript')
+    // 默认安装 babel 插件
+    pluginNames.push('@mpflow/plugin-babel')
+
+    if (await confirm('是否启用 Typescript ?')) {
+      pluginNames.push('@mpflow/plugin-typescript')
     }
 
-    if (!useTs) {
-      const useBabel = await confirm('是否启用 babel ?')
-
-      if (useBabel) {
-        pluginNames.push('@mpflow/plugin-babel')
-      }
-    }
-
-    const useCss = await confirm('是否启用 css/less/sass/stylus ?')
-
-    if (useCss) {
+    if (await confirm('是否启用 css/less/sass/stylus ?')) {
       pluginNames.push('@mpflow/plugin-css')
     }
 
