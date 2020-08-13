@@ -1,0 +1,39 @@
+{
+  "name": "@mpflow/plugin-unit-test",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "type": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib",
+    "template"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/weflow.git"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build",
+    "build-js": "node ../../scripts/build-js",
+    "build-ts": "node ../../scripts/build-ts",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "jest": "^26.3.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.9",
+    "@mpflow/service": "^0.0.1",
+    "miniprogram-simulate": "^1.2.7"
+  },
+  "peerDependencies": {
+    "@mpflow/service": "*"
+  }
+}
