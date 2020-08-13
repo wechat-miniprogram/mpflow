@@ -27,12 +27,4 @@ const inspect: Plugin = api => {
   )
 }
 
-inspect.generator = (api, config) => {
-  api.extendPackage({
-    scripts: {
-      inspect: 'mpflow-service inspect',
-    },
-  })
-}
-
 export default inspect

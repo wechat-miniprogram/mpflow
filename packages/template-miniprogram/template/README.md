@@ -2,12 +2,17 @@
 
 ## 启动本地开发
 ```bash
-mpflow dev --open
+mpflow dev
 # 或
-npm run dev --open
+npm run dev
 ```
 
-> `--open` 命令会自动打开小程序开发者工具
+可以通过传递 `--open` 指令自动打开小程序开发者工具
+```bash
+mpflow dev --open
+# 或
+npm run dev:open
+```
 
 ## 构建打包
 ```bash

@@ -129,6 +129,7 @@ dev.generator = (api, config) => {
   api.extendPackage({
     scripts: {
       dev: 'mpflow-service dev',
+      'dev:open': 'mpflow-service dev --open',
     },
   })
 }
