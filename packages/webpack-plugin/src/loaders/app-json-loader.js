@@ -10,10 +10,11 @@ import {
   resolveWithType,
   stringifyResource,
 } from '../utils'
+import path from 'path'
 
 export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
-  const appContext = options.appContext || this.context
+  const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable(false) // 由于需要 addEntry 所以不能缓存
 
@@ -25,7 +26,7 @@ export default asyncLoaderWrapper(async function (source) {
       if (!isRequest(pageRequest)) continue // 跳过 plugins:// 等等
 
       const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
-      const chunkName = getPageOutputPath(appContext, '/', pageRequest, resolvedPageRequest)
+      const chunkName = getPageOutputPath(this.rootContext, appContext, '/', pageRequest, resolvedPageRequest)
 
       await addExternal(
         this,

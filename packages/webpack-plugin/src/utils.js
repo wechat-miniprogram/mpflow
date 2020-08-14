@@ -343,14 +343,15 @@ export function resolveWithType(loader, type, request) {
 
 /**
  * 获取一个组件应该输出的路径位置
- * @param {string} appContext app 根目录
- * @param {string} currentPath 引用的组件的输出路径
+ * @param {string} rootContext webpack 编译的根路径，绝对路径
+ * @param {string} appContext app 根目录相对 rootContext 的相对路径
+ * @param {string} currentOutputPath 引用的组件的输出路径，相对 rootContext 的相对路径
  * @param {string} rawRequest 用户直接在 usingComponents 语句中使用的字符串
- * @param {string} pageRequest 解析后 page 真正所在的位置
+ * @param {string} pageRequest 解析后 page 真正所在的位置，绝对路径
  */
-export function getPageOutputPath(appContext, currentPath, rawRequest, pageRequest) {
+export function getPageOutputPath(rootContext, appContext, currentOutputPath, rawRequest, pageRequest) {
   const relativePath = path.relative(
-    appContext,
+    path.resolve(rootContext, appContext),
     path.join(path.dirname(pageRequest), path.basename(pageRequest, path.extname(pageRequest))),
   )
 
@@ -359,7 +360,7 @@ export function getPageOutputPath(appContext, currentPath, rawRequest, pageReque
 
   // 不在 appContext 下，则放置到 miniprogram_npm 目录下
   return /^\./.test(rawRequest)
-    ? path.join(path.dirname(currentPath), rawRequest).replace(/^[\\/]/, '')
+    ? path.join(path.dirname(currentOutputPath), rawRequest).replace(/^[\\/]/, '')
     : path.join('miniprogram_npm', rawRequest)
 }
 

@@ -8,6 +8,7 @@ import {
   stringifyResource,
 } from '../utils'
 import { appJsonLoader, assetLoader } from './index'
+import path from 'path'
 
 const wxssLoader = require.resolve('@mpflow/wxss-loader')
 
@@ -16,7 +17,7 @@ const wxssLoader = require.resolve('@mpflow/wxss-loader')
  */
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
-  const appContext = options.appContext || this.context
+  const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable()
 

@@ -19,10 +19,16 @@ const wxmlLoader = require.resolve('@mpflow/wxml-loader')
  */
 export const pitch = asyncLoaderWrapper(async function () {
   const options = getOptions(this) || {}
-  const appContext = options.appContext || this.context
+  const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
   const outputPath =
-    options.outputPath ||
-    getPageOutputPath(appContext, '/', path.relative(appContext, this.resourcePath), this.resourcePath)
+    options.outputPath ??
+    getPageOutputPath(
+      this.rootContext,
+      appContext,
+      '/',
+      path.relative(path.resolve(this.rootContext, appContext), this.resourcePath),
+      this.resourcePath,
+    )
 
   this.cacheable()
 

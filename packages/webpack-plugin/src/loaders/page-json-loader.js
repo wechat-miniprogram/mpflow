@@ -19,10 +19,16 @@ export default asyncLoaderWrapper(async function (source) {
 
   this.cacheable(false) // 由于需要 addEntry 所以不能缓存
 
-  const appContext = options.appContext || this.context
+  const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
   const outputPath =
-    options.outputPath ||
-    getPageOutputPath(appContext, '/', path.relative(appContext, this.resourcePath), this.resourcePath)
+    options.outputPath ??
+    getPageOutputPath(
+      this.rootContext,
+      appContext,
+      '/',
+      path.relative(path.resolve(this.rootContext, appContext), this.resourcePath),
+      this.resourcePath,
+    )
 
   const moduleContent = JSON.parse(source)
 
@@ -32,7 +38,13 @@ export default asyncLoaderWrapper(async function (source) {
       if (!isRequest(componentRequest)) continue // 跳过 plugins:// 等等
 
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
-      const chunkName = getPageOutputPath(appContext, outputPath, componentRequest, resolvedComponentRequest)
+      const chunkName = getPageOutputPath(
+        this.rootContext,
+        appContext,
+        outputPath,
+        componentRequest,
+        resolvedComponentRequest,
+      )
 
       await addExternal(
         this,
