@@ -6,6 +6,14 @@ import { BaseAPI, BaseService, BaseServiceOptions } from './Service'
 import { Plugin } from './type'
 
 export abstract class BaseRunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>> extends BaseAPI<P, S> {
+  /**
+   * 注册 CLI 命令
+   * @param command
+   * @param describe
+   * @param positional
+   * @param options
+   * @param handler
+   */
   registerCommand<
     P extends Record<string, PositionalOptions> = Record<string, PositionalOptions>,
     O extends Record<string, Options> = Record<string, Options>
@@ -16,18 +24,7 @@ export abstract class BaseRunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>>
     options: O,
     handler: (args: Arguments<InferredOptionTypes<P> & InferredOptionTypes<O>>) => void,
   ): void {
-    this.service.program.command({
-      command,
-      describe,
-      handler: args => {
-        handler(args as any)
-      },
-      builder: yargs => {
-        Object.keys(positional).forEach(key => (yargs = yargs.positional(key, positional[key])))
-        yargs = yargs.options(options)
-        return yargs
-      },
-    })
+    this.service.registerCommand(command, describe, positional, options, handler)
   }
 }
 
@@ -48,7 +45,7 @@ export abstract class RunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>> ext
 
 export interface RunnerOptions extends BaseServiceOptions {}
 
-export class Runner<P = Plugin> extends BaseService<P> {
+export abstract class Runner<P = Plugin> extends BaseService<P> {
   /**
    * CLI 操作对象
    */
@@ -62,5 +59,37 @@ export class Runner<P = Plugin> extends BaseService<P> {
 
   async run(argv: string[] = process.argv.slice(2)): Promise<void> {
     this.program.help().demandCommand().parse(argv)
+  }
+
+  /**
+   * 注册 CLI 命令
+   * @param command
+   * @param describe
+   * @param positional
+   * @param options
+   * @param handler
+   */
+  registerCommand<
+    P extends Record<string, PositionalOptions> = Record<string, PositionalOptions>,
+    O extends Record<string, Options> = Record<string, Options>
+  >(
+    command: CommandModule['command'],
+    describe: CommandModule['describe'],
+    positional: P,
+    options: O,
+    handler: (args: Arguments<InferredOptionTypes<P> & InferredOptionTypes<O>>) => void,
+  ): void {
+    this.program.command({
+      command,
+      describe,
+      handler: args => {
+        handler(args as any)
+      },
+      builder: yargs => {
+        Object.keys(positional).forEach(key => (yargs = yargs.positional(key, positional[key])))
+        yargs = yargs.options(options)
+        return yargs
+      },
+    })
   }
 }

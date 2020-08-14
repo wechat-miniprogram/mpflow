@@ -36,7 +36,6 @@ export interface PluginInfo<P = Plugin> {
 
 export interface BaseServiceOptions {
   plugins?: PluginInfo<any>[]
-  project?: any
   pkg?: any
   config?: MpflowConfig
 }
@@ -53,11 +52,6 @@ export abstract class BaseService<P = Plugin> {
   public pkg: any
 
   /**
-   * 工作路径上的 project.config.json 内容
-   */
-  public project: any
-
-  /**
    * 插件列表
    */
   public pluginOptions: PluginInfo<P>[]
@@ -67,10 +61,9 @@ export abstract class BaseService<P = Plugin> {
    */
   public config: MpflowConfig
 
-  constructor(context: string, { plugins, pkg, project, config }: BaseServiceOptions = {}) {
+  constructor(context: string, { plugins, pkg, config }: BaseServiceOptions = {}) {
     this.context = context
     this.pkg = this.resolvePkg(pkg, context)
-    this.project = this.resolveProject(project, context)
     this.config = this.resolveConfig(config, context)
     this.pluginOptions = this.resolvePluginInfos(plugins)
   }
@@ -85,20 +78,6 @@ export abstract class BaseService<P = Plugin> {
     const pkgPath = path.resolve(context, 'package.json')
     if (fs.existsSync(pkgPath)) {
       return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
-    }
-    return {}
-  }
-
-  /**
-   * 解析 project.config.json
-   * @param inlineProject
-   * @param context
-   */
-  resolveProject(inlineProject?: any, context: string = this.context): any {
-    if (inlineProject) return inlineProject
-    const projectPath = path.resolve(context, 'project.config.json')
-    if (fs.existsSync(projectPath)) {
-      return JSON.parse(fs.readFileSync(projectPath, 'utf-8'))
     }
     return {}
   }

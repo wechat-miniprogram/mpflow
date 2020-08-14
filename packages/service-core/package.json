@@ -22,7 +22,8 @@
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "jest . --config ../../jest.config.js",
+    "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "devDependencies": {
     "@types/ejs": "^3.0.4",
