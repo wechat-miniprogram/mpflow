@@ -2,8 +2,8 @@ import { Plugin } from '@mpflow/service'
 import { ConfigChain } from '@mpflow/webpack-plugin'
 
 const plugin: Plugin = (api, config) => {
-  api.beforeConfigureWebpack(() => {
-    api.configureWebpack(webpackConfig => {
+  api.configureWebpack(({ configure }) => {
+    configure(webpackConfig => {
       function addLoader(extension: string, loader?: string, options: any = {}) {
         if (loader) {
           webpackConfig.module

@@ -1,4 +1,6 @@
 import { Plugin } from '@mpflow/service-core'
+import WebpackOutputFileSystem from '../utils/WebpackOutputFileSystem'
+import { compilation } from 'webpack'
 
 const build: Plugin = (api, config) => {
   api.registerCommand(
@@ -16,38 +18,41 @@ const build: Plugin = (api, config) => {
       },
     },
     async args => {
-      api.mode = args.dev ? 'development' : 'production'
+      api.setMode(args.dev ? 'development' : 'production')
 
       const chalk = require('chalk') as typeof import('chalk')
       const webpack = require('webpack') as typeof import('webpack')
 
       if (args.report) {
-        api.beforeConfigureWebpack(() => {
-          api.configureWebpack(webpackConfig => {
+        api.configureWebpack(({ configure }) => {
+          configure(webpackConfig => {
             webpackConfig.plugin('bundle-analyzer').use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
           })
         })
       }
 
-      const webpackConfigs = await api.resolveWebpackConfigs()
+      const webpackConfigs = Object.values(await api.resolveWebpackConfigs())
 
       try {
-        webpack(webpackConfigs, (err, stats) => {
-          if (err) {
-            console.error(err)
-            process.exit(1)
-          }
-          process.stdout.write(
-            stats.toString({
-              colors: true,
-              modules: false,
-              children: true,
-              chunks: false,
-              chunkModules: false,
-            }) + '\n\n',
-          )
-          console.log(chalk.cyan('Build complete.\n'))
+        const compiler = webpack(webpackConfigs)
+
+        ;(compiler as any).outputFileSystem = new WebpackOutputFileSystem((api as any).service.outputFileSystem)
+
+        const stats = await new Promise<compilation.MultiStats>((resolve, reject) => {
+          compiler.run((err, stats) => (err ? reject(err) : resolve(stats)))
         })
+
+        process.stdout.write(
+          stats.toString({
+            colors: true,
+            modules: false,
+            children: true,
+            chunks: false,
+            chunkModules: false,
+          }) + '\n\n',
+        )
+        console.log(chalk.cyan('Build complete.\n'))
+        if (stats.hasErrors()) throw new Error('Webpack build with errors.')
       } catch (err) {
         console.error(err)
         process.exit(1)

@@ -1,4 +1,12 @@
-import { Plugin, PluginInfo, Runner, RunnerAPI, RunnerOptions, MpflowConfig } from '@mpflow/service-core'
+import {
+  ConfigureWebpackHandler,
+  MpflowConfig,
+  Plugin,
+  PluginInfo,
+  Runner,
+  RunnerAPI,
+  RunnerOptions,
+} from '@mpflow/service-core'
 import { Configuration } from 'webpack'
 import WebpackChain from 'webpack-chain'
 import { merge } from 'webpack-merge'
@@ -7,89 +15,26 @@ export class ServiceRunnerAPI extends RunnerAPI<Plugin, ServiceRunner> {
   /**
    * 运行模式
    */
-  get mode(): string {
+  getMode(): string {
     return this.service.mode
   }
 
   /**
    * 运行模式
    */
-  set mode(mode: string) {
+  setMode(mode: string): void {
     this.service.mode = mode
   }
 
-  beforeConfigureWebpack(handler: () => void): void {
+  configureWebpack(handler: ConfigureWebpackHandler): void {
     this.service.configWebpackHandlers.push(handler)
-  }
-
-  /**
-   * 设置对应的 webpack 配置
-   * @param config
-   */
-  configureWebpack(config: (config: WebpackChain, id: string) => void): void
-  configureWebpack(id: string, config: (config: WebpackChain, id: string) => void): void
-  configureWebpack(id: any, config?: any): void {
-    if (!config) {
-      config = id
-      id = undefined
-    }
-    if (id !== undefined) {
-      const webpackConfigs = this.service.webpackConfigs.get(id)
-      if (!webpackConfigs) throw new Error(`找不到对应的 webpack 配置 id=${id}`)
-      webpackConfigs.push(config)
-    } else {
-      this.service.webpackConfigs.forEach(webpackConfigs => webpackConfigs.push(config))
-    }
   }
 
   /**
    * 获取所有的 webpack 配置
    */
-  async resolveWebpackConfigs(): Promise<Configuration[]> {
-    const { configureWebpack, configureWebpackChain } = this.service.config
-    const configs: Configuration[] = []
-
-    for (const handler of this.service.configWebpackHandlers) {
-      await handler()
-    }
-
-    this.service.webpackConfigs.forEach((configurationHandlers, id) => {
-      const config = new WebpackChain()
-
-      configurationHandlers.forEach(handler => handler(config, id))
-
-      if (configureWebpackChain) configureWebpackChain(config)
-
-      const chainConfig = config.toConfig()
-      const resultConfig =
-        typeof configureWebpack === 'function'
-          ? configureWebpack(chainConfig)
-          : merge(chainConfig, configureWebpack || {})
-
-      configs.push(resultConfig)
-    })
-
-    return configs
-  }
-
-  /**
-   * 添加一个 webpack 构建配置
-   * @param id
-   * @param config
-   */
-  addWebpackConfig(id: string, config: (config: WebpackChain, id: string) => void): boolean {
-    const webpackConfigs = this.service.webpackConfigs
-    if (webpackConfigs.has(id)) return false
-
-    webpackConfigs.set(id, [config])
-    return true
-  }
-
-  /**
-   * 是否有 webpack 构建配置
-   */
-  hasWebpackConfig(id: string): boolean {
-    return this.service.webpackConfigs.has(id)
+  async resolveWebpackConfigs(): Promise<Record<string, Configuration>> {
+    return this.service.resolveWebpackConfigs()
   }
 }
 
@@ -98,12 +43,7 @@ export interface ServiceRunnerOptions extends RunnerOptions {
 }
 
 export class ServiceRunner extends Runner {
-  /**
-   * webpack 设置
-   */
-  public webpackConfigs: Map<string, ((config: WebpackChain, id: string) => void)[]> = new Map()
-
-  public configWebpackHandlers: (() => void)[] = []
+  public configWebpackHandlers: ConfigureWebpackHandler[] = []
 
   /**
    * 运行模式
@@ -128,23 +68,23 @@ export class ServiceRunner extends Runner {
     return [
       {
         id: '@mpflow/service/lib/config/base',
-        module: require('./config/base'),
+        module: require('./config/base') as typeof import('./config/base'),
       },
       {
         id: '@mpflow/service/lib/config/mpflow',
-        module: require('./config/mpflow'),
+        module: require('./config/mpflow') as typeof import('./config/mpflow'),
       },
       {
         id: '@mpflow/service/lib/commands/build',
-        module: require('./commands/build'),
+        module: require('./commands/build') as typeof import('./commands/build'),
       },
       {
         id: '@mpflow/service/lib/commands/dev',
-        module: require('./commands/dev'),
+        module: require('./commands/dev') as typeof import('./commands/dev'),
       },
       {
         id: '@mpflow/service/lib/commands/inspect',
-        module: require('./commands/inspect'),
+        module: require('./commands/inspect') as typeof import('./commands/inspect'),
       },
     ]
   }
@@ -182,6 +122,83 @@ export class ServiceRunner extends Runner {
    */
   async run(argv: string[] = process.argv.slice(2)): Promise<void> {
     await this.init()
-    super.run(argv)
+    await super.run(argv)
+  }
+
+  /**
+   * 获取所有的 webpack 配置
+   */
+  async resolveWebpackConfigs(): Promise<Record<string, Configuration>> {
+    const webpackConfigs: Map<string, ((config: WebpackChain, id: string) => void)[]> = new Map()
+    const { configureWebpack, configureWebpackChain } = this.config
+    const configs: Record<string, Configuration> = {}
+
+    /**
+     * 设置对应的 webpack 配置
+     * @param config
+     */
+    function configure(config: (config: WebpackChain, id: string) => void): void
+    function configure(id: string, config: (config: WebpackChain, id: string) => void): void
+    function configure(id: any, config?: any): void {
+      if (!config) {
+        config = id
+        id = undefined
+      }
+      if (id !== undefined) {
+        const webpackConfig = webpackConfigs.get(id)
+        if (!webpackConfig) throw new Error(`找不到对应的 webpack 配置 id=${id}`)
+        webpackConfig.push(config)
+      } else {
+        webpackConfigs.forEach(webpackConfig => webpackConfig.push(config))
+      }
+    }
+
+    /**
+     * 添加一个 webpack 构建配置
+     * @param id
+     * @param config
+     */
+    function addConfig(id: string, config: (config: WebpackChain, id: string) => void): boolean {
+      if (webpackConfigs.has(id)) return false
+
+      webpackConfigs.set(id, [config])
+      return true
+    }
+
+    /**
+     * 判断是否存在 webpack 配置
+     */
+    function hasConfig(id: string): boolean {
+      return webpackConfigs.has(id)
+    }
+
+    for (const handler of this.configWebpackHandlers) {
+      await handler(
+        {
+          configure,
+          addConfig,
+          hasConfig,
+        },
+        this.mode,
+      )
+    }
+
+    webpackConfigs.forEach((configurationHandlers, id) => {
+      const config = new WebpackChain()
+
+      configurationHandlers.forEach(handler => handler(config, id))
+
+      if (configureWebpackChain) configureWebpackChain(config)
+
+      const chainConfig = config.toConfig()
+      const resultConfig =
+        typeof configureWebpack === 'function'
+          ? configureWebpack(chainConfig)
+          : merge(chainConfig, configureWebpack || {})
+
+      configs[id] = resultConfig
+    })
+
+    return configs
   }
 }

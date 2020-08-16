@@ -1,4 +1,4 @@
-import { loaderTestUtils } from '@mpflow/test-utils'
+import { webpackTestUtils } from '@mpflow/test-utils'
 import { Options } from '@mpflow/wxss-loader'
 import { Stats } from 'webpack'
 import path from 'path'
@@ -12,7 +12,7 @@ export default async function compile(
   warnings: string[]
   exports: any
 }> {
-  const compiler = loaderTestUtils.getCompiler({
+  const compiler = webpackTestUtils.getCompiler({
     context: path.resolve(__dirname, '../fixtures', fixture),
     entry: path.resolve(__dirname, '../fixtures', fixture, 'entry.js'),
     module: {
@@ -31,10 +31,10 @@ export default async function compile(
     },
   })
 
-  const stats = await loaderTestUtils.compile(compiler)
-  const errors = loaderTestUtils.getErrors(stats)
-  const warnings = loaderTestUtils.getWarnings(stats)
-  const exports = loaderTestUtils.getExecutedCode('main.bundle.js', compiler, stats)
+  const stats = await webpackTestUtils.compile(compiler)
+  const errors = webpackTestUtils.getErrors(stats)
+  const warnings = webpackTestUtils.getWarnings(stats)
+  const exports = webpackTestUtils.getExecutedCode('main.bundle.js', compiler, stats)
 
   return {
     stats,

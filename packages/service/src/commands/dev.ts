@@ -2,6 +2,7 @@ import { Plugin } from '@mpflow/service-core'
 import cp from 'child_process'
 import fs from 'fs'
 import { Compiler, Stats, MultiCompiler, compilation } from 'webpack'
+import WebpackOutputFileSystem from '../utils/WebpackOutputFileSystem'
 
 const getDevtoolCliPath = async () => {
   let cliPath: string
@@ -82,19 +83,21 @@ const dev: Plugin = (api, config) => {
     },
     async args => {
       try {
-        api.mode = 'development'
+        api.setMode('development')
 
-        const { default: webpack, ProgressPlugin } = await import('webpack')
+        const { default: webpack } = await import('webpack')
 
-        api.configureWebpack(webpackConfig => {
-          webpackConfig.watch(true)
-
-          webpackConfig.plugin('progress').use(ProgressPlugin, [{}])
+        api.configureWebpack(({ configure }) => {
+          configure(webpackConfig => {
+            webpackConfig.watch(true)
+          })
         })
 
-        const webpackConfig = await api.resolveWebpackConfigs()
+        const webpackConfig = Object.values(await api.resolveWebpackConfigs())
 
         const compiler = webpack(webpackConfig)
+
+        ;(compiler as any).outputFileSystem = new WebpackOutputFileSystem((api as any).service.outputFileSystem)
 
         const context: DevContext = {
           compiler,

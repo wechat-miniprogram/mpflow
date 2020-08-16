@@ -30,7 +30,7 @@ export class BaseAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> {
 
 export interface PluginInfo<P = Plugin> {
   id: string
-  module?: P
+  module?: P | { default: P }
   config?: any
 }
 
@@ -38,6 +38,8 @@ export interface BaseServiceOptions {
   plugins?: PluginInfo<any>[]
   pkg?: any
   config?: MpflowConfig
+  inputFileSystem?: typeof fs
+  outputFileSystem?: typeof fs
 }
 
 export abstract class BaseService<P = Plugin> {
@@ -61,8 +63,20 @@ export abstract class BaseService<P = Plugin> {
    */
   public config: MpflowConfig
 
-  constructor(context: string, { plugins, pkg, config }: BaseServiceOptions = {}) {
+  /**
+   * 输入文件系统
+   */
+  public inputFileSystem: typeof fs
+
+  /**
+   * 输出文件系统
+   */
+  public outputFileSystem: typeof fs
+
+  constructor(context: string, { plugins, pkg, config, inputFileSystem, outputFileSystem }: BaseServiceOptions = {}) {
     this.context = context
+    this.inputFileSystem = inputFileSystem || fs
+    this.outputFileSystem = outputFileSystem || fs
     this.pkg = this.resolvePkg(pkg, context)
     this.config = this.resolveConfig(config, context)
     this.pluginOptions = this.resolvePluginInfos(plugins)
@@ -76,8 +90,8 @@ export abstract class BaseService<P = Plugin> {
   resolvePkg(inlinePkg?: any, context: string = this.context): any {
     if (inlinePkg) return inlinePkg
     const pkgPath = path.resolve(context, 'package.json')
-    if (fs.existsSync(pkgPath)) {
-      return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'))
+    if (this.inputFileSystem.existsSync(pkgPath)) {
+      return JSON.parse(this.inputFileSystem.readFileSync(pkgPath, 'utf-8'))
     }
     return {}
   }
@@ -90,7 +104,7 @@ export abstract class BaseService<P = Plugin> {
   resolveConfig(inlineConfig?: MpflowConfig, context: string = this.context): MpflowConfig {
     if (inlineConfig) return inlineConfig
     const configPath = path.resolve(context, 'mpflow.config.js')
-    if (fs.existsSync(configPath)) {
+    if (this.inputFileSystem.existsSync(configPath)) {
       delete require.cache[configPath]
       return require(configPath)
     }
@@ -121,7 +135,8 @@ export abstract class BaseService<P = Plugin> {
     pluginOptions: PluginInfo<P>[] = this.pluginOptions,
     context: string = this.context,
   ): { id: string; plugin: P; config?: any }[] {
-    const interopRequireDefault = <T>(obj: T): T => (obj && (obj as any).__esModule ? (obj as any).default : obj)
+    const interopRequireDefault = <T>(obj: T | { default: T }): T =>
+      obj && (obj as any).__esModule ? (obj as any).default : obj
 
     return pluginOptions.map(({ id, module, config }) => {
       let plugin: P = interopRequireDefault(module)!

@@ -3,8 +3,7 @@ import MpflowPlugin from '@mpflow/webpack-plugin'
 import path from 'path'
 
 const base: Plugin = (api, config) => {
-  api.beforeConfigureWebpack(() => {
-    const mode = api.mode
+  api.configureWebpack(({ addConfig, configure }, mode) => {
     const app = typeof config.app === 'function' ? config.app(mode) : config.app
     const plugin = typeof config.plugin === 'function' ? config.plugin(mode) : config.plugin
     const pages = typeof config.pages === 'function' ? config.pages(mode) : config.pages
@@ -15,7 +14,7 @@ const base: Plugin = (api, config) => {
     const outputPath = api.resolve(config.outputDir || 'dist')
 
     if (app) {
-      api.addWebpackConfig('app', webpackConfig => {
+      addConfig('app', webpackConfig => {
         webpackConfig
           .name('app')
           .entry('app')
@@ -27,7 +26,7 @@ const base: Plugin = (api, config) => {
     }
 
     if (plugin) {
-      api.addWebpackConfig('plugin', webpackConfig => {
+      addConfig('plugin', webpackConfig => {
         webpackConfig
           .name('plugin')
           .entry('plugin')
@@ -39,7 +38,7 @@ const base: Plugin = (api, config) => {
     }
 
     if (pages) {
-      api.addWebpackConfig('pages', webpackConfig => {
+      addConfig('pages', webpackConfig => {
         pages.forEach(pageEntry => {
           const basename = path.basename(pageEntry, path.extname(pageEntry))
 
@@ -54,7 +53,7 @@ const base: Plugin = (api, config) => {
       })
     }
 
-    api.configureWebpack(webpackConfig => {
+    configure(webpackConfig => {
       webpackConfig.mode(mode === 'production' ? 'production' : 'development').devtool(false)
 
       webpackConfig.context(api.getCwd())
@@ -127,13 +126,15 @@ const base: Plugin = (api, config) => {
         })
       }
 
-      webpackConfig
-        .plugin('clean')
-        .use((require('clean-webpack-plugin') as typeof import('clean-webpack-plugin')).CleanWebpackPlugin, [
-          {
-            cleanStaleWebpackAssets: false,
-          },
-        ])
+      if ((config as any)._clean !== false) {
+        webpackConfig
+          .plugin('clean')
+          .use((require('clean-webpack-plugin') as typeof import('clean-webpack-plugin')).CleanWebpackPlugin, [
+            {
+              cleanStaleWebpackAssets: false,
+            },
+          ])
+      }
 
       webpackConfig.plugin('progress').use((require('webpack') as typeof import('webpack')).ProgressPlugin, [{}])
     })

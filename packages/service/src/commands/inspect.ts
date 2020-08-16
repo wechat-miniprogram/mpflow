@@ -12,12 +12,12 @@ const inspect: Plugin = api => {
       },
     },
     async args => {
-      api.mode = args.dev ? 'development' : 'production'
+      api.setMode(args.dev ? 'development' : 'production')
 
       const webpackChain = require('webpack-chain')
       const { default: highlight } = await import('cli-highlight')
 
-      const webpackConfigs = await api.resolveWebpackConfigs()
+      const webpackConfigs = Object.values(await api.resolveWebpackConfigs())
 
       webpackConfigs.forEach(webpackConfig => {
         const output = webpackChain.toString(webpackConfig)

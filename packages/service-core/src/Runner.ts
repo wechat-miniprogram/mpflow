@@ -28,19 +28,26 @@ export abstract class BaseRunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>>
   }
 }
 
+export interface ConfigureWebpackAPI {
+  addConfig(id: string, config: (config: WebpackChain) => void): boolean
+
+  configure(id: string, config: (config: WebpackChain, id: string) => void): void
+  configure(config: (config: WebpackChain, id: string) => void): void
+
+  hasConfig(id: string): boolean
+}
+
+export interface ConfigureWebpackHandler {
+  (api: ConfigureWebpackAPI, mode: string): void
+}
+
 export abstract class RunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>> extends BaseRunnerAPI<P, S> {
-  mode: string
+  abstract setMode(mode: string): void
+  abstract getMode(): string
 
-  abstract beforeConfigureWebpack(handler: () => void): void
+  abstract configureWebpack(handler: ConfigureWebpackHandler): void
 
-  abstract addWebpackConfig(id: string, config: (config: WebpackChain, id: string) => void): boolean
-
-  abstract configureWebpack(id: string, config: (config: WebpackChain, id: string) => void): void
-  abstract configureWebpack(config: (config: WebpackChain, id: string) => void): void
-
-  abstract resolveWebpackConfigs(): Promise<Configuration[]>
-
-  abstract hasWebpackConfig(id: string): boolean
+  abstract resolveWebpackConfigs(): Promise<Record<string, Configuration>>
 }
 
 export interface RunnerOptions extends BaseServiceOptions {}
@@ -51,6 +58,11 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
    */
   public program: Argv
 
+  /**
+   * 正在执行的 cli 命令的 promise 实例
+   */
+  private _commandPromise: Promise<void> | null = null
+
   constructor(context: string, options: RunnerOptions = {}) {
     super(context, options)
 
@@ -59,6 +71,8 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
 
   async run(argv: string[] = process.argv.slice(2)): Promise<void> {
     this.program.help().demandCommand().parse(argv)
+
+    if (this._commandPromise) await this._commandPromise
   }
 
   /**
@@ -83,7 +97,14 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
       command,
       describe,
       handler: args => {
-        handler(args as any)
+        this._commandPromise = (async () => {
+          try {
+            await handler(args as any)
+          } catch (e) {
+            console.error(e)
+            process.exit(1)
+          }
+        })()
       },
       builder: yargs => {
         Object.keys(positional).forEach(key => (yargs = yargs.positional(key, positional[key])))

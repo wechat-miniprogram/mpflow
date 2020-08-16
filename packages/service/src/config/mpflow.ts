@@ -28,8 +28,8 @@ class PluginMpflow extends ChainedPlugin {
 const mpflow: Plugin = (api, config) => {
   let emitProjectConfig = false
 
-  api.beforeConfigureWebpack(() => {
-    api.configureWebpack(webpackConfig => {
+  api.configureWebpack(({ configure, hasConfig }) => {
+    configure(webpackConfig => {
       webpackConfig.plugins
         .getOrCompute('mpflow', () => new PluginMpflow(webpackConfig, 'mpflow') as any)
         .use(MpflowPlugin, [new ConfigChain() as any])
@@ -61,8 +61,8 @@ const mpflow: Plugin = (api, config) => {
     })
 
     // app 构建的 root 设置为 miniprogramRoot
-    if (api.hasWebpackConfig('app')) {
-      api.configureWebpack('app', webpackConfig => {
+    if (hasConfig('app')) {
+      configure('app', webpackConfig => {
         webpackConfig.plugin('mpflow').tap(([mpflowConfig]: [ConfigChain]) => {
           mpflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.miniprogramRoot || ''))
           return [mpflowConfig]
@@ -71,8 +71,8 @@ const mpflow: Plugin = (api, config) => {
     }
 
     // plugin 构建的 root 设置为 pluginRoot
-    if (api.hasWebpackConfig('plugin')) {
-      api.configureWebpack('plugin', webpackConfig => {
+    if (hasConfig('plugin')) {
+      configure('plugin', webpackConfig => {
         webpackConfig.plugin('mpflow').tap(([mpflowConfig]: [ConfigChain]) => {
           mpflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src', config.pluginRoot || ''))
           return [mpflowConfig]

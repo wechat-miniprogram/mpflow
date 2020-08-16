@@ -3,8 +3,8 @@ import { ConfigChain } from '@mpflow/webpack-plugin'
 import path from 'path'
 
 const plugin: Plugin = (api, config) => {
-  api.beforeConfigureWebpack(() => {
-    api.configureWebpack(webpackConfig => {
+  api.configureWebpack(({ configure }) => {
+    configure(webpackConfig => {
       webpackConfig.resolve.extensions.prepend('.ts').prepend('.tsx')
 
       webpackConfig.resolve

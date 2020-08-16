@@ -2,8 +2,8 @@ import { Plugin } from '@mpflow/service-core'
 import path from 'path'
 
 const plugin: Plugin = (api, config) => {
-  api.beforeConfigureWebpack(() => {
-    api.configureWebpack(webpackConfig => {
+  api.configureWebpack(({ configure }) => {
+    configure(webpackConfig => {
       webpackConfig.module
         .rule('js')
         .test(/\.m?jsx?$/)

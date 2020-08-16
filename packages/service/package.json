@@ -27,7 +27,8 @@
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
-    "test": "tsc"
+    "test": "jest . --config ../../jest.config.js",
+    "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
     "@mpflow/service-core": "^0.0.1",
@@ -43,6 +44,7 @@
     "file-loader": "^6.0.0",
     "json-loader": "^0.5.7",
     "miniprogram-automator": "^0.9.1",
+    "mkdirp": "^0.5.3",
     "raw-loader": "^4.0.1",
     "webpack": "^4.43.0",
     "webpack-bundle-analyzer": "^3.8.0",
@@ -51,6 +53,7 @@
     "yargs": "^15.4.0"
   },
   "devDependencies": {
+    "@types/mkdirp": "^0.5.2",
     "@types/webpack": "^4.41.21",
     "@types/yargs": "^15.0.5"
   }
