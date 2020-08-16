@@ -31,4 +31,24 @@ describe('Runner', () => {
     expect(fooHandler).toBeCalledTimes(1)
     expect(barHandler).toBeCalledTimes(1)
   })
+
+  test('should register async command', async () => {
+    const runner = new Runner(context)
+
+    let count = 0
+    const fooHandler = jest.fn(async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      count++
+    })
+
+    runner.registerCommand('foo', false, {}, {}, fooHandler)
+
+    expect(fooHandler).toBeCalledTimes(0)
+    expect(count).toEqual(0)
+
+    await runner.run(['foo', '123'])
+
+    expect(fooHandler).toBeCalledTimes(1)
+    expect(count).toEqual(1)
+  })
 })
