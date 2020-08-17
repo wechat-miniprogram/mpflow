@@ -7,7 +7,7 @@ export interface MpflowConfig {
   /**
    * mpflow 要使用的插件列表
    */
-  plugins?: string[]
+  plugins?: (string | [string, Record<string, unknown>])[]
   /**
    * mpflow 打包调整 webpack 配置
    */
@@ -58,8 +58,10 @@ export interface MpflowConfig {
   pages?: string[] | ((mode: string) => string[])
 }
 
-export interface Plugin {
-  (api: RunnerAPI, config: MpflowConfig): void
+export interface Plugin<Options = any> {
+  (api: RunnerAPI, config: MpflowConfig, options: Options): void
 
-  generator?: (api: GeneratorAPI, config: MpflowConfig) => void
+  generator?: (api: GeneratorAPI, config: MpflowConfig, options: Options) => void
+
+  postInstall?: (api: any, config: MpflowConfig) => Options | Promise<Options>
 }

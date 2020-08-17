@@ -31,7 +31,7 @@ export class BaseAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> {
 export interface PluginInfo<P = Plugin> {
   id: string
   module?: P | { default: P }
-  config?: any
+  option?: any
 }
 
 export interface BaseServiceOptions {
@@ -119,9 +119,11 @@ export abstract class BaseService<P = Plugin> {
   resolvePluginInfos(inlinePlugins: PluginInfo<P>[] = [], config: MpflowConfig = this.config): PluginInfo<P>[] {
     if (inlinePlugins.length) return inlinePlugins
 
-    const projectPlugins: PluginInfo<P>[] = (config.plugins || []).map(id => {
+    const projectPlugins: PluginInfo<P>[] = (config.plugins || []).map(plugin => {
+      const [id, option] = Array.isArray(plugin) ? plugin : [plugin]
       return {
         id,
+        option,
       }
     })
 
@@ -134,11 +136,11 @@ export abstract class BaseService<P = Plugin> {
   resolvePlugins(
     pluginOptions: PluginInfo<P>[] = this.pluginOptions,
     context: string = this.context,
-  ): { id: string; plugin: P; config?: any }[] {
+  ): { id: string; plugin: P; option?: any }[] {
     const interopRequireDefault = <T>(obj: T | { default: T }): T =>
       obj && (obj as any).__esModule ? (obj as any).default : obj
 
-    return pluginOptions.map(({ id, module, config }) => {
+    return pluginOptions.map(({ id, module, option }) => {
       let plugin: P = interopRequireDefault(module)!
 
       if (!plugin) {
@@ -146,7 +148,7 @@ export abstract class BaseService<P = Plugin> {
         plugin = interopRequireDefault(require(pluginPath))
       }
 
-      return { id, plugin, config }
+      return { id, plugin, option }
     })
   }
 }

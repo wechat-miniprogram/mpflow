@@ -1,9 +1,13 @@
 import { ArrayExpression, ASTPath, ExpressionStatement, ObjectExpression, Statement, Transform } from 'jscodeshift'
 
-const addToExports: Transform = (fileInfo, api, { fieldName, items }: { fieldName: string; items: string[] }) => {
+const addToExports: Transform = (
+  fileInfo,
+  api,
+  { fieldName, items }: { fieldName: string; items: (string | [string, any])[] },
+) => {
   const { source } = fileInfo
   const { j } = api
-  const { statement } = j.template
+  const { statement, expression } = j.template
 
   if (typeof items === 'string') {
     items = (items as string).split(',')
@@ -77,8 +81,16 @@ const addToExports: Transform = (fileInfo, api, { fieldName, items }: { fieldNam
 
   // 插入新的 pluginName
   pluginsArrayExpression.forEach(p => {
-    items.forEach(pluginName => {
-      p.get('elements').push(j.stringLiteral(pluginName))
+    items.forEach(item => {
+      const [pluginName, option] = Array.isArray(item) ? item : [item]
+      if (!option) {
+        p.get('elements').push(j.stringLiteral(pluginName))
+      } else {
+        const optionExpression: ObjectExpression = j(`(${JSON.stringify(option)})`)
+          .find(j.ExpressionStatement)
+          .get('expression').value
+        p.get('elements').push(j.arrayExpression([j.stringLiteral(pluginName), optionExpression]))
+      }
     })
   })
 

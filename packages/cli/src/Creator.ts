@@ -238,13 +238,22 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     if (!pluginNames.length) return
     await installNodeModules(this.context, pluginNames)
 
-    const generator = new Generator(this.context, { plugins: pluginNames.map(id => ({ id })) })
+    const { ServiceRunner } = getLocalService(this.context)
+
+    const plugins = new ServiceRunner(this.context).resolvePlugins(pluginNames.map(id => ({ id })))
+    for (const plugin of plugins) {
+      if (plugin.plugin.postInstall) {
+        plugin.option = await plugin.plugin.postInstall({}, this.config)
+      }
+    }
+
+    const generator = new Generator(this.context, { plugins })
 
     // 将插件添加到 mpflow.config.js
     generator.processFile('creator', 'mpflow.config.js', (file, api) => {
       api.transform(require('@mpflow/service-core/lib/codemods/add-to-exports').default, {
         fieldName: 'plugins',
-        items: pluginNames,
+        items: plugins.map(({ id, option }) => [id, option]),
       })
     })
 
