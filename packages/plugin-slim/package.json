@@ -1,0 +1,39 @@
+{
+  "name": "@mpflow/plugin-slim",
+  "version": "0.0.1",
+  "description": "> TODO: description",
+  "author": "chyizheng <chyizheng@tencent.com>",
+  "homepage": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib",
+    "template"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@git.code.oa.com:wxweb/weflow.git"
+  },
+  "scripts": {
+    "build": "node ../../scripts/build",
+    "build-js": "node ../../scripts/build-js",
+    "build-ts": "node ../../scripts/build-ts",
+    "test": "jest . --config ../../jest.config.js",
+    "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
+  },
+  "dependencies": {
+    "imagemin-webpack": "^5.1.1",
+    "jscpd": "^3.3.13"
+  },
+  "devDependencies": {
+    "@mpflow/service": "^0.0.1"
+  },
+  "peerDependencies": {
+    "@mpflow/service": "*"
+  }
+}

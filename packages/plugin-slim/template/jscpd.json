@@ -1,0 +1,15 @@
+{
+  "reporters": ["html", "json", "console"],
+  "ignore": ["**/__test__/**"],
+  "gitignore": true,
+  "format": ["markup", "javascript", "typescript", "css", "less", "sass", "scss"],
+  "formatsExts": {
+    "markup": ["wxml", "html", "xml"],
+    "javascript": ["js", "wxs"],
+    "typescript": ["ts"],
+    "css": ["wxss", "css"],
+    "less": ["less"],
+    "sass": ["sass"],
+    "scss": ["scss"]
+  }
+}
