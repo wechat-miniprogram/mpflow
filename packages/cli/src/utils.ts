@@ -1,21 +1,24 @@
 import cp from 'child_process'
 import deepMerge from 'deepmerge'
 import ejs, { Options as EjsOptions } from 'ejs'
-import fs from 'fs-extra'
-import glob from 'glob'
+import glob from 'fast-glob'
+import type fs from 'fs'
+import _mkdirp from 'mkdirp'
 import path from 'path'
 import semver from 'semver'
 import { intersect } from 'semver-intersect'
 
+type FileSystem = typeof fs
+
 /**
  * 将某个目录下的文件读取
  */
-export function loadFiles(source: string): Record<string, string> {
-  const filePaths = glob.sync('**/*', { nodir: true, cwd: source, ignore: ['node_modules/**'] })
+export function loadFiles(fileSystem: FileSystem, source: string): Record<string, string> {
+  const filePaths = glob.sync('**/*', { onlyFiles: true, cwd: source, ignore: ['node_modules/**'], fs: fileSystem })
   const files: Record<string, string> = {}
 
   for (const filePath of filePaths) {
-    files[filePath] = fs.readFileSync(path.resolve(source, filePath), 'utf-8')
+    files[filePath] = fileSystem.readFileSync(path.resolve(source, filePath), 'utf-8')
   }
 
   return files
@@ -25,12 +28,13 @@ export function loadFiles(source: string): Record<string, string> {
  * 将某个目录下的文件渲染
  */
 export function renderFiles(
+  fileSystem: FileSystem,
   source: string,
   pattern: string,
   additionalData: Record<string, any> = {},
   ejsOptions: EjsOptions = {},
 ): Record<string, string> {
-  const filePaths = glob.sync(pattern, { nodir: true, cwd: source })
+  const filePaths = glob.sync(pattern, { onlyFiles: true, cwd: source, fs: fileSystem })
   const files: Record<string, string> = {}
 
   for (const rawPath of filePaths) {
@@ -50,7 +54,7 @@ export function renderFiles(
       .join('/')
 
     const sourcePath = path.resolve(source, rawPath)
-    const content = renderFile(sourcePath, additionalData, ejsOptions)
+    const content = renderFile(fileSystem, sourcePath, additionalData, ejsOptions)
 
     files[targetPath] = content
   }
@@ -65,24 +69,45 @@ export function renderFiles(
  * @param ejsOptions
  */
 export function renderFile(
+  fileSystem: FileSystem,
   sourcePath: string,
   additionalData: Record<string, any> = {},
   ejsOptions: EjsOptions = {},
 ): string {
-  const template = fs.readFileSync(sourcePath, 'utf-8')
+  const template = fileSystem.readFileSync(sourcePath, 'utf-8')
 
   return ejs.render(template, additionalData, { ...ejsOptions, async: false })
 }
 
 /**
+ * 创建文件夹
+ */
+export async function mkdirp(fileSystem: FileSystem, dirname: string): Promise<void> {
+  return new Promise((resolve, reject) => _mkdirp(dirname, { fs: fileSystem }, err => (err ? reject(err) : resolve())))
+}
+
+/**
  * 写入文件
  */
-export async function writeFiles(context: string, files: Record<string, string>): Promise<void> {
+export async function writeFile(fileSystem: FileSystem, filename: string, content: string): Promise<void> {
+  await mkdirp(fileSystem, path.dirname(filename))
+  await new Promise((resolve, reject) =>
+    fileSystem.writeFile(filename, content, { encoding: 'utf8' }, err => (err ? reject(err) : resolve())),
+  )
+}
+
+/**
+ * 写入文件
+ */
+export async function writeFiles(
+  fileSystem: FileSystem,
+  context: string,
+  files: Record<string, string>,
+): Promise<void> {
   const names = Object.keys(files)
   for (const name of names) {
     const filePath = path.join(context, name)
-    await fs.mkdirp(path.dirname(filePath))
-    await fs.writeFile(filePath, files[name])
+    await writeFile(fileSystem, filePath, files[name])
   }
 }
 
@@ -91,10 +116,10 @@ export async function writeFiles(context: string, files: Record<string, string>)
  * @param context
  * @param files
  */
-export async function removeFiles(context: string, files: Iterable<string>): Promise<void> {
+export async function removeFiles(fileSystem: FileSystem, context: string, files: Iterable<string>): Promise<void> {
   for (const name of files) {
     const filePath = path.join(context, name)
-    await fs.unlink(filePath)
+    await new Promise((resolve, reject) => fileSystem.unlink(filePath, err => (err ? reject(err) : resolve)))
   }
 }
 
@@ -103,14 +128,14 @@ export async function removeFiles(context: string, files: Iterable<string>): Pro
  * @param context
  * @param files
  */
-export async function syncFiles(context: string, files: Record<string, string>): Promise<void> {
-  const filePaths = glob.sync('**/*', { nodir: true, cwd: context, ignore: ['node_modules/**'] })
+export async function syncFiles(fileSystem: FileSystem, context: string, files: Record<string, string>): Promise<void> {
+  const filePaths = glob.sync('**/*', { onlyFiles: true, cwd: context, ignore: ['node_modules/**'], fs: fileSystem })
 
   const filesToRemove = new Set(filePaths)
   Object.keys(files).forEach(file => filesToRemove.delete(file))
 
-  await removeFiles(context, filesToRemove)
-  await writeFiles(context, files)
+  await removeFiles(fileSystem, context, filesToRemove)
+  await writeFiles(fileSystem, context, files)
 }
 
 /**

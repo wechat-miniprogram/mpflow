@@ -140,7 +140,7 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     })
 
     this.hooks.render.tapPromise('creator', async ({ projectName, appId, templatePath }, files) => {
-      const rendered = await renderFiles(templatePath, '**/*', {
+      const rendered = await renderFiles(this.inputFileSystem, templatePath, '**/*', {
         projectName,
         appId,
       })
@@ -148,7 +148,7 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     })
 
     this.hooks.emit.tapPromise('creator', async (context, files) => {
-      await syncFiles(context, files)
+      await syncFiles(this.outputFileSystem, context, files)
     })
 
     this.hooks.init.tapPromise('creator', async context => {

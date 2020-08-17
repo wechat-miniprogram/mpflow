@@ -25,11 +25,8 @@ import {
 export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Generator<P> = Generator<P>>
   extends BaseAPI<P, S>
   implements IGeneratorAPI<P, S> {
-  private depSources: Record<string, string>
-
-  constructor(id: string, service: S, depSources: Record<string, string>) {
+  constructor(id: string, service: S) {
     super(id, service)
-    this.depSources = depSources
   }
 
   /**
@@ -37,7 +34,7 @@ export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Gene
    * @param toMerge
    */
   extendPackage(toMerge: Record<string, any>): void {
-    mergePackage(this.service.pkg, toMerge, this.id, this.depSources)
+    this.service.extendPackage(toMerge, this.id)
   }
 
   renderDir(
@@ -117,7 +114,7 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
 
     this.hooks.load.tapPromise('generator', async (context, queue) => {
       const files = {
-        ...loadFiles(context),
+        ...loadFiles(this.inputFileSystem, context),
         ...(innerFiles || {}),
       }
 
@@ -153,18 +150,8 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
 
     // 同步到文件系统
     this.hooks.write.tapPromise('generator', async files => {
-      await syncFiles(this.context, files)
+      await syncFiles(this.outputFileSystem, this.context, files)
     })
-  }
-
-  /**
-   * 加载 context 下的文件内容
-   */
-  loadFiles(innerFiles: Record<string, string> = {}): Record<string, string> {
-    return {
-      ...loadFiles(this.context),
-      ...innerFiles,
-    }
   }
 
   /**
@@ -193,8 +180,12 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
     const plugins = this.resolvePlugins()
 
     plugins.forEach(({ id, plugin }) => {
-      plugin.generator && plugin.generator(new GeneratorAPI<P>(id, this, this.depSources), this.config)
+      plugin.generator && plugin.generator(new GeneratorAPI<P>(id, this), this.config)
     })
+  }
+
+  extendPackage(toMerge: Record<string, any>, id: string): void {
+    return mergePackage(this.pkg, toMerge, id, this.depSources)
   }
 
   /**
@@ -212,7 +203,7 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
         ejsOptions: {},
         ...options,
       }
-      const files = renderFiles(source, pattern, additionalData, ejsOptions)
+      const files = renderFiles(this.inputFileSystem, source, pattern, additionalData, ejsOptions)
 
       for (const originFilePath in files) {
         const filePath = path.join(targetPath, originFilePath)
@@ -239,7 +230,7 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
         ejsOptions: {},
         ...options,
       }
-      const fileContent = renderFile(source, additionalData, ejsOptions)
+      const fileContent = renderFile(this.inputFileSystem, source, additionalData, ejsOptions)
 
       return {
         [targetPath]: fileContent,
