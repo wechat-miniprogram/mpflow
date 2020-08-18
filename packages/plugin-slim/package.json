@@ -27,6 +27,11 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
+    "imagemin-gifsicle": "^7.0.0",
+    "imagemin-jpegtran": "^7.0.0",
+    "imagemin-optipng": "^8.0.0",
+    "imagemin-pngquant": "^9.0.0",
+    "imagemin-svgo": "^8.0.0",
     "imagemin-webpack": "^5.1.1",
     "jscpd": "^3.3.13"
   },

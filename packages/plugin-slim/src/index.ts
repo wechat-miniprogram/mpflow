@@ -1,24 +1,33 @@
 import { Plugin } from '@mpflow/service-core'
 import path from 'path'
 
-interface Options {}
+interface Options {
+  imagemin?: {
+    jpg?: boolean | Record<string, unknown>
+    gif?: boolean | Record<string, unknown>
+    png?: boolean | Record<string, unknown>
+    svg?: boolean | Record<string, unknown>
+    plugins?: any[]
+  }
+}
 
 const plugin: Plugin<Options> = (api, config, options) => {
   api.registerCommand(
-    'slim-cpd <dir>',
+    'slim-cpd [dir]',
     '检测源代码代码相似度',
     {
       dir: {
         type: 'string',
-        demandOption: true,
-        describe: '检测目录',
+        describe: '需要检测的目录路径',
+        default: config.sourceDir || 'src',
       },
     },
     {
       output: {
         type: 'string',
         alias: 'o',
-        default: './report',
+        describe: '检测报告输出路径',
+        default: 'report',
       },
     },
     async args => {
@@ -26,6 +35,90 @@ const plugin: Plugin<Options> = (api, config, options) => {
       await jscpd(['', '', '-c', api.resolve('jscpd.json'), '-o', args.output, args.dir])
     },
   )
+
+  api.configureWebpack(({ configure }) => {
+    configure(webpackConfig => {
+      const ImageminPlugin = require('imagemin-webpack')
+
+      if (options.imagemin?.jpg)
+        webpackConfig.module
+          .rule('imagemin-jpg')
+          .test(/\.jpe?g$/i)
+          .enforce('pre')
+          .use('imagemin-loader')
+          .loader(ImageminPlugin.loader)
+          .options({
+            cache: true,
+            imageminOptions: {
+              plugins: [[require.resolve('imagemin-jpegtran'), { progressive: true }]],
+            },
+          })
+
+      if (options.imagemin?.gif)
+        webpackConfig.module
+          .rule('imagemin-gif')
+          .test(/\.gif$/i)
+          .enforce('pre')
+          .use('imagemin-loader')
+          .loader(ImageminPlugin.loader)
+          .options({
+            cache: true,
+            imageminOptions: {
+              plugins: [[require.resolve('imagemin-gifsicle'), { interlaced: true }]],
+            },
+          })
+
+      if (options.imagemin?.png)
+        webpackConfig.module
+          .rule('imagemin-png')
+          .test(/\.png$/i)
+          .enforce('pre')
+          .use('imagemin-loader')
+          .loader(ImageminPlugin.loader)
+          .options({
+            cache: true,
+            imageminOptions: {
+              plugins: [[require.resolve('imagemin-optipng'), { optimizationLevel: 5 }]],
+            },
+          })
+
+      if (options.imagemin?.svg)
+        webpackConfig.module
+          .rule('imagemin-svg')
+          .test(/\.svg$/i)
+          .enforce('pre')
+          .use('imagemin-loader')
+          .loader(ImageminPlugin.loader)
+          .options({
+            cache: true,
+            imageminOptions: {
+              plugins: [
+                [
+                  require('imagemin-svgo'),
+                  {
+                    plugins: [
+                      {
+                        removeViewBox: false,
+                      },
+                    ],
+                  },
+                ],
+              ],
+            },
+          })
+
+      if (options.imagemin?.plugins?.length) {
+        webpackConfig.plugin('imagemin').use(ImageminPlugin, [
+          {
+            cache: true,
+            imageminOptions: {
+              plugins: options.imagemin?.plugins,
+            },
+          },
+        ])
+      }
+    })
+  })
 }
 
 plugin.generator = (api, config, options) => {
@@ -38,8 +131,14 @@ plugin.generator = (api, config, options) => {
 }
 
 plugin.postInstall = async (api, config) => {
-  console.log('postInstall')
-  return {}
+  return {
+    imagemin: {
+      jpg: true,
+      gif: true,
+      png: true,
+      svg: true,
+    },
+  }
 }
 
 export default plugin
