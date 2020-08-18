@@ -295,7 +295,7 @@ export function getLocalService(context: string): typeof import('@mpflow/service
  */
 export function shouldUseYarn(): boolean {
   try {
-    cp.execSync('yarnpkg --version', { stdio: 'ignore' })
+    cp.execSync('yarn --version', { stdio: 'ignore' })
     return true
   } catch (e) {
     return false
@@ -311,7 +311,7 @@ export function installNodeModules(
   { saveDev }: { saveDev?: boolean } = {},
 ): Promise<void> {
   const useYarn = shouldUseYarn()
-  const command = useYarn ? 'yarnpkg' : 'npm'
+  const command = useYarn ? 'yarn' : 'npm'
   const args: string[] = [useYarn && modules?.length ? 'add' : 'install', ...(modules || [])]
 
   if (saveDev) {
