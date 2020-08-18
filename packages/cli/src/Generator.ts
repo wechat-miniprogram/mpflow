@@ -22,8 +22,7 @@ import {
   syncFiles,
 } from './utils'
 
-export class GeneratorAPI<P extends { generator?: any } = Plugin, S extends Generator<P> = Generator<P>>
-  extends BaseAPI<P, S>
+export class GeneratorAPI<P extends Plugin = Plugin, S extends Generator<P> = Generator<P>> extends BaseAPI<P, S>
   implements IGeneratorAPI<P, S> {
   constructor(id: string, service: S) {
     super(id, service)
@@ -72,7 +71,7 @@ export interface GeneratorOptions extends BaseServiceOptions {
   files?: Record<string, string>
 }
 
-export class Generator<P extends { generator?: any } = Plugin> extends BaseService<P> {
+export class Generator<P extends Plugin = Plugin> extends BaseService<P> {
   /**
    * package.json 中依赖的来源
    */
@@ -179,8 +178,8 @@ export class Generator<P extends { generator?: any } = Plugin> extends BaseServi
   async initPlugins(): Promise<void> {
     const plugins = this.resolvePlugins()
 
-    plugins.forEach(({ id, plugin }) => {
-      plugin.generator && plugin.generator(new GeneratorAPI<P>(id, this), this.config)
+    plugins.forEach(({ id, plugin, option }) => {
+      plugin.generator && plugin.generator(new GeneratorAPI<P>(id, this), this.config, option)
     })
   }
 

@@ -112,7 +112,7 @@ export class ServiceRunner extends Runner {
     const plugins = this.resolvePlugins()
 
     plugins.forEach(plugin => {
-      plugin.plugin(new ServiceRunnerAPI(plugin.id, this), this.config)
+      plugin.plugin(new ServiceRunnerAPI(plugin.id, this), this.config, plugin.option)
     })
   }
 
