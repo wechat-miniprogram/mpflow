@@ -12,9 +12,9 @@ export default asyncLoaderWrapper(async function (source) {
   switch (type) {
     case 'miniprogram/wxss': {
       const { exports: moduleContent, compilation } = await evalModuleBundleCode(this, source, this.request)
-      moduleContent.exports.forEach(([moduleId, content]) => {
+      moduleContent.exports.forEach(([moduleId, content, sourceMap]) => {
         const identifier = getModuleIdentifier(compilation, moduleId)
-        this._module.addDependency(new AssetDependency(type, identifier, this.context, content, outputPath))
+        this._module.addDependency(new AssetDependency(type, identifier, this.context, content, outputPath, sourceMap))
       })
       break
     }

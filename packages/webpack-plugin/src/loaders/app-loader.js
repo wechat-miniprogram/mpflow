@@ -10,8 +10,6 @@ import {
 import { appJsonLoader, assetLoader } from './index'
 import path from 'path'
 
-const wxssLoader = require.resolve('@mpflow/wxss-loader')
-
 /**
  * @type {import('webpack').loader.Loader}
  */
@@ -38,9 +36,6 @@ export const pitch = asyncLoaderWrapper(async function () {
             options: {
               type: 'miniprogram/wxss',
             },
-          },
-          {
-            loader: wxssLoader,
           },
           ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],

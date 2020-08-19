@@ -3,6 +3,7 @@
 class WxssModule {
   constructor() {
     this.exports = []
+    this.imported = new Set()
   }
 
   toString() {
@@ -12,8 +13,11 @@ class WxssModule {
   /**
    * 添加自身
    */
-  e(moduleId, content) {
-    this.exports.push([moduleId, content])
+  e(moduleId, content, sourceMap) {
+    if (!this.imported.has(moduleId)) {
+      this.exports.push([moduleId, content, sourceMap])
+      this.imported.add(moduleId)
+    }
   }
 
   /**
@@ -21,7 +25,7 @@ class WxssModule {
    */
   i(importModule) {
     importModule.exports.forEach(imported => {
-      this.exports.push(imported)
+      this.e(...imported)
     })
   }
 

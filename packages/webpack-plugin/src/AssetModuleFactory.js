@@ -10,6 +10,7 @@ class AssetModuleFactory {
         dependency.content,
         dependency.getResourceIdentifier(),
         dependency.outputPath,
+        dependency.sourceMap,
       ),
     )
   }

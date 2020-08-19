@@ -29,6 +29,9 @@ export default async function compile(
         },
       ],
     },
+    optimization: {
+      namedModules: true,
+    },
   })
 
   const stats = await webpackTestUtils.compile(compiler)

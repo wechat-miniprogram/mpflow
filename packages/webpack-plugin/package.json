@@ -26,6 +26,8 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "devDependencies": {
+    "@mpflow/wxml-loader": "^0.0.1",
+    "@mpflow/wxss-loader": "^0.0.1",
     "@types/enhanced-resolve": "^3.0.6",
     "enhanced-resolve": "^4.2.0",
     "file-loader": "^6.0.0",
@@ -40,8 +42,6 @@
     "webpack": "^4.43.0"
   },
   "dependencies": {
-    "@mpflow/wxml-loader": "^0.0.1",
-    "@mpflow/wxss-loader": "^0.0.1",
     "deepmerge": "^4.2.2",
     "ejs": "^3.1.3",
     "webpack-chain": "^6.5.0"

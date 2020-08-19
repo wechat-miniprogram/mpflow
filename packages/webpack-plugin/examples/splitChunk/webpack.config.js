@@ -55,6 +55,7 @@ module.exports = {
       },
       {
         test: /\.wxss$/,
+        enforce: 'pre',
         use: [
           {
             loader: '@mpflow/wxss-loader',
@@ -63,6 +64,7 @@ module.exports = {
       },
       {
         test: /\.wxml$/,
+        enforce: 'pre',
         use: [
           {
             loader: '@mpflow/wxml-loader',

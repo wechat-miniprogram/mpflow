@@ -11,9 +11,6 @@ import {
 } from '../utils'
 import { assetLoader, pageJsonLoader } from './index'
 
-const wxssLoader = require.resolve('@mpflow/wxss-loader')
-const wxmlLoader = require.resolve('@mpflow/wxml-loader')
-
 /**
  * @type {import('webpack').loader.Loader}
  */
@@ -50,9 +47,6 @@ export const pitch = asyncLoaderWrapper(async function () {
             outputDir: path.dirname(outputPath),
           },
         },
-        {
-          loader: wxmlLoader,
-        },
         ...getMpflowLoaders(this, wxmlRequest, 'wxml'),
       ],
       { disabled: 'normal' },
@@ -72,9 +66,6 @@ export const pitch = asyncLoaderWrapper(async function () {
             options: {
               type: 'miniprogram/wxss',
             },
-          },
-          {
-            loader: wxssLoader,
           },
           ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],

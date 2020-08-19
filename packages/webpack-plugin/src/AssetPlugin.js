@@ -1,4 +1,4 @@
-import { ConcatSource, OriginalSource, RawSource } from 'webpack-sources'
+import { ConcatSource, OriginalSource, RawSource, SourceMapSource } from 'webpack-sources'
 import AssetDependency from './AssetDependency'
 import AssetModule from './AssetModule'
 import AssetModuleFactory from './AssetModuleFactory'
@@ -28,7 +28,8 @@ class AssetPlugin {
       case 'miniprogram/json':
         // json 文件每个都独立输出到最终位置
         return modules.map(module => ({
-          render: () => new RawSource(module.content),
+          render: () =>
+            this.renderContentAsset(compilation, chunk, [module], compilation.runtimeTemplate.requestShortener),
           pathOptions: { chunk },
           filenameTemplate: module.outputPath,
           identifier: `${PLUGIN_NAME}.${type}.${module.id}`,
@@ -51,7 +52,8 @@ class AssetPlugin {
       case 'miniprogram/wxml':
         // wxml 文件每个都独立输出到最终位置
         return modules.map((module, index) => ({
-          render: () => new RawSource(module.content),
+          render: () =>
+            this.renderContentAsset(compilation, chunk, [module], compilation.runtimeTemplate.requestShortener),
           pathOptions: { chunk },
           filenameTemplate: module.outputPath,
           identifier: `${PLUGIN_NAME}.${type}.${module.id}`,
@@ -198,7 +200,11 @@ class AssetPlugin {
     const source = new ConcatSource()
 
     for (const m of usedModules) {
-      source.add(new OriginalSource(m.content, m.readableIdentifier(requestShortener)))
+      if (m.sourceMap) {
+        source.add(new SourceMapSource(m.content, m.readableIdentifier(requestShortener), m.sourceMap))
+      } else {
+        source.add(new OriginalSource(m.content, m.readableIdentifier(requestShortener)))
+      }
       source.add('\n')
     }
 

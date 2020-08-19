@@ -53,10 +53,12 @@ function getModuleCode(
   result: postcss.Result,
   childImports: PluginChildImportMessage['value'][],
   replacers: PluginReplaceMessage['value'][],
+  sourceMap: boolean,
   esModule: boolean,
 ) {
-  const { css } = result
+  const { css, map } = result
   let content = JSON.stringify(css)
+  const sourceMapContent = sourceMap && map ? map.toString() : 'undefined'
   let beforeCode = ''
 
   beforeCode += esModule
@@ -77,7 +79,7 @@ function getModuleCode(
     content = content.replace(pattern, () => `" + ${replacerName} + "`)
   }
 
-  return `${beforeCode}\nexports.e(module.id, ${content});\n`
+  return `${beforeCode}\nexports.e(module.id, ${content}, ${sourceMapContent});\n`
 }
 
 function getExportCode(esModule: boolean) {
@@ -89,7 +91,7 @@ export interface Options {
   esModule?: boolean
 }
 
-const wxssLoader: loader.Loader = function wxssLoader(content) {
+const wxssLoader: loader.Loader = function wxssLoader(content, map) {
   const options: Options = getOptions(this) || {}
 
   validateOptions(
@@ -116,7 +118,7 @@ const wxssLoader: loader.Loader = function wxssLoader(content) {
   this.cacheable()
 
   const callback = this.async()!
-  // const sourceMap = options.sourceMap || false
+  const sourceMap = options.sourceMap || false
 
   postcss([
     importPlugin({
@@ -131,6 +133,13 @@ const wxssLoader: loader.Loader = function wxssLoader(content) {
     .process(content, {
       from: this.resourcePath,
       to: this.resourcePath,
+      map: sourceMap
+        ? {
+            prev: map,
+            inline: false,
+            annotation: false,
+          }
+        : false,
     })
     .then(result => {
       for (const warning of result.warnings()) {
@@ -158,7 +167,7 @@ const wxssLoader: loader.Loader = function wxssLoader(content) {
       const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
 
       const importCode = getImportCode(this, imports, esModule)
-      const moduleCode = getModuleCode(result, childImports, replacers, /*publicPath, outputPath,*/ esModule)
+      const moduleCode = getModuleCode(result, childImports, replacers, sourceMap, esModule)
       const exportCode = getExportCode(esModule)
 
       return callback(null, `${importCode}${moduleCode}${exportCode}`)
