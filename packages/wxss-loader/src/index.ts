@@ -118,7 +118,7 @@ const wxssLoader: loader.Loader = function wxssLoader(content, map) {
   this.cacheable()
 
   const callback = this.async()!
-  const sourceMap = options.sourceMap || false
+  const sourceMap = typeof options.sourceMap === 'boolean' ? options.sourceMap : this.sourceMap
 
   postcss([
     importPlugin({

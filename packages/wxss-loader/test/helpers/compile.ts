@@ -6,6 +6,7 @@ import path from 'path'
 export default async function compile(
   fixture: string,
   loaderOptions: Options,
+  sourceMap = false,
 ): Promise<{
   stats: Stats
   errors: string[]
@@ -15,12 +16,25 @@ export default async function compile(
   const compiler = webpackTestUtils.getCompiler({
     context: path.resolve(__dirname, '../fixtures', fixture),
     entry: path.resolve(__dirname, '../fixtures', fixture, 'entry.js'),
+    devtool: sourceMap ? 'source-map' : undefined,
     module: {
       rules: [
         {
           test: /\.wxss$/,
           loader: require.resolve('@mpflow/wxss-loader'),
           options: loaderOptions,
+        },
+        {
+          test: /\.less$/,
+          use: [
+            {
+              loader: require.resolve('@mpflow/wxss-loader'),
+              options: loaderOptions,
+            },
+            {
+              loader: require.resolve('less-loader'),
+            },
+          ],
         },
         {
           test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/i,

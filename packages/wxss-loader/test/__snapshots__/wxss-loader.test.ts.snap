@@ -43,6 +43,36 @@ Object {
 
 exports[`wxss-loader should work with esModule: warnings 1`] = `Array []`;
 
+exports[`wxss-loader should work with less: errors 1`] = `Array []`;
+
+exports[`wxss-loader should work with less: exports 1`] = `
+Object {
+  "default": WxssModule {
+    "exports": Array [
+      Array [
+        "./a.less",
+        ".c {
+  color: green;
+}
+.b {
+  color: blue;
+}
+.a {
+  color: red;
+}
+",
+        undefined,
+      ],
+    ],
+    "imported": Set {
+      "./a.less",
+    },
+  },
+}
+`;
+
+exports[`wxss-loader should work with less: warnings 1`] = `Array []`;
+
 exports[`wxss-loader should work with sourceMap: errors 1`] = `Array []`;
 
 exports[`wxss-loader should work with sourceMap: exports 1`] = `
