@@ -10,7 +10,7 @@ module.exports = {
   moduleFileExtensions: ['ts', 'js', 'json'],
   transformIgnorePatterns: ['/node_modules/'],
   collectCoverageFrom: ['<rootDir>/src/**/*.{js,ts}', '!**/__tests__/**'],
-  // moduleNameMapper: pathsToModuleNameMapper(require('./tsconfig.json').compilerOptions.paths, {
-  //   prefix: '<rootDir>/../../',
-  // }),
+  moduleNameMapper: pathsToModuleNameMapper(require('./tsconfig.json').compilerOptions.paths, {
+    prefix: '<rootDir>/../../',
+  }),
 }
