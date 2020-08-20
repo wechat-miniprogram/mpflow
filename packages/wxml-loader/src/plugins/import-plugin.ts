@@ -22,7 +22,7 @@ const defaultImportAttributes: ImportAttributes[] = [
   {
     tag: 'wxs',
     attribute: 'src',
-    importType: 'inline',
+    // importType: 'inline',
   },
   {
     tag: 'image',
@@ -44,12 +44,12 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
   const findAttribute = (elem: parser.WxmlNode) => {
     if (elem.type !== 'element') return
 
-    const attrSet = tagAttrMap.get(elem.startToken.tagName.val)
+    const attrSet = tagAttrMap.get(elem.tag)
 
     if (!attrSet) return
 
-    for (const attr of elem.startToken.attrs) {
-      const name = attr.name.val
+    for (const attr of elem.attrs) {
+      const name = attr.name
       if (attrSet.has(name) && attr.value) return { attr, option: attrSet.get(name)! }
     }
   }
@@ -69,9 +69,9 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
 
         const { attr, option } = result
 
-        if (!attr.value || !isUrlRequest(attr.value.val)) return
+        if (!attr.value || !isUrlRequest(attr.value)) return
 
-        const importKey = urlToRequest(decodeURIComponent(attr.value.val))
+        const importKey = urlToRequest(decodeURIComponent(attr.value))
         let importName = importsMap.get(importKey)
 
         if (!importName) {
@@ -114,11 +114,12 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
           elem.children = [
             {
               type: 'text',
-              token: { type: 'text', text: placeholderName },
+              raw: true,
+              text: placeholderName,
             },
           ]
           // 删除对应 attr
-          elem.startToken.attrs.splice(elem.startToken.attrs.findIndex(elemAttr => elemAttr === attr))
+          elem.attrs.splice(elem.attrs.findIndex(elemAttr => elemAttr === attr))
         } else {
           // 普通导入
           if (option.importType === 'child') {
@@ -152,7 +153,7 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
           }
 
           // 将 ast 中的 src 替换
-          attr.value.val = placeholderName
+          attr.value = placeholderName
         }
       },
     })

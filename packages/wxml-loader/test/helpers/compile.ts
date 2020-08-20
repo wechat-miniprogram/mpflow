@@ -24,7 +24,8 @@ export default async function compile(
         },
         {
           test: /\.wxs$/,
-          loader: 'raw-loader',
+          loader: 'file-loader',
+          options: { name: '[name].[hash:8].[ext]' },
         },
         {
           test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/i,

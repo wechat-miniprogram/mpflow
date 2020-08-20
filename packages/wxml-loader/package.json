@@ -27,7 +27,8 @@
   },
   "dependencies": {
     "loader-utils": "^2.0.0",
-    "schema-utils": "^2.7.0"
+    "schema-utils": "^2.7.0",
+    "source-map": "^0.7.3"
   },
   "devDependencies": {
     "@types/loader-utils": "^2.0.1",

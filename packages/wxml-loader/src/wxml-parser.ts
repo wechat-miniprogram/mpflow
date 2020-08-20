@@ -1,6 +1,4 @@
-/**
- * 感谢 John Resig： https://johnresig.com/files/htmlparser.js
- */
+import { SourceNode, SourceMapGenerator, SourceMapConsumer } from 'source-map'
 
 // 正则声明
 const startTagReg = /^<([-A-Za-z0-9_]+)((?:\s+[-A-Za-z0-9_:@.#]+(?:\s*=\s*(?:(?:"[^"]*")|(?:'[^']*')|[^>\s]+))?)*)\s*(\/?)>/i
@@ -17,8 +15,44 @@ const voidSet: Set<string> = new Set([])
 const rawTextSet: Set<string> = new Set(['wxs'])
 
 interface Position {
-  start: number
-  end: number
+  line: number
+  column: number
+  file: string
+  source: string
+}
+
+type PositionMapper = (start: number, length: number) => Position
+
+function getPositionMapper(fileName: string, content: string): PositionMapper {
+  const lines: number[] = [] // lins[i] 代表 i 位置对应行号
+  const columns: number[] = [] // column[i] 代表 i 位置对应行的起始列号
+
+  let col = 0
+  let lin = 1
+  const l = content.length
+  for (let i = 0; i < l; ++i) {
+    lines[i] = lin
+    columns[i] = col
+    if (content[i] === '\n') {
+      lin += 1
+      col = i + 1
+    }
+  }
+
+  return (start, length) => {
+    return {
+      line: lines[start],
+      column: start - columns[start],
+      file: fileName,
+      source: content.substr(start, length),
+    }
+  }
+}
+
+function posToSourceNode(pos: Position | undefined, chunks: string | SourceNode | (string | SourceNode)[] = []): any {
+  return pos
+    ? new SourceNode(pos.line, pos.column, pos.file, chunks as any)
+    : new SourceNode(null as any, null as any, null as any, chunks as any)
 }
 
 class Stack<T> extends Array<T> {
@@ -33,6 +67,7 @@ class Stack<T> extends Array<T> {
 
 interface TextToken {
   type: 'text'
+  raw: boolean
   text: string
   pos?: Position
 }
@@ -41,7 +76,7 @@ interface CommentToken {
   type: 'comment'
   content: {
     val: string
-    pos: Position
+    pos?: Position
   }
   pos?: Position
 }
@@ -50,20 +85,20 @@ interface AttributeToken {
   type: 'attribute'
   name: {
     val: string
-    pos: Position
+    pos?: Position
   }
   value?: {
     val: string
-    pos: Position
+    pos?: Position
   }
   pos?: Position
 }
 
 interface StartTagToken {
   type: 'startTag'
-  tagName: {
+  tag: {
     val: string
-    pos: Position
+    pos?: Position
   }
   attrs: AttributeToken[]
   unary: boolean
@@ -72,16 +107,16 @@ interface StartTagToken {
 
 interface EndTagToken {
   type: 'endTag'
-  tagName: {
+  tag: {
     val: string
-    pos: Position
+    pos?: Position
   }
   pos?: Position
 }
 
 type Token = TextToken | CommentToken | StartTagToken | EndTagToken
 
-function tokenizeComment(content: string, start: number, tokens: Token[]) {
+function tokenizeComment(content: string, start: number, tokens: Token[], positionMapper: PositionMapper) {
   const match = content.match(commentReg)
 
   if (!match) return
@@ -93,21 +128,29 @@ function tokenizeComment(content: string, start: number, tokens: Token[]) {
     type: 'comment',
     content: {
       val: text,
-      pos: {
-        start: start + 4,
-        end: start + 4 + text.length,
-      },
+      pos: positionMapper(start + 4, text.length),
+      // pos: {
+      //   start: start + 4,
+      //   end: start + 4 + text.length,
+      // },
     },
-    pos: {
-      start,
-      end: start + all.length,
-    },
+    // pos: {
+    //   start,
+    //   end: start + all.length,
+    // },
+    pos: positionMapper(start, all.length),
   })
 
   return all.length
 }
 
-function tokenizeRawText(tagName: string, content: string, start: number, tokens: Token[]) {
+function tokenizeRawText(
+  tagName: string,
+  content: string,
+  start: number,
+  tokens: Token[],
+  positionMapper: PositionMapper,
+) {
   const match = content.match(new RegExp(`^(?:[^<]+|(?:<(?!/${tagName}[^>]*>)))+`))
 
   if (!match) return
@@ -116,14 +159,22 @@ function tokenizeRawText(tagName: string, content: string, start: number, tokens
 
   tokens.push({
     type: 'text',
+    raw: true,
     text,
-    pos: { start, end: start + text.length },
+    // pos: { start, end: start + text.length },
+    pos: positionMapper(start, text.length),
   })
 
   return text.length
 }
 
-function tokenizeRawTextEndTag(tagName: string, content: string, start: number, tokens: Token[]) {
+function tokenizeRawTextEndTag(
+  tagName: string,
+  content: string,
+  start: number,
+  tokens: Token[],
+  positionMapper: PositionMapper,
+) {
   const match = content.match(new RegExp(`^</${tagName}[^>]*>`))
 
   if (!match) return
@@ -132,23 +183,25 @@ function tokenizeRawTextEndTag(tagName: string, content: string, start: number, 
 
   tokens.push({
     type: 'endTag',
-    tagName: {
+    tag: {
       val: tagName,
-      pos: {
-        start: start + 2,
-        end: start + 2 + tagName.length,
-      },
+      // pos: {
+      //   start: start + 2,
+      //   end: start + 2 + tagName.length,
+      // },
+      pos: positionMapper(start + 2, tagName.length),
     },
-    pos: {
-      start,
-      end: start + all.length,
-    },
+    // pos: {
+    //   start,
+    //   end: start + all.length,
+    // },
+    pos: positionMapper(start, all.length),
   })
 
   return all.length
 }
 
-function tokenizeEndTag(content: string, start: number, tokens: Token[]) {
+function tokenizeEndTag(content: string, start: number, tokens: Token[], positionMapper: PositionMapper) {
   const match = content.match(endTagReg)
 
   if (!match) return
@@ -158,23 +211,25 @@ function tokenizeEndTag(content: string, start: number, tokens: Token[]) {
 
   tokens.push({
     type: 'endTag',
-    tagName: {
+    tag: {
       val: tagName,
-      pos: {
-        start: start + 2,
-        end: start + 2 + tagName.length,
-      },
+      // pos: {
+      //   start: start + 2,
+      //   end: start + 2 + tagName.length,
+      // },
+      pos: positionMapper(start + 2, tagName.length),
     },
-    pos: {
-      start,
-      end: start + all.length,
-    },
+    // pos: {
+    //   start,
+    //   end: start + all.length,
+    // },
+    pos: positionMapper(start, all.length),
   })
 
   return all.length
 }
 
-function tokenizeStartTag(content: string, start: number, tokens: Token[]) {
+function tokenizeStartTag(content: string, start: number, tokens: Token[], positionMapper: PositionMapper) {
   const match = content.match(startTagReg)
 
   if (!match) return
@@ -184,29 +239,31 @@ function tokenizeStartTag(content: string, start: number, tokens: Token[]) {
   const attrString = match[2]
   const unary = voidSet.has(tagName) || !!match[3]
 
-  const attrs = tokenizeAttrs(attrString, start + 1 + tagName.length)
+  const attrs = tokenizeAttrs(attrString, start + 1 + tagName.length, positionMapper)
 
   tokens.push({
     type: 'startTag',
-    tagName: {
+    tag: {
       val: tagName,
-      pos: {
-        start: start + 1,
-        end: start + 1 + tagName.length,
-      },
+      // pos: {
+      //   start: start + 1,
+      //   end: start + 1 + tagName.length,
+      // },
+      pos: positionMapper(start + 1, tagName.length),
     },
     attrs,
     unary,
-    pos: {
-      start,
-      end: start + all.length,
-    },
+    // pos: {
+    //   start,
+    //   end: start + all.length,
+    // },
+    pos: positionMapper(start, all.length),
   })
 
   return all.length
 }
 
-function tokenizeText(content: string, start: number, tokens: Token[]) {
+function tokenizeText(content: string, start: number, tokens: Token[], positionMapper: PositionMapper) {
   const match = content.match(textReg)
 
   if (!match) return
@@ -215,14 +272,16 @@ function tokenizeText(content: string, start: number, tokens: Token[]) {
 
   tokens.push({
     type: 'text',
+    raw: false,
     text,
-    pos: { start, end: start + text.length },
+    // pos: { start, end: start + text.length },
+    pos: positionMapper(start, text.length),
   })
 
   return text.length
 }
 
-function tokenizeAttr(content: string, start: number, tokens: AttributeToken[]) {
+function tokenizeAttr(content: string, start: number, tokens: AttributeToken[], positionMapper: PositionMapper) {
   const match = content.match(attrReg)
 
   if (!match) return
@@ -235,7 +294,8 @@ function tokenizeAttr(content: string, start: number, tokens: AttributeToken[]) 
 
   const name: AttributeToken['name'] = {
     val: nameStr,
-    pos: { start, end: start + nameStr.length },
+    // pos: { start, end: start + nameStr.length },
+    pos: positionMapper(start, nameStr.length),
   }
 
   let value: AttributeToken['value']
@@ -243,7 +303,8 @@ function tokenizeAttr(content: string, start: number, tokens: AttributeToken[]) 
     const valueStart = start + nameStr.length + equal.length + quote.length
     value = {
       val: valueStr,
-      pos: { start: valueStart, end: valueStart + valueStr.length },
+      // pos: { start: valueStart, end: valueStart + valueStr.length },
+      pos: positionMapper(valueStart, valueStr.length),
     }
   }
 
@@ -251,16 +312,17 @@ function tokenizeAttr(content: string, start: number, tokens: AttributeToken[]) 
     type: 'attribute',
     name,
     value,
-    pos: {
-      start: start,
-      end: start + all.length,
-    },
+    // pos: {
+    //   start: start,
+    //   end: start + all.length,
+    // },
+    pos: positionMapper(start, all.length),
   })
 
   return all.length
 }
 
-function tokenizeSpace(content: string, start: number, tokens: AttributeToken[]) {
+function tokenizeSpace(content: string, start: number, tokens: AttributeToken[], positionMapper: PositionMapper) {
   const match = content.match(spaceReg)
 
   if (!match) return
@@ -268,11 +330,12 @@ function tokenizeSpace(content: string, start: number, tokens: AttributeToken[])
   return match[0].length
 }
 
-function tokenizeAttrs(content: string, start: number) {
+function tokenizeAttrs(content: string, start: number, positionMapper: PositionMapper) {
   const tokens: AttributeToken[] = []
 
   while (content.length) {
-    const offset = tokenizeAttr(content, start, tokens) || tokenizeSpace(content, start, tokens)
+    const offset =
+      tokenizeAttr(content, start, tokens, positionMapper) || tokenizeSpace(content, start, tokens, positionMapper)
 
     if (!offset) {
       throw new Error('unexpected token ' + content)
@@ -286,28 +349,30 @@ function tokenizeAttrs(content: string, start: number) {
 }
 
 /**
- * 分词
+ * 分词，将 wxml 切分为 Token
  */
-export function tokenize(content: string): Token[] {
+export function tokenize(fileName: string, content: string): Token[] {
   const tokens: Token[] = []
   let start = 0
+
+  const positionMapper = getPositionMapper(fileName, content)
 
   while (content.length) {
     const lastToken = tokens[tokens.length - 1]
 
     let offset: number | undefined
 
-    if (lastToken && lastToken.type === 'startTag' && rawTextSet.has(lastToken.tagName.val) && !lastToken.unary) {
+    if (lastToken && lastToken.type === 'startTag' && rawTextSet.has(lastToken.tag.val) && !lastToken.unary) {
       // 如果是包含任意元素的 tag，则只解析 text 和自己的 end tag
       offset =
-        tokenizeRawText(lastToken.tagName.val, content, start, tokens) ||
-        tokenizeRawTextEndTag(lastToken.tagName.val, content, start, tokens)
+        tokenizeRawText(lastToken.tag.val, content, start, tokens, positionMapper) ||
+        tokenizeRawTextEndTag(lastToken.tag.val, content, start, tokens, positionMapper)
     } else {
       offset =
-        tokenizeComment(content, start, tokens) ||
-        tokenizeEndTag(content, start, tokens) ||
-        tokenizeStartTag(content, start, tokens) ||
-        tokenizeText(content, start, tokens)
+        tokenizeComment(content, start, tokens, positionMapper) ||
+        tokenizeEndTag(content, start, tokens, positionMapper) ||
+        tokenizeStartTag(content, start, tokens, positionMapper) ||
+        tokenizeText(content, start, tokens, positionMapper)
     }
 
     if (!offset) {
@@ -323,41 +388,50 @@ export function tokenize(content: string): Token[] {
 
 export type WxmlNode = WxmlText | WxmlComment | WxmlElement
 
+export type WxmlTree = WxmlNode[]
+
 interface WxmlText {
   type: 'text'
-  token: TextToken
+  raw?: boolean
+  text: string
+  token?: TextToken
 }
 
 interface WxmlComment {
   type: 'comment'
-  token: CommentToken
+  content: string
+  token?: CommentToken
 }
 
 interface WxmlElement {
   type: 'element'
-  startToken: StartTagToken
-  endToken?: EndTagToken
-  children: WxmlNode[]
+  tag: string
+  attrs: { name: string; value?: string; token?: AttributeToken }[]
+  startTagToken?: StartTagToken
+  endTagToken?: EndTagToken
+  children: WxmlTree
 }
 
 /**
- * 解析
+ * 语法解析，将 wxml 分词后解析为 Wxml 节点树
  */
-export function parse(wxml: string): WxmlNode[] {
+export function parse(fileName: string, wxml: string): WxmlTree {
   const root = {
     type: 'root' as const,
-    children: [] as WxmlNode[],
+    children: [] as WxmlTree,
   }
   const stack = new Stack<WxmlElement | typeof root>([root])
 
-  const tokens = tokenize(wxml)
+  const tokens = tokenize(fileName, wxml)
 
   for (const token of tokens) {
     switch (token.type) {
       case 'startTag': {
         const elem: WxmlElement = {
           type: 'element',
-          startToken: token,
+          tag: token.tag.val,
+          attrs: token.attrs.map(token => ({ name: token.name.val, value: token.value?.val, token })),
+          startTagToken: token,
           children: [],
         }
         stack.top().children.push(elem)
@@ -367,36 +441,39 @@ export function parse(wxml: string): WxmlNode[] {
       case 'endTag': {
         let top = stack.top()
         // 关闭一个 tag 时，找到最近一个对应的 start tag
-        while ((top = stack.top()) && top.type === 'element' && top.startToken.tagName.val !== token.tagName.val) {
+        while ((top = stack.top()) && top.type === 'element' && top.tag !== token.tag.val) {
           stack.pop()
         }
 
         if (top.type !== 'element') {
           // 没有找到对应的 start tag
-          throw new Error('unexpected end tag ' + token.tagName.val)
+          throw new Error('unexpected end tag ' + token.tag.val)
         }
 
-        top.endToken = token
+        top.endTagToken = token
         stack.pop()
         break
       }
       case 'comment': {
         stack.top().children.push({
           type: 'comment',
+          content: token.content.val,
           token,
         })
         break
       }
       case 'text': {
-        const text = token.text.trim()
+        const text = token.text
         if (!text) break
 
-        if (stack.top().type === 'root') {
-          // 不能在根节点有 text
-          throw new Error('unexpected text ' + token.text)
-        }
+        // if (stack.top().type === 'root') {
+        //   // 不能在根节点有 text
+        //   throw new Error('unexpected text ' + token.text)
+        // }
         stack.top().children.push({
           type: 'text',
+          raw: token.raw,
+          text: token.text,
           token,
         })
         break
@@ -411,7 +488,7 @@ export function parse(wxml: string): WxmlNode[] {
  * 遍历
  */
 export function walk(
-  ast: WxmlNode[],
+  ast: WxmlTree,
   handler: {
     begin?: (elem: WxmlNode) => void
     end?: (elem: WxmlNode) => void
@@ -427,43 +504,86 @@ export function walk(
 /**
  * 代码生成
  */
-export function codegen(ast: WxmlNode[]): string {
-  let wxml = ''
+export function codegen(
+  ast: WxmlTree,
+  options: { sourceMap?: boolean; prevMap?: any; minimize?: boolean } = {},
+): { code: string; map: SourceMapGenerator | undefined } {
+  const { sourceMap, prevMap, minimize } = {
+    sourceMap: false,
+    minimize: false,
+    ...options,
+  }
 
-  walk(ast, {
-    begin: elem => {
-      switch (elem.type) {
-        case 'text':
-          wxml += elem.token.text
-          break
-        case 'comment':
-          wxml += '<!--'
-          wxml += elem.token.content.val
-          wxml += '-->'
-          break
-        case 'element':
-          wxml += '<'
-          wxml += elem.startToken.tagName.val
-          for (const attr of elem.startToken.attrs) {
-            wxml += ` ${attr.name.val}`
-            if (attr.value) {
-              wxml += `="${attr.value.val}"`
-            }
-          }
-          wxml += elem.startToken.unary && !elem.children.length ? '/>' : '>'
-          break
-      }
-    },
-    end: elem => {
-      switch (elem.type) {
-        case 'element':
-          if (!elem.startToken.unary || elem.children.length) {
-            wxml += `</${elem.startToken.tagName.val}>`
-          }
-          break
-      }
-    },
-  })
+  const rootNode = new SourceNode()
 
-  return wxml
+  const _codegen = (elem: WxmlNode, sourceNode: SourceNode) => {
+    switch (elem.type) {
+      case 'text': {
+        if (!minimize || elem.raw) {
+          // 空字符串不生成 sourceMap
+          sourceNode.add(posToSourceNode(elem.token?.pos && elem.text.trim() ? elem.token?.pos : undefined, elem.text))
+        } else {
+          const trimText = elem.text.trim()
+          if (trimText) sourceNode.add(posToSourceNode(elem.token?.pos, trimText))
+        }
+        break
+      }
+      case 'comment': {
+        sourceNode.add(
+          posToSourceNode(elem.token?.pos, ['<!--', posToSourceNode(elem.token?.content?.pos, elem.content), '-->']),
+        )
+        break
+      }
+      case 'element': {
+        // startTag
+        sourceNode.add(
+          posToSourceNode(elem.startTagToken?.pos, [
+            '<',
+            posToSourceNode(elem.startTagToken?.tag.pos, elem.tag),
+            ...elem.attrs.map(attr =>
+              posToSourceNode(attr.token?.pos, [
+                ' ',
+                posToSourceNode(attr.token?.name.pos, attr.name),
+                ...(attr.value === undefined ? [] : ['="', posToSourceNode(attr.token?.value?.pos, attr.value), '"']),
+              ]),
+            ),
+            elem.children.length ? '>' : '/>',
+          ]),
+        )
+        // content
+        if (elem.children.length) {
+          elem.children.forEach(child => _codegen(child, sourceNode))
+        }
+        // endTag
+        if (elem.children.length)
+          sourceNode.add(
+            posToSourceNode(elem.endTagToken?.pos, ['</', posToSourceNode(elem.endTagToken?.tag.pos, elem.tag), '>']),
+          )
+        break
+      }
+    }
+  }
+
+  ast.forEach(elem => _codegen(elem, rootNode))
+
+  let code: string, map: SourceMapGenerator | undefined
+
+  if (sourceMap) {
+    const result = rootNode.toStringWithSourceMap()
+    code = result.code
+    map = result.map
+  } else {
+    code = rootNode.toString()
+    map = undefined
+  }
+
+  if (map && prevMap) {
+    const prevConsumer = new SourceMapConsumer(prevMap)
+    map.applySourceMap(prevConsumer)
+  }
+
+  return {
+    code,
+    map,
+  }
 }

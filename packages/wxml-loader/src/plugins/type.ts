@@ -34,5 +34,5 @@ export interface PluginContext {
 }
 
 export interface Plugin {
-  (ast: WxmlNode[], context: PluginContext): void
+  (ast: WxmlNode[], context: PluginContext): void | Promise<void>
 }

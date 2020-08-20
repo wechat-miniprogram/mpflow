@@ -1,5 +1,7 @@
 import { getOptions, interpolateName, stringifyRequest } from 'loader-utils'
 import path from 'path'
+import validateOptions from 'schema-utils'
+import { SourceMapGenerator, RawSourceMap } from 'source-map'
 import { loader } from 'webpack'
 import {
   importPlugin,
@@ -9,7 +11,6 @@ import {
   pluginRunner,
 } from './plugins'
 import * as parser from './wxml-parser'
-import validateOptions from 'schema-utils'
 
 function getImportCode(
   loaderContext: loader.LoaderContext,
@@ -35,14 +36,18 @@ function getImportCode(
 }
 
 function getModuleCode(
-  ast: parser.WxmlNode[],
+  result: {
+    code: string
+    map: SourceMapGenerator | undefined
+  },
   childImports: PluginChildImportMessage['value'][],
   replacers: PluginReplaceMessage['value'][],
   url: string,
-  outputPath: string,
   esModule: boolean,
+  sourceMap: boolean,
 ) {
-  let code = JSON.stringify(parser.codegen(ast))
+  let content = JSON.stringify(result.code)
+  const sourceMapContent = sourceMap && result.map ? result.map.toString() : ' undefined'
   let beforeCode = ''
 
   beforeCode += esModule
@@ -60,14 +65,12 @@ function getModuleCode(
 
     beforeCode += `var ${replacementName} = ${target};\n`
 
-    code = code.replace(pattern, () => `" + ${replacementName} + "`)
+    content = content.replace(pattern, () => `" + ${replacementName} + "`)
   }
 
-  beforeCode += 'exports.moduleId = module.id;\n'
   beforeCode += `exports.url = ${url};\n`
-  // beforeCode += `exports.outputPath = ${outputPath};\n`
 
-  return `${beforeCode}\nexports.exports = ${code};\n`
+  return `${beforeCode}\nexports.e(module.id, ${content}, ${url}, ${sourceMapContent});\n`
 }
 
 function getExportCode(esModule: boolean) {
@@ -82,84 +85,111 @@ export interface Options {
   sourceMap?: boolean
 }
 
-const wxmlLoader: loader.Loader = function wxmlLoader(content) {
-  const options: Options = getOptions(this) || {}
+const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
+  this.async()
+  ;(async (): Promise<[string | Buffer, RawSourceMap?]> => {
+    const options: Options = getOptions(this) || {}
 
-  validateOptions(
-    {
-      additionalProperties: false,
-      properties: {
-        sourceMap: {
-          description: 'Enables/Disables generation of source maps',
-          type: 'boolean',
-        },
-        esModule: {
-          description: 'Use the ES modules syntax',
-          type: 'boolean',
-        },
-        context: {
-          description: 'A custom file context',
-          type: 'string',
-        },
-        name: {
-          description: 'The filename template for the target file(s)',
-          type: 'string',
-        },
-        outputPath: {
-          description: 'A filesystem path where the target file(s) will be placed',
-          type: 'string',
+    validateOptions(
+      {
+        additionalProperties: false,
+        properties: {
+          sourceMap: {
+            description: 'Enables/Disables generation of source maps',
+            type: 'boolean',
+          },
+          esModule: {
+            description: 'Use the ES modules syntax',
+            type: 'boolean',
+          },
+          context: {
+            description: 'A custom file context',
+            type: 'string',
+          },
+          name: {
+            description: 'The filename template for the target file(s)',
+            type: 'string',
+          },
+          outputPath: {
+            description: 'A filesystem path where the target file(s) will be placed',
+            type: 'string',
+          },
         },
       },
+      options,
+      {
+        name: 'WXML Loader',
+        baseDataPath: 'options',
+      },
+    )
+
+    // const sourceMap = typeof options.sourceMap === 'boolean' ? options.sourceMap : this.sourceMap
+    const sourceMap = false // do not generate sourceMap since wcc compiler don't recognize it
+
+    const contentStr = typeof content === 'string' ? content : content.toString('utf8')
+    const ast = parser.parse(this.resourcePath, contentStr)
+
+    const { messages } = await pluginRunner([importPlugin()]).process(ast)
+
+    const imports: PluginImportMessage['value'][] = []
+    const childImports: PluginChildImportMessage['value'][] = []
+    const replacers: PluginReplaceMessage['value'][] = []
+    for (const message of messages) {
+      switch (message.type) {
+        case 'import':
+          imports.push(message.value)
+          break
+        case 'child-import':
+          childImports.push(message.value)
+          break
+        case 'replacer':
+          replacers.push(message.value)
+          break
+      }
+    }
+
+    const result = parser.codegen(ast, {
+      sourceMap,
+      prevMap: sourceMap ? map : undefined,
+      minimize: this.minimize,
+    })
+
+    if (sourceMap && result.map) {
+      result.map.setSourceContent(this.resourcePath, contentStr)
+    }
+
+    const context = options.context || this.rootContext
+
+    const url = interpolateName(this, options.name || '[name].[ext]', {
+      context,
+      content,
+    })
+
+    const outputPath = JSON.stringify(path.posix.join(options.outputPath || '', url))
+    const publicPath = `__webpack_public_path__ + ${outputPath}`
+
+    const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
+
+    const importCode = getImportCode(this, imports, esModule)
+    const moduleCode = getModuleCode(
+      result,
+      childImports,
+      replacers,
+      publicPath,
+      esModule,
+      sourceMap,
+    )
+    const exportCode = getExportCode(esModule)
+
+    return [`${importCode}${moduleCode}${exportCode}`]
+  })().then(
+    ([content, sourceMap]: [string | Buffer, RawSourceMap?]) => {
+      this.callback(null, content, sourceMap)
     },
-    options,
-    {
-      name: 'WXML Loader',
-      baseDataPath: 'options',
+    err => {
+      this.callback(err)
     },
   )
-
-  // const callback = this.async()
-
-  this.cacheable()
-
-  const ast = parser.parse(typeof content === 'string' ? content : content.toString('utf8'))
-
-  const { messages } = pluginRunner([importPlugin()]).process(ast)
-
-  const imports: PluginImportMessage['value'][] = []
-  const childImports: PluginChildImportMessage['value'][] = []
-  const replacers: PluginReplaceMessage['value'][] = []
-  for (const message of messages) {
-    switch (message.type) {
-      case 'import':
-        imports.push(message.value)
-        break
-      case 'child-import':
-        childImports.push(message.value)
-        break
-      case 'replacer':
-        replacers.push(message.value)
-        break
-    }
-  }
-
-  const context = options.context || this.rootContext
-
-  const url = interpolateName(this, options.name || '[name].[ext]', {
-    context,
-    content,
-  })
-
-  const outputPath = JSON.stringify(path.posix.join(options.outputPath || '', url))
-  const publicPath = `__webpack_public_path__ + ${outputPath}`
-
-  const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
-
-  const importCode = getImportCode(this, imports, esModule)
-  const moduleCode = getModuleCode(ast, childImports, replacers, publicPath, outputPath, esModule)
-  const exportCode = getExportCode(esModule)
-
-  return `${importCode}${moduleCode}${exportCode}`
 }
 
 export default wxmlLoader

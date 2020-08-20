@@ -2,7 +2,8 @@
 
 class WxmlModule {
   constructor() {
-    this.imports = []
+    this.exports = []
+    this.imported = new Set()
   }
 
   toString() {
@@ -10,14 +11,22 @@ class WxmlModule {
   }
 
   /**
-   * 处理引用
-   * @param module
+   * 添加自身
    */
-  i(module) {
-    module.imports.forEach(imported => {
-      this.imports.push(imported)
+  e(moduleId, content, url, sourceMap) {
+    if (!this.imported.has(moduleId)) {
+      this.exports.push([moduleId, content, url, sourceMap])
+      this.imported.add(moduleId)
+    }
+  }
+
+  /**
+   * 添加子模块
+   */
+  i(importModule) {
+    importModule.exports.forEach(imported => {
+      this.e(...imported)
     })
-    this.imports.push([module.moduleId, module.exports, module.url])
   }
 
   /**

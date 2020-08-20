@@ -8,11 +8,13 @@ export { importPlugin }
 export function pluginRunner(
   plugins: Plugin[],
 ): {
-  process: (ast: WxmlNode[], context?: PluginContext) => PluginContext
+  process: (ast: WxmlNode[], context?: PluginContext) => Promise<PluginContext>
 } {
   return {
-    process: (ast: WxmlNode[], context: PluginContext = { messages: [] }) => {
-      plugins.forEach(plugin => plugin(ast, context))
+    process: async (ast: WxmlNode[], context: PluginContext = { messages: [] }) => {
+      for (const plugin of plugins) {
+        await plugin(ast, context)
+      }
 
       return context
     },
