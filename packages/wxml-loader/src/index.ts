@@ -171,14 +171,7 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
     const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
 
     const importCode = getImportCode(this, imports, esModule)
-    const moduleCode = getModuleCode(
-      result,
-      childImports,
-      replacers,
-      publicPath,
-      esModule,
-      sourceMap,
-    )
+    const moduleCode = getModuleCode(result, childImports, replacers, publicPath, esModule, sourceMap)
     const exportCode = getExportCode(esModule)
 
     return [`${importCode}${moduleCode}${exportCode}`]
