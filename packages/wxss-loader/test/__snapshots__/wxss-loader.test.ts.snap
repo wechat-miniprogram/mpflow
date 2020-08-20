@@ -73,6 +73,39 @@ Object {
 
 exports[`wxss-loader should work with less: warnings 1`] = `Array []`;
 
+exports[`wxss-loader should work with minimize: errors 1`] = `Array []`;
+
+exports[`wxss-loader should work with minimize: exports 1`] = `
+Object {
+  "default": WxssModule {
+    "exports": Array [
+      Array [
+        "./c.wxss",
+        ".c{color:green}",
+        undefined,
+      ],
+      Array [
+        "./b.wxss",
+        ".b{color:#00f;background:url(\\"image.09a1a111.png\\")}",
+        undefined,
+      ],
+      Array [
+        "./a.wxss",
+        ".a{color:red}",
+        undefined,
+      ],
+    ],
+    "imported": Set {
+      "./c.wxss",
+      "./b.wxss",
+      "./a.wxss",
+    },
+  },
+}
+`;
+
+exports[`wxss-loader should work with minimize: warnings 1`] = `Array []`;
+
 exports[`wxss-loader should work with sourceMap: errors 1`] = `Array []`;
 
 exports[`wxss-loader should work with sourceMap: exports 1`] = `

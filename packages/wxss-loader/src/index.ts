@@ -1,9 +1,10 @@
 import { getOptions, isUrlRequest, stringifyRequest } from 'loader-utils'
 import postcss from 'postcss'
+import validateOptions from 'schema-utils'
+import { RawSourceMap } from 'source-map'
 import { loader } from 'webpack'
 import { importPlugin, urlPlugin } from './plugins'
 import { PluginChildImportMessage, PluginImportMessage, PluginReplaceMessage } from './plugins/type'
-import validateOptions from 'schema-utils'
 
 class Warning extends Error {
   constructor(warning: postcss.Warning) {
@@ -89,48 +90,59 @@ function getExportCode(esModule: boolean) {
 export interface Options {
   sourceMap?: boolean
   esModule?: boolean
+  minimize?: boolean
 }
 
 const wxssLoader: loader.Loader = function wxssLoader(content, map) {
-  const options: Options = getOptions(this) || {}
+  this.async()
+  ;(async (): Promise<[string, RawSourceMap?]> => {
+    const options: Options = getOptions(this) || {}
 
-  validateOptions(
-    {
-      additionalProperties: false,
-      properties: {
-        sourceMap: {
-          description: 'Enables/Disables generation of source maps',
-          type: 'boolean',
-        },
-        esModule: {
-          description: 'Use the ES modules syntax',
-          type: 'boolean',
+    validateOptions(
+      {
+        additionalProperties: false,
+        properties: {
+          sourceMap: {
+            description: 'Enables/Disables generation of source maps',
+            type: 'boolean',
+          },
+          esModule: {
+            description: 'Use the ES modules syntax',
+            type: 'boolean',
+          },
+          minimize: {
+            description: 'Minimize the output',
+            type: 'boolean',
+          },
         },
       },
-    },
-    options,
-    {
-      name: 'WXSS Loader',
-      baseDataPath: 'options',
-    },
-  )
+      options,
+      {
+        name: 'WXSS Loader',
+        baseDataPath: 'options',
+      },
+    )
 
-  this.cacheable()
+    const sourceMap = typeof options.sourceMap === 'boolean' ? options.sourceMap : this.sourceMap
+    const minimize = typeof options.minimize === 'boolean' ? options.minimize : this.minimize
 
-  const callback = this.async()!
-  const sourceMap = typeof options.sourceMap === 'boolean' ? options.sourceMap : this.sourceMap
-
-  postcss([
-    importPlugin({
-      filter: url => isUrlRequest(url, this.rootContext),
-      // urlHandler: url => stringifyRequest(this, url),
-    }),
-    urlPlugin({
-      filter: url => isUrlRequest(url, this.rootContext),
-      // urlHandler: url => stringifyRequest(this, url),
-    }),
-  ])
-    .process(content, {
+    const result = await postcss([
+      importPlugin({
+        filter: url => isUrlRequest(url, this.rootContext),
+        // urlHandler: url => stringifyRequest(this, url),
+      }),
+      urlPlugin({
+        filter: url => isUrlRequest(url, this.rootContext),
+        // urlHandler: url => stringifyRequest(this, url),
+      }),
+      ...(!minimize
+        ? []
+        : [
+            require('cssnano')({
+              preset: 'default',
+            }),
+          ]),
+    ]).process(content, {
       from: this.resourcePath,
       to: this.resourcePath,
       map: sourceMap
@@ -141,43 +153,47 @@ const wxssLoader: loader.Loader = function wxssLoader(content, map) {
           }
         : false,
     })
-    .then(result => {
-      for (const warning of result.warnings()) {
-        this.emitWarning(new Warning(warning))
+
+    for (const warning of result.warnings()) {
+      this.emitWarning(new Warning(warning))
+    }
+
+    const imports: PluginImportMessage['value'][] = []
+    const childImports: PluginChildImportMessage['value'][] = []
+    const replacers: PluginReplaceMessage['value'][] = []
+
+    for (const message of result.messages) {
+      switch (message.type) {
+        case 'import':
+          imports.push(message.value)
+          break
+        case 'child-import':
+          childImports.push(message.value)
+          break
+        case 'replacer':
+          replacers.push(message.value)
+          break
       }
+    }
 
-      const imports: PluginImportMessage['value'][] = []
-      const childImports: PluginChildImportMessage['value'][] = []
-      const replacers: PluginReplaceMessage['value'][] = []
+    const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
 
-      for (const message of result.messages) {
-        switch (message.type) {
-          case 'import':
-            imports.push(message.value)
-            break
-          case 'child-import':
-            childImports.push(message.value)
-            break
-          case 'replacer':
-            replacers.push(message.value)
-            break
-        }
-      }
+    const importCode = getImportCode(this, imports, esModule)
+    const moduleCode = getModuleCode(result, childImports, replacers, sourceMap, esModule)
+    const exportCode = getExportCode(esModule)
 
-      const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
-
-      const importCode = getImportCode(this, imports, esModule)
-      const moduleCode = getModuleCode(result, childImports, replacers, sourceMap, esModule)
-      const exportCode = getExportCode(esModule)
-
-      return callback(null, `${importCode}${moduleCode}${exportCode}`)
-    })
-    .catch(error => {
+    return [`${importCode}${moduleCode}${exportCode}`]
+  })().then(
+    ([content, sourceMap]: [string, any?]) => {
+      this.callback(null, content, sourceMap)
+    },
+    error => {
       if (error.file) {
         this.addDependency(error.file)
       }
-      callback(error)
-    })
+      this.callback(error)
+    },
+  )
 }
 
 export default wxssLoader

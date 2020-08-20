@@ -28,6 +28,13 @@ describe('wxss-loader', () => {
     expect(result2.errors).toEqual(result1.errors)
   })
 
+  test('should work with minimize', async () => {
+    const result = await compile('basic', { minimize: true })
+    expect(result.exports).toMatchSnapshot('exports')
+    expect(result.warnings).toMatchSnapshot('warnings')
+    expect(result.errors).toMatchSnapshot('errors')
+  })
+
   test('should work with less', async () => {
     const result = await compile('less', {})
     expect(result.exports).toMatchSnapshot('exports')
