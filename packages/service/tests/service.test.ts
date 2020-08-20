@@ -9,7 +9,7 @@ describe('ServiceRunner', () => {
     const fixtureDist = path.resolve(fixtureRoot, 'dist')
     const runner = new ServiceRunner(fixtureRoot, { outputFileSystem: fs as any })
     ;(runner.config as any)._clean = false
-    await runner.run(['build', '--dev'])
+    await runner.run(['build'])
     webpackTestUtils.expectAssetToMatchDir(vol.toJSON(fixtureDist, {}, true) as any, fixtureDist)
   })
 })

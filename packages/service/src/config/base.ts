@@ -62,6 +62,8 @@ const base: Plugin = (api, config) => {
 
       webpackConfig.resolve.extensions.add('.js').add('.json')
 
+      webpackConfig.devtool(false)
+
       webpackConfig.module
         .rule('json-type')
         .test(/\.json$/)
@@ -76,24 +78,31 @@ const base: Plugin = (api, config) => {
       webpackConfig.module
         .rule('wxs')
         .test(/\.wxs$/)
-        .use('raw-loader')
-        .loader(require.resolve('raw-loader'))
+        .pre()
+        .use('file-loader')
+        .loader(require.resolve('file-loader'))
+        .options({
+          name: '_commons/[name].[hash:8].[ext]',
+        })
 
       webpackConfig.module
         .rule('wxss')
         .test(/\.wxss$/)
+        .pre()
         .use('@mpflow/wxss-loader')
         .loader(require.resolve('@mpflow/wxss-loader'))
 
       webpackConfig.module
         .rule('wxml')
         .test(/\.wxml$/)
+        .pre()
         .use('@mpflow/wxml-loader')
         .loader(require.resolve('@mpflow/wxml-loader'))
 
       webpackConfig.module
         .rule('images')
         .test(/\.(png|jpg|jpeg|gif|svg|cer|mp3|aac|m4a|mp4|wav|ogg|silk)$/i)
+        .pre()
         .use('file-loader')
         .loader(require.resolve('file-loader'))
         .options({
@@ -103,6 +112,7 @@ const base: Plugin = (api, config) => {
       webpackConfig.target(MpflowPlugin.target as any)
 
       if (mode === 'production') {
+        // 生产模式，抽取公共代码
         webpackConfig.optimization.runtimeChunk('single').splitChunks({
           chunks: 'all',
           minSize: 0,
@@ -124,6 +134,27 @@ const base: Plugin = (api, config) => {
             },
           },
         })
+        const { LoaderOptionsPlugin } = require('webpack') as typeof import('webpack')
+        // 生产模式，压缩代码
+        webpackConfig.plugin('loader-minimize').use(LoaderOptionsPlugin, [
+          {
+            minimize: true,
+          },
+        ])
+      }
+
+      if (mode === 'development') {
+        const { SourceMapDevToolPlugin } = require('webpack') as typeof import('webpack')
+        // 开发模式，生成 sourceMap
+        webpackConfig.plugin('source-map').use(SourceMapDevToolPlugin, [
+          {
+            append: false,
+            filename: '[file].map[query]',
+            module: true,
+            columns: true,
+            test: /\.(js|wxss)($|\?)/i,
+          },
+        ])
       }
 
       if ((config as any)._clean !== false) {
