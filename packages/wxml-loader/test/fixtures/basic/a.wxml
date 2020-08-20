@@ -9,6 +9,9 @@ module.exports = {
 <wxs module="c" src="./c.wxs" />
 <view>
   <input type="password" />
+  <!-- <form>
+    <label>
+  </form> -->
   <image src="./image.png" />
   {{foo.msg}}
 </view>

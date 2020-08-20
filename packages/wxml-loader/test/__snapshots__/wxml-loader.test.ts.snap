@@ -28,6 +28,9 @@ module.exports = {
 <wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/>
 <view>
   <input type=\\"password\\"/>
+  <!-- <form>
+    <label>
+  </form> -->
   <image src=\\"image.09a1a111.png\\"/>
   {{foo.msg}}
 </view>",
@@ -74,6 +77,9 @@ module.exports = {
 <wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/>
 <view>
   <input type=\\"password\\"/>
+  <!-- <form>
+    <label>
+  </form> -->
   <image src=\\"image.09a1a111.png\\"/>
   {{foo.msg}}
 </view>",
@@ -91,3 +97,38 @@ module.exports = {
 `;
 
 exports[`wxml-loader work with esModule: warnings 1`] = `Array []`;
+
+exports[`wxml-loader work with minimize: errors 1`] = `Array []`;
+
+exports[`wxml-loader work with minimize: exports 1`] = `
+Object {
+  "default": WxmlModule {
+    "exports": Array [
+      Array [
+        3,
+        "<template name=\\"item\\"><text>{{text}}</text></template>",
+        "b.wxml",
+        undefined,
+      ],
+      Array [
+        1,
+        "<import src=\\"b.wxml\\"/><wxs module=\\"foo\\">
+var some_msg = \\"hello world\\";
+module.exports = {
+  msg : some_msg,
+}
+</wxs><wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/>{{foo.msg}}</view>",
+        "a.wxml",
+        undefined,
+      ],
+    ],
+    "imported": Set {
+      3,
+      1,
+    },
+    "url": "a.wxml",
+  },
+}
+`;
+
+exports[`wxml-loader work with minimize: warnings 1`] = `Array []`;

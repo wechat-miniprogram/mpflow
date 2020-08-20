@@ -83,6 +83,7 @@ export interface Options {
   outputPath?: string
   esModule?: boolean
   sourceMap?: boolean
+  minimize?: boolean
 }
 
 const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
@@ -96,6 +97,10 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
         properties: {
           sourceMap: {
             description: 'Enables/Disables generation of source maps',
+            type: 'boolean',
+          },
+          minimize: {
+            description: 'Minimize the output',
             type: 'boolean',
           },
           esModule: {
@@ -125,6 +130,7 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
 
     // const sourceMap = typeof options.sourceMap === 'boolean' ? options.sourceMap : this.sourceMap
     const sourceMap = false // do not generate sourceMap since wcc compiler don't recognize it
+    const minimize = typeof options.minimize === 'boolean' ? options.minimize : this.minimize
 
     const contentStr = typeof content === 'string' ? content : content.toString('utf8')
     const ast = parser.parse(this.resourcePath, contentStr)
@@ -150,8 +156,8 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
 
     const result = parser.codegen(ast, {
       sourceMap,
+      minimize,
       prevMap: sourceMap ? map : undefined,
-      minimize: this.minimize,
     })
 
     if (sourceMap && result.map) {

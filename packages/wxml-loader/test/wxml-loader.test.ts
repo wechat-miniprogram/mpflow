@@ -15,4 +15,11 @@ describe('wxml-loader', () => {
     expect(result.warnings).toMatchSnapshot('warnings')
     expect(result.errors).toMatchSnapshot('errors')
   })
+
+  test('work with minimize', async () => {
+    const result = await compile('basic', { minimize: true })
+    expect(result.exports).toMatchSnapshot('exports')
+    expect(result.warnings).toMatchSnapshot('warnings')
+    expect(result.errors).toMatchSnapshot('errors')
+  })
 })

@@ -129,15 +129,7 @@ function tokenizeComment(content: string, start: number, tokens: Token[], positi
     content: {
       val: text,
       pos: positionMapper(start + 4, text.length),
-      // pos: {
-      //   start: start + 4,
-      //   end: start + 4 + text.length,
-      // },
     },
-    // pos: {
-    //   start,
-    //   end: start + all.length,
-    // },
     pos: positionMapper(start, all.length),
   })
 
@@ -161,7 +153,6 @@ function tokenizeRawText(
     type: 'text',
     raw: true,
     text,
-    // pos: { start, end: start + text.length },
     pos: positionMapper(start, text.length),
   })
 
@@ -185,16 +176,8 @@ function tokenizeRawTextEndTag(
     type: 'endTag',
     tag: {
       val: tagName,
-      // pos: {
-      //   start: start + 2,
-      //   end: start + 2 + tagName.length,
-      // },
       pos: positionMapper(start + 2, tagName.length),
     },
-    // pos: {
-    //   start,
-    //   end: start + all.length,
-    // },
     pos: positionMapper(start, all.length),
   })
 
@@ -213,16 +196,8 @@ function tokenizeEndTag(content: string, start: number, tokens: Token[], positio
     type: 'endTag',
     tag: {
       val: tagName,
-      // pos: {
-      //   start: start + 2,
-      //   end: start + 2 + tagName.length,
-      // },
       pos: positionMapper(start + 2, tagName.length),
     },
-    // pos: {
-    //   start,
-    //   end: start + all.length,
-    // },
     pos: positionMapper(start, all.length),
   })
 
@@ -245,18 +220,10 @@ function tokenizeStartTag(content: string, start: number, tokens: Token[], posit
     type: 'startTag',
     tag: {
       val: tagName,
-      // pos: {
-      //   start: start + 1,
-      //   end: start + 1 + tagName.length,
-      // },
       pos: positionMapper(start + 1, tagName.length),
     },
     attrs,
     unary,
-    // pos: {
-    //   start,
-    //   end: start + all.length,
-    // },
     pos: positionMapper(start, all.length),
   })
 
@@ -274,7 +241,6 @@ function tokenizeText(content: string, start: number, tokens: Token[], positionM
     type: 'text',
     raw: false,
     text,
-    // pos: { start, end: start + text.length },
     pos: positionMapper(start, text.length),
   })
 
@@ -294,7 +260,6 @@ function tokenizeAttr(content: string, start: number, tokens: AttributeToken[], 
 
   const name: AttributeToken['name'] = {
     val: nameStr,
-    // pos: { start, end: start + nameStr.length },
     pos: positionMapper(start, nameStr.length),
   }
 
@@ -303,7 +268,6 @@ function tokenizeAttr(content: string, start: number, tokens: AttributeToken[], 
     const valueStart = start + nameStr.length + equal.length + quote.length
     value = {
       val: valueStr,
-      // pos: { start: valueStart, end: valueStart + valueStr.length },
       pos: positionMapper(valueStart, valueStr.length),
     }
   }
@@ -312,10 +276,6 @@ function tokenizeAttr(content: string, start: number, tokens: AttributeToken[], 
     type: 'attribute',
     name,
     value,
-    // pos: {
-    //   start: start,
-    //   end: start + all.length,
-    // },
     pos: positionMapper(start, all.length),
   })
 
@@ -529,9 +489,11 @@ export function codegen(
         break
       }
       case 'comment': {
-        sourceNode.add(
-          posToSourceNode(elem.token?.pos, ['<!--', posToSourceNode(elem.token?.content?.pos, elem.content), '-->']),
-        )
+        if (!minimize)
+          sourceNode.add(
+            // comment 不生成 sourceMap
+            posToSourceNode(undefined, ['<!--', elem.content, '-->']),
+          )
         break
       }
       case 'element': {
