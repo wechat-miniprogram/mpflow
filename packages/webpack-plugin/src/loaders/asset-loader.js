@@ -25,11 +25,10 @@ export default asyncLoaderWrapper(async function (source) {
     }
     case 'miniprogram/wxml': {
       const { exports: moduleContent, compilation } = await evalModuleBundleCode(this, source, this.request)
-      const modules = moduleContent.imports.concat([[moduleContent.moduleId, moduleContent.exports, moduleContent.url]])
-      modules.forEach(([moduleId, content, url]) => {
+      moduleContent.exports.forEach(([moduleId, content, url, sourceMap]) => {
         const identifier = getModuleIdentifier(compilation, moduleId)
         this._module.addDependency(
-          new AssetDependency(type, identifier, this.context, content, path.join(outputDir, url)),
+          new AssetDependency(type, identifier, this.context, content, path.join(outputDir, url), sourceMap),
         )
       })
       break

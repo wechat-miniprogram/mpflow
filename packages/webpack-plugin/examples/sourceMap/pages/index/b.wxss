@@ -1,0 +1,6 @@
+@import url('./c.wxss');
+
+.b {
+  color: blue;
+  background: url('./image.png');
+}

@@ -1,5 +1,6 @@
 const path = require('path')
 const mpflowPlugin = require('@mpflow/webpack-plugin')
+const webpack = require('webpack')
 
 module.exports = {
   mode: 'development',
@@ -7,7 +8,7 @@ module.exports = {
   context: __dirname,
 
   entry: {
-    app: `${mpflowPlugin.pluginLoader}!./plugin.json`,
+    app: `${mpflowPlugin.pageLoader}!./pages/index/index`,
   },
 
   devtool: 'none',
@@ -36,6 +37,9 @@ module.exports = {
         use: [
           {
             loader: '@mpflow/wxss-loader',
+            options: {
+              sourceMap: true,
+            },
           },
         ],
       },
@@ -45,6 +49,9 @@ module.exports = {
         use: [
           {
             loader: '@mpflow/wxml-loader',
+            options: {
+              sourceMap: true,
+            },
           },
         ],
       },
@@ -70,6 +77,14 @@ module.exports = {
   target: mpflowPlugin.target,
 
   plugins: [
+    new webpack.SourceMapDevToolPlugin({
+      append: false,
+      filename: '[file].map[query]',
+      module: true,
+      columns: true,
+      test: /\.(js|wxss)($|\?)/i,
+      fallbackModuleFilenameTemplate: 'webpack://[namespace]/[resourcePath]',
+    }),
     new mpflowPlugin({
       resolve: {
         roots: [__dirname],
@@ -77,7 +92,7 @@ module.exports = {
       program: {
         appId: 'wx123',
         projectName: 'app example',
-        compileType: 'plugin',
+        compileType: 'miniprogram',
       },
     }),
   ],

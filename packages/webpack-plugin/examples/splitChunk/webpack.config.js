@@ -74,11 +74,10 @@ module.exports = {
       {
         test: /\.wxs$/,
         enforce: 'pre',
-        use: [
-          {
-            loader: 'raw-loader',
-          },
-        ],
+        loader: 'file-loader',
+        options: {
+          name: '[name].[hash:8].[ext]',
+        },
       },
       {
         test: /\.(png|jpg|jpeg|gif|svg|cer|mp3|aac|m4a|mp4|wav|ogg|silk)$/i,

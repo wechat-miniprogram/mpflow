@@ -16,6 +16,13 @@ describe('webpack-plugin examples', () => {
     await expectToMatchExampleDist(result.assets, 'plugin')
   })
 
+  test('sourceMap', async () => {
+    const result = await runExample('sourceMap')
+    expect(result.errors).toMatchSnapshot('errors')
+    expect(result.warnings).toMatchSnapshot('warnings')
+    await expectToMatchExampleDist(result.assets, 'sourceMap')
+  })
+
   test('splitChunk', async () => {
     const result = await runExample('splitChunk')
     expect(result.errors).toMatchSnapshot('errors')

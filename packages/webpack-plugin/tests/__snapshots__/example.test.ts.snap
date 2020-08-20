@@ -8,6 +8,10 @@ exports[`webpack-plugin examples plugin: errors 1`] = `Array []`;
 
 exports[`webpack-plugin examples plugin: warnings 1`] = `Array []`;
 
+exports[`webpack-plugin examples sourceMap: errors 1`] = `Array []`;
+
+exports[`webpack-plugin examples sourceMap: warnings 1`] = `Array []`;
+
 exports[`webpack-plugin examples splitChunk: errors 1`] = `Array []`;
 
 exports[`webpack-plugin examples splitChunk: warnings 1`] = `Array []`;
