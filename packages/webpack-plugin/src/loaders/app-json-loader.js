@@ -52,6 +52,38 @@ export default asyncLoaderWrapper(async function (source) {
     }
   }
 
+  if (moduleContent.tabBar?.custom) {
+    // 自定义 tabBar 则将 custom-tab-bar 加入构建
+    const tabBarRequest =
+      typeof moduleContent.tabBar.custom === 'string' ? moduleContent.tabBar.custom : '/custom-tab-bar/index'
+    const resolvedTabBarRequest = await resolveWithType(this, 'miniprogram/page', tabBarRequest)
+    const chunkName = 'custom-tab-bar/index'
+
+    await addExternal(
+      this,
+      stringifyResource(
+        resolvedTabBarRequest,
+        [
+          {
+            loader: pageLoader,
+            options: {
+              appContext: appContext,
+              outputPath: chunkName,
+            },
+          },
+          ...getMpflowLoaders(this, resolvedTabBarRequest, 'page'),
+        ],
+        {
+          disabled: 'normal',
+        },
+      ),
+      'page',
+      chunkName,
+    )
+
+    moduleContent.tabBar.custom = true
+  }
+
   if (typeof moduleContent.sitemapLocation === 'string') {
     // 对 app.json 中的 sitemapLocation 做处理
     const sitemapRequest = moduleContent.sitemapLocation
@@ -78,6 +110,34 @@ export default asyncLoaderWrapper(async function (source) {
     )
 
     moduleContent.sitemapLocation = 'sitemap.json'
+  }
+
+  if (typeof moduleContent.themeLocation === 'string') {
+    // 对 app.json 中的 themeLocation 做处理
+    const themeRequest = moduleContent.themeLocation
+    const resolvedThemeRequest = await resolveWithType(this, 'miniprogram/json', themeRequest)
+
+    addDependency(
+      this,
+      stringifyResource(
+        resolvedThemeRequest,
+        [
+          {
+            loader: assetLoader,
+            options: {
+              type: 'miniprogram/json',
+              outputPath: 'theme.json',
+            },
+          },
+          ...getMpflowLoaders(this, resolvedThemeRequest, 'json'),
+        ],
+        {
+          disabled: 'normal',
+        },
+      ),
+    )
+
+    moduleContent.themeLocation = 'theme.json'
   }
 
   return JSON.stringify(moduleContent, null, 2)
