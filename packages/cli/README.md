@@ -29,5 +29,5 @@ mpflow create hello-plugin --template miniprogram-plugin
 # 安装瘦身插件
 mpflow add slim
 # 或
-mpflow add @mpflow/plugin-clim
+mpflow add @mpflow/plugin-slim
 ```
