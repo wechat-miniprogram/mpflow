@@ -119,7 +119,7 @@ export async function writeFiles(
 export async function removeFiles(fileSystem: FileSystem, context: string, files: Iterable<string>): Promise<void> {
   for (const name of files) {
     const filePath = path.join(context, name)
-    await new Promise((resolve, reject) => fileSystem.unlink(filePath, err => (err ? reject(err) : resolve)))
+    await new Promise((resolve, reject) => fileSystem.unlink(filePath, err => (err ? reject(err) : resolve())))
   }
 }
 
