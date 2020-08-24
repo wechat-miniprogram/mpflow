@@ -1,13 +1,12 @@
 import { BaseAPI, BaseService, Plugin, PluginInfo } from '@mpflow/service-core'
 import axios from 'axios'
-import cp from 'child_process'
 import path from 'path'
 import Stream from 'stream'
 import { AsyncSeriesHook, AsyncSeriesWaterfallHook } from 'tapable'
 import tar from 'tar'
 import tmp from 'tmp'
 import { Generator, GeneratorOptions } from './Generator'
-import { exec, getLocalService, installNodeModules, renderFiles, syncFiles } from './utils'
+import { exec, getLocalService, getNpmModuleInfo, installNodeModules, renderFiles, syncFiles } from './utils'
 
 export class CreatorAPI<
   P extends { creator?: any; generator?: any } = CreatorPlugin,
@@ -172,7 +171,6 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
    * @param templateName
    */
   async getTemplatePath(templateName: string): Promise<string> {
-    console.log(`使用 "${templateName}" 为项目模板`)
     let localTemplatePath: string
     if (templateName.startsWith('file://')) {
       // file: 开头为本地路径，不要下载
@@ -187,8 +185,11 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
       let downloadUrl = templateName
       // 如果不是 url 链接，则通过 npm 获取下载 url
       if (!/^https?:\/\//.test(templateName)) {
-        console.log(`从 npm 获取 "${templateName}" 的下载路径`)
-        downloadUrl = cp.execSync(`npm info ${templateName} dist.tarball`, { encoding: 'utf8' }).trim()
+        const result = await getNpmModuleInfo(templateName, templateName => [
+          `@mpflow/template-${templateName}`,
+          templateName,
+        ])
+        downloadUrl = result.downloadUrl
       }
 
       // 下载并解压到临时目录

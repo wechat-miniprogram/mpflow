@@ -335,3 +335,28 @@ export function getPaths(path: string): string[] {
   paths.push(part)
   return paths
 }
+
+export async function getNpmModuleInfo(
+  moduleName: string,
+  resolveNames: (moduleName: string) => string[] = moduleName => [moduleName],
+): Promise<{ downloadUrl: string }> {
+  const moduleNames = resolveNames(moduleName)
+
+  const getDownloadUrl = (moduleName: string) =>
+    new Promise<string>((resolve, reject) =>
+      cp.exec(`npm info ${moduleName} dist.tarball`, { encoding: 'utf8' }, (err, stdout) =>
+        err ? reject(err) : resolve(stdout.trim()),
+      ),
+    )
+
+  for (const name of moduleNames) {
+    try {
+      const downloadUrl = await getDownloadUrl(name)
+      return { downloadUrl }
+    } catch (err) {
+      // do nothing
+    }
+  }
+
+  throw new Error(`找不到包 "${moduleName}"`)
+}

@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { CliPlugin } from '../CliRunner'
-import { getPaths } from '../utils'
+import { getPaths, getNpmModuleInfo } from '../utils'
 
 const create: CliPlugin = (api, config) => {
   api.registerCommand(
@@ -25,6 +25,12 @@ const create: CliPlugin = (api, config) => {
         if (!context) {
           throw new Error('请在 mpflow 项目中执行该命令')
         }
+
+        await getNpmModuleInfo(pluginName, pluginName => [
+          `@mpflow/plugin-${pluginName}`,
+          `mpflow-plugin-${pluginName}`,
+          pluginName,
+        ])
 
         await api.add(context, [pluginName])
       } catch (err) {

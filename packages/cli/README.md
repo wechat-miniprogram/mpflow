@@ -20,5 +20,14 @@ mpflow create hello-miniprogram
 
 ```bash
 # 创建一个小程序插件项目
-mpflow create hello-plugin --template @mpflow/template-miniprogram-plugin
+mpflow create hello-plugin --template miniprogram-plugin
+```
+
+### 为项目安装插件
+
+```bash
+# 安装瘦身插件
+mpflow add slim
+# 或
+mpflow add @mpflow/plugin-clim
 ```
