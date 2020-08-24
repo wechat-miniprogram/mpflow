@@ -5,14 +5,15 @@ const plugin: Plugin = (api, config) => {
   api.configureWebpack(({ configure }) => {
     configure(webpackConfig => {
       function addLoader(extension: string, loader?: string, options: any = {}) {
+        const rule = webpackConfig.module
+          .rule(extension)
+          .test(new RegExp('\\.' + extension + '$'))
+          .enforce('pre')
+
+        rule.use('wxss-loader').loader(require.resolve('@mpflow/wxss-loader'))
+
         if (loader) {
-          webpackConfig.module
-            .rule(extension)
-            .test(new RegExp('\\.' + extension + '$'))
-            .enforce('pre')
-            .use(loader)
-            .loader(require.resolve(loader))
-            .options(options)
+          rule.use(loader).loader(require.resolve(loader)).options(options)
         }
 
         webpackConfig.plugin('mpflow').tap(([mpflowPluginConfig]: [ConfigChain]) => {
