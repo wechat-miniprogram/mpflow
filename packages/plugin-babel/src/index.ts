@@ -20,6 +20,14 @@ const plugin: Plugin = (api, config) => {
 }
 
 plugin.generator = api => {
+  const pkg = require('../package.json')
+
+  api.extendPackage({
+    dependencies: {
+      'core-js': pkg.devDependencies['core-js'],
+    },
+  })
+
   api.renderDir(path.resolve(__dirname, '../template'))
 
   api.processFile('src/**/*.js', (file, api) => {
