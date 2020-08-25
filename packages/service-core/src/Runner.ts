@@ -67,10 +67,14 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
     super(context, options)
 
     this.program = yargs()
+
+    this.program.help().demandCommand().parserConfiguration({
+      'unknown-options-as-args': true,
+    })
   }
 
   async run(argv: string[] = process.argv.slice(2)): Promise<void> {
-    this.program.help().demandCommand().parse(argv)
+    this.program.parse(argv)
 
     if (this._commandPromise) await this._commandPromise
   }
@@ -103,6 +107,8 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
           } catch (e) {
             console.error(e)
             process.exit(1)
+          } finally {
+            this._commandPromise = null
           }
         })()
       },

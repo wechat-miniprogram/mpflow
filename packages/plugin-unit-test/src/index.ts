@@ -3,8 +3,9 @@ import path from 'path'
 
 const plugin: Plugin = (api, config) => {
   api.registerCommand('test:unit', '执行单元测试', {}, {}, async args => {
+    process.env.NODE_ENV = 'test'
     const jest = require('jest') as typeof import('jest')
-    jest.run([], api.getCwd())
+    jest.run(['--config', api.resolve('jest.unit.config.js'), ...args._.slice(1)], api.getCwd())
   })
 }
 
