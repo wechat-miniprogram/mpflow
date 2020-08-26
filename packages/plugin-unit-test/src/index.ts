@@ -16,7 +16,6 @@ plugin.generator = async api => {
       'test:unit': 'mpflow-service test:unit',
     },
     dependencies: {
-      'miniprogram-simulate': pkg.devDependencies['miniprogram-simulate'],
       '@types/jest': pkg.devDependencies['@types/jest'],
     },
   })

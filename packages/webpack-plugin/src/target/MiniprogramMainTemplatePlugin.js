@@ -16,7 +16,13 @@ export default class MainTemplatePlugin {
     }
     mainTemplate.hooks.render.tap(PLUGIN_NAME, (source, chunk, hash) => {
       const varExpression = mainTemplate.getAssetPath('module.exports', { hash, chunk })
-      return new ConcatSource(`${varExpression} = \n`, source)
+      const resultSource = new ConcatSource()
+
+      resultSource.add(`var globalThis = this;\n`)
+      resultSource.add(`${varExpression} = \n`)
+      resultSource.add(source)
+
+      return resultSource
     })
     mainTemplate.hooks.bootstrap.tap(PLUGIN_NAME, (source, chunk, hash) => {
       if (needChunkOnDemandLoadingCode(chunk)) {

@@ -1,4 +1,5 @@
 module.exports = {
+  preset: '@mpflow/plugin-unit-test',
   bail: 1,
   verbose: true,
   testEnvironment: 'jsdom',
@@ -12,5 +13,4 @@ module.exports = {
     '<rootDir>/src/**/*.{js,ts}',
     '!**/__test(s)?__/**'
   ],
-  snapshotSerializers: ['miniprogram-simulate/jest-snapshot-plugin']
 }
