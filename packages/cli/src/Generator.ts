@@ -9,7 +9,7 @@ import {
   ProcessFileInfo,
 } from '@mpflow/service-core'
 import { Options as EjsOptions } from 'ejs'
-import minimatch from 'minimatch'
+import micromatch from 'micromatch'
 import path from 'path'
 import { AsyncSeriesHook, AsyncSeriesWaterfallHook } from 'tapable'
 import {
@@ -60,7 +60,7 @@ export class GeneratorAPI<P extends Plugin = Plugin, S extends Generator<P> = Ge
   }
 
   processFile(handler: ProcessFileHandler): void
-  processFile(filter: string, handler: ProcessFileHandler): void
+  processFile(filter: string | string[], handler: ProcessFileHandler): void
   processFile(filter: any, handler?: any): void {
     this.service.processFile(this.id, filter, handler)
   }
@@ -242,14 +242,14 @@ export class Generator<P extends Plugin = Plugin> extends BaseService<P> {
    * @param handler
    */
   processFile(id: string, handler: ProcessFileHandler): void
-  processFile(id: string, filter: string, handler: ProcessFileHandler): void
-  processFile(id: string, a: ProcessFileHandler | string, b?: ProcessFileHandler): void {
-    const filter = b ? (a as string) : undefined
+  processFile(id: string, filter: string | string[], handler: ProcessFileHandler): void
+  processFile(id: string, a: ProcessFileHandler | string | string[], b?: ProcessFileHandler): void {
+    const filter = b ? (a as string | string[]) : undefined
     const handler = b ? (b as ProcessFileHandler) : (a as ProcessFileHandler)
 
     this.hooks.process.tapPromise(id, async fileInfo => {
       if (!fileInfo) return null
-      if (filter && !minimatch(fileInfo.path, filter)) return fileInfo
+      if (filter && !micromatch.all(fileInfo.path, filter)) return fileInfo
       let removed = false
 
       const processFileAPI: ProcessFileAPI = {

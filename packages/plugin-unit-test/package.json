@@ -27,14 +27,15 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "jest": "^26.3.0",
-    "miniprogram-simulate": "^1.2.7"
+    "jest": "^26.3.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.9",
-    "@mpflow/service": "^0.0.1"
+    "@mpflow/service": "^0.0.1",
+    "miniprogram-simulate": "^1.2.7"
   },
   "peerDependencies": {
-    "@mpflow/service": "*"
+    "@mpflow/service": "*",
+    "miniprogram-simulate": "^1.2.7"
   }
 }

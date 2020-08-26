@@ -51,6 +51,6 @@ export interface GeneratorAPI<P = Plugin, S extends BaseService<P> = BaseService
   /**
    * 处理文件
    */
-  processFile(filter: string, handler: ProcessFileHandler): void
+  processFile(filter: string | string[], handler: ProcessFileHandler): void
   processFile(handler: ProcessFileHandler): void
 }

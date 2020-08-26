@@ -23,6 +23,8 @@ const plugin: Plugin = (api, config) => {
     async args => {
       process.env.NODE_ENV = 'test'
 
+      const babelPluginIstanbul = require.resolve('babel-plugin-istanbul')
+
       const { coverage } = args
 
       if (coverage) {
@@ -34,14 +36,30 @@ const plugin: Plugin = (api, config) => {
                 .rule(ruleName)
                 .use(loaderName)
                 .tap(options => {
-                  const plugins = (options.plugins = options.plugins || [])
-                  plugins.push([
-                    require.resolve('babel-plugin-istanbul'),
-                    {
-                      coverageGlobalScopeFunc: false,
-                      coverageGlobalScope: 'globalThis',
-                    },
-                  ])
+                  const plugins: (string | [string, any])[] = (options.plugins = options.plugins || [])
+
+                  const index = plugins.findIndex(
+                    plugin => plugin === babelPluginIstanbul || plugin[0] === babelPluginIstanbul,
+                  )
+
+                  if (index > -1) {
+                    plugins[index] = [
+                      babelPluginIstanbul,
+                      {
+                        ...(plugins[index][1] || {}),
+                        coverageGlobalScopeFunc: false,
+                        coverageGlobalScope: 'globalThis',
+                      },
+                    ]
+                  } else {
+                    plugins.push([
+                      babelPluginIstanbul,
+                      {
+                        coverageGlobalScopeFunc: false,
+                        coverageGlobalScope: 'globalThis',
+                      },
+                    ])
+                  }
                   return options
                 })
             }

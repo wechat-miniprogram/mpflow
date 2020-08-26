@@ -17,6 +17,7 @@ plugin.generator = async api => {
     },
     dependencies: {
       '@types/jest': pkg.devDependencies['@types/jest'],
+      'miniprogram-simulate': pkg.devDependencies['miniprogram-simulate'],
     },
   })
 

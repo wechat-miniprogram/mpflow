@@ -75,7 +75,7 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
 
     this.program = yargs()
 
-    this.program.help().demandCommand().strict().parserConfiguration({
+    this.program.help().demandCommand().parserConfiguration({
       'unknown-options-as-args': true,
     })
   }

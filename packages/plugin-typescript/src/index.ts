@@ -45,7 +45,7 @@ plugin.generator = async api => {
 
   api.renderDir(path.resolve(__dirname, '../template'))
 
-  api.processFile('src/**/*.js', (file, api) => {
+  api.processFile(['src/**/*.js', '!**/__test(s)?__/**'], (file, api) => {
     // js 文件重命名为 ts 文件
     api.rename(file.path.replace(/\.js$/, '.ts'))
   })
