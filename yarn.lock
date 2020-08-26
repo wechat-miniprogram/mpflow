@@ -2802,6 +2802,13 @@
   resolved "https://registry.npmjs.org/@types/wechat-miniprogram/-/wechat-miniprogram-2.11.0.tgz#e3144acd99eff9e5980aed21e68819b173909c5f"
   integrity sha512-yj6l9ln75X0a6rtAojr0Otyem5m4RlPnF4J/xRClIod3Xl5kCQWcMpshKIFxuoJZIDBfv9/rFhJUkDN5Gr6hcA==
 
+"@types/ws@^7.2.6":
+  version "7.2.6"
+  resolved "https://registry.npmjs.org/@types/ws/-/ws-7.2.6.tgz#516cbfb818310f87b43940460e065eb912a4178d"
+  integrity sha512-Q07IrQUSNpr+cXU4E4LtkSIBPie5GLZyyMC1QtQYRLWz701+XcoVygGUZgvLqElq1nU4ICldMYPnexlBsg3dqQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/yargs-parser@*":
   version "15.0.0"
   resolved "https://registry.npmjs.org/@types/yargs-parser/-/yargs-parser-15.0.0.tgz#cb3f9f741869e20cce330ffbeb9271590483882d"
@@ -9472,6 +9479,18 @@ miniprogram-api-typings@^2.11.0:
   version "2.12.0"
   resolved "https://registry.npmjs.org/miniprogram-api-typings/-/miniprogram-api-typings-2.12.0.tgz#7a29c90f3e5efa36588422d1f01e22d3394aaaa1"
   integrity sha512-ibvbqeslVFur0IAvTxLMvsbtvVcMo6gwvOnj0YZHV7aeDLu091VQRrETT2QuiG9P6aZWRcxeNGJChRKVPCp9VQ==
+
+miniprogram-automator@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.npmjs.org/miniprogram-automator/-/miniprogram-automator-0.10.0.tgz#0078b844ff0094b4aa5287e9902ff1abf0639fd8"
+  integrity sha512-MsP4k5eQmCwcsII5vmL0DwAXYcqbz6OEYeGIaa6SD9C3Ox/eA6RsHlmtynL/39C7yviZ08nqy51UmwuOEjGeeQ==
+  dependencies:
+    debug "^4.1.1"
+    jimp "^0.6.4"
+    licia "^1.4.4"
+    qrcode-reader "^1.0.4"
+    qrcode-terminal "^0.12.0"
+    ws "^6.1.3"
 
 miniprogram-automator@^0.9.1:
   version "0.9.1"

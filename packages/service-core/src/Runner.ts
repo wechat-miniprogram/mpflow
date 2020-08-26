@@ -26,6 +26,13 @@ export abstract class BaseRunnerAPI<P = Plugin, S extends Runner<P> = Runner<P>>
   ): void {
     this.service.registerCommand(command, describe, positional, options, handler)
   }
+
+  /**
+   * 执行 CLI 命令
+   */
+  runCommand(args: string[]): Promise<void> {
+    return this.service.run(args)
+  }
 }
 
 export interface ConfigureWebpackAPI {
@@ -68,7 +75,7 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
 
     this.program = yargs()
 
-    this.program.help().demandCommand().parserConfiguration({
+    this.program.help().demandCommand().strict().parserConfiguration({
       'unknown-options-as-args': true,
     })
   }

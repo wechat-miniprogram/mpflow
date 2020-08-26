@@ -20,7 +20,7 @@ plugin.generator = async api => {
     },
   })
 
-  api.renderFile(path.resolve(__dirname, '../template/jest.config.js'), 'jest.config.js')
+  api.renderFile(path.resolve(__dirname, '../template/jest.unit.config.js'), 'jest.unit.config.js')
 
   api.processFile('src/**/components/*/*.{js,ts}', ({ path: filePath }) => {
     const name = path.basename(filePath, path.extname(filePath))

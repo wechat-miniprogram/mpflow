@@ -1,5 +1,5 @@
 {
-  "name": "@mpflow/plugin-unit-test",
+  "name": "@mpflow/plugin-e2e-test",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
@@ -27,12 +27,15 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
+    "babel-plugin-istanbul": "^6.0.0",
     "jest": "^26.3.0",
-    "miniprogram-simulate": "^1.2.7"
+    "jest-environment-node": "^26.3.0",
+    "miniprogram-automator": "^0.10.0"
   },
   "devDependencies": {
+    "@mpflow/service": "^0.0.1",
     "@types/jest": "^26.0.9",
-    "@mpflow/service": "^0.0.1"
+    "@types/ws": "^7.2.6"
   },
   "peerDependencies": {
     "@mpflow/service": "*"
