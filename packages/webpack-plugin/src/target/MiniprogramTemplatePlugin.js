@@ -1,6 +1,5 @@
 import MiniprogramMainTemplatePlugin from './MiniprogramMainTemplatePlugin'
 import MiniprogramChunkTemplatePlugin from './MiniprogramChunkTemplatePlugin'
-import SetVarMainTemplatePlugin from 'webpack/lib/SetVarMainTemplatePlugin'
 
 const PLUGIN_NAME = 'Miniprogram Template Plugin'
 

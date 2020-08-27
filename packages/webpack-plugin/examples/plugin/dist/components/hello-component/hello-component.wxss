@@ -1,1 +1,8 @@
-@import "../../_commons/1.wxss";
+/* plugin/components/hello-component/hello-component.wxss */
+.container {
+  margin: 1em;
+}
+.item {
+  display: block;
+}
+

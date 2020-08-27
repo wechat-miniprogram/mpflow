@@ -27,34 +27,19 @@ export default class ChunkTemplatePlugin {
       // const prefetchChunks = chunk.getChildIdsByOrders().prefetch;
 
       source.add(`var globalThis = this;\n`)
-      source.add(`exports.ids = ${JSON.stringify(chunk.ids)};\n`)
-      source.add(`exports.modules = `)
+      source.add(`module.exports = {\n`)
+      source.add(`"ids": ${JSON.stringify(chunk.ids)},\n`)
+      source.add(`"modules":`)
       source.add(modules)
-      source.add(';\n')
 
       const entries = getEntryInfo(chunk)
       if (entries.length > 0) {
-        source.add(`exports.entries = ${JSON.stringify(entries)};\n`)
+        source.add(',\n')
+        source.add(`"entries": ${JSON.stringify(entries)}\n`)
       }
 
-      // source.add(
-      // 	`(${globalObject}[${JSON.stringify(
-      // 		jsonpFunction
-      // 	)}] = ${globalObject}[${JSON.stringify(
-      // 		jsonpFunction
-      // 	)}] || []).push([${JSON.stringify(chunk.ids)},`
-      // );
-      // source.add(modules);
-      // const entries = getEntryInfo(chunk);
-      // if (entries.length > 0) {
-      // 	source.add(`,${JSON.stringify(entries)}`);
-      // } else if (prefetchChunks && prefetchChunks.length) {
-      // 	source.add(`,0`);
-      // }
+      source.add(`};\n`)
 
-      // if (prefetchChunks && prefetchChunks.length) {
-      // 	source.add(`,${JSON.stringify(prefetchChunks)}`);
-      // }
       return source
     })
     chunkTemplate.hooks.hash.tap(PLUGIN_NAME, hash => {

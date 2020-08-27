@@ -1,6 +1,0 @@
-<%
-  const path = require('path')
--%>
-<% wxssFiles.forEach((file) => { -%>
-@import <%- JSON.stringify(path.relative(path.dirname(outputPath), file)) %>;
-<% }) -%>

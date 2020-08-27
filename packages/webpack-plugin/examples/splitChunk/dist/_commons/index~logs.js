@@ -1,5 +1,7 @@
-exports.ids = ["index~logs"];
-exports.modules = {
+var globalThis = this;
+module.exports = {
+"ids": ["index~logs"],
+"modules":{
 
 /***/ 6:
 /***/ (function(module, exports) {
@@ -27,5 +29,5 @@ module.exports = {
 
 /***/ })
 
-};
+}};
 ;

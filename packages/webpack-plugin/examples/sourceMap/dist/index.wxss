@@ -1,1 +1,14 @@
-@import "_commons/app.wxss";
+.c {
+  color: green;
+}
+
+.b {
+  color: blue;
+  background: url("image.09a1a111.png");
+}
+
+.a {
+  color: red;
+}
+
+
