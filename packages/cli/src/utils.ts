@@ -336,23 +336,43 @@ export function getPaths(path: string): string[] {
   return paths
 }
 
+/**
+ * 获取 npm 包信息
+ * @param moduleName
+ * @param resolveNames
+ */
 export async function getNpmModuleInfo(
   moduleName: string,
   resolveNames: (moduleName: string) => string[] = moduleName => [moduleName],
-): Promise<{ downloadUrl: string }> {
+): Promise<{ downloadUrl: string; version: string; versions: string[] }> {
   const moduleNames = resolveNames(moduleName)
 
-  const getDownloadUrl = (moduleName: string) =>
-    new Promise<string>((resolve, reject) =>
-      cp.exec(`npm info ${moduleName} dist.tarball`, { encoding: 'utf8' }, (err, stdout) =>
+  const getInfo = async (
+    moduleName: string,
+  ): Promise<{
+    name: string
+    version: string
+    versions: string[]
+    dist: {
+      tarball: string
+    }
+  }> => {
+    const stdout = await new Promise<string>((resolve, reject) =>
+      cp.exec(`npm view ${moduleName} -json`, { encoding: 'utf8' }, (err, stdout) =>
         err ? reject(err) : resolve(stdout.trim()),
       ),
     )
+    return JSON.parse(stdout)
+  }
 
   for (const name of moduleNames) {
     try {
-      const downloadUrl = await getDownloadUrl(name)
-      return { downloadUrl }
+      const {
+        version,
+        versions,
+        dist: { tarball: downloadUrl },
+      } = await getInfo(name)
+      return { downloadUrl, version, versions }
     } catch (err) {
       // do nothing
     }

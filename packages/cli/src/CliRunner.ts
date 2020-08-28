@@ -1,7 +1,8 @@
-import { BaseRunnerAPI, PluginInfo, Runner, RunnerOptions, MpflowConfig } from '@mpflow/service-core'
+import { BaseRunnerAPI, MpflowConfig, PluginInfo, Runner, RunnerOptions } from '@mpflow/service-core'
 import { Creator } from './Creator'
-import { getLocalService } from './utils'
 import { Generator } from './Generator'
+import { checkForUpdates, shouldCheckForUpdates } from './update'
+import { getLocalService } from './utils'
 
 export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
   /**
@@ -48,18 +49,7 @@ export class CliRunnerAPI extends BaseRunnerAPI<CliPlugin, CliRunner> {
    * @param command
    */
   proxyCommand(command: string, description: string): void {
-    this.service.program.command(
-      command,
-      description,
-      yargs => {
-        yargs.help(false).version(false)
-      },
-      async () => {
-        const { ServiceRunner } = getLocalService(this.service.context)
-        const serviceRunner = new ServiceRunner(this.service.context)
-        await serviceRunner.run(process.argv.slice(2))
-      },
-    )
+    this.service.proxyCommand(command, description)
   }
 }
 
@@ -129,7 +119,34 @@ export class CliRunner extends Runner<CliPlugin> {
    * @param argv
    */
   async run(argv: string[] = process.argv.slice(2)): Promise<void> {
+    const isTest = process.env.NODE_ENV === 'test'
+
     await this.init()
-    super.run(argv)
+    await super.run(argv)
+
+    // 每次执行后尝试检查更新
+    if (!isTest && shouldCheckForUpdates(this.context)) {
+      await checkForUpdates(this.inputFileSystem, this.context, this.pkg)
+    }
+  }
+
+  /**
+   * 将命令在 pwd 所在的 service 上执行
+   * @param command
+   */
+  proxyCommand(command: string, description: string): void {
+    this._registerCommand(
+      command,
+      description,
+      yargs => {
+        yargs.help(false).version(false)
+        return yargs
+      },
+      async () => {
+        const { ServiceRunner } = getLocalService(this.context)
+        const serviceRunner = new ServiceRunner(this.context)
+        await serviceRunner.run(process.argv.slice(2))
+      },
+    )
   }
 }

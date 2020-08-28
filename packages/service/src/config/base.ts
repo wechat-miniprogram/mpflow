@@ -123,10 +123,7 @@ const base: Plugin = (api, config) => {
           automaticNameDelimiter: '~',
           name: true,
           cacheGroups: {
-            vendors: {
-              test: /[\\/]node_modules[\\/]/,
-              priority: -10,
-            },
+            vendors: false,
             common: {
               minChunks: 2,
               priority: -20,
@@ -143,19 +140,17 @@ const base: Plugin = (api, config) => {
         ])
       }
 
-      if (mode === 'development') {
-        const { SourceMapDevToolPlugin } = require('webpack') as typeof import('webpack')
-        // 开发模式，生成 sourceMap
-        webpackConfig.plugin('source-map').use(SourceMapDevToolPlugin, [
-          {
-            append: false,
-            filename: '[file].map[query]',
-            module: true,
-            columns: true,
-            test: /\.(js|wxss)($|\?)/i,
-          },
-        ])
-      }
+      const { SourceMapDevToolPlugin } = require('webpack') as typeof import('webpack')
+      // 生成 sourceMap
+      webpackConfig.plugin('source-map').use(SourceMapDevToolPlugin, [
+        {
+          append: false,
+          filename: '[file].map[query]',
+          module: true,
+          columns: true,
+          test: /\.(js|wxss)($|\?)/i,
+        },
+      ])
 
       if ((config as any)._clean !== false) {
         webpackConfig

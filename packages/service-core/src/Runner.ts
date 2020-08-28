@@ -104,6 +104,24 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
     options: O,
     handler: (args: Arguments<InferredOptionTypes<P> & InferredOptionTypes<O>>) => void,
   ): void {
+    this._registerCommand(
+      command,
+      describe,
+      yargs => {
+        Object.keys(positional).forEach(key => (yargs = yargs.positional(key, positional[key])))
+        yargs = yargs.options(options)
+        return yargs
+      },
+      handler,
+    )
+  }
+
+  protected _registerCommand(
+    command: CommandModule['command'],
+    describe: CommandModule['describe'],
+    builder: (args: Argv<any>) => Argv<any>,
+    handler: (args: any) => void,
+  ): void {
     this.program.command({
       command,
       describe,
@@ -119,11 +137,7 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
           }
         })()
       },
-      builder: yargs => {
-        Object.keys(positional).forEach(key => (yargs = yargs.positional(key, positional[key])))
-        yargs = yargs.options(options)
-        return yargs
-      },
+      builder,
     })
   }
 }
