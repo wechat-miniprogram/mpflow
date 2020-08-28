@@ -1,4 +1,4 @@
-# Mpflow
+# `@mpflow/cli`
 
 ## 安装
 
