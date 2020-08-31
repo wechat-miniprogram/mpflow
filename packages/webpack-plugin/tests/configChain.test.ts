@@ -38,6 +38,7 @@ describe('ConfigChain', () => {
     config.program.miniprogramRoot('/miniprogram')
     config.program.pluginRoot('/plugin')
     config.program.qcloudRoot('/cloud')
+    config.program.settings({ es6: false })
 
     expect(config.toConfig()).toMatchSnapshot('toConfig')
     expect(config.toString()).toMatchSnapshot('toString')

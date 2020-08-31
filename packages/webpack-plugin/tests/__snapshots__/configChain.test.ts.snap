@@ -9,6 +9,9 @@ Object {
     "pluginRoot": "/plugin",
     "projectName": "test",
     "qcloudRoot": "/cloud",
+    "settings": Object {
+      "es6": false,
+    },
   },
   "resolve": Object {
     "javascript": Object {
@@ -145,7 +148,10 @@ exports[`ConfigChain should work: toString 1`] = `
     projectName: 'test',
     miniprogramRoot: '/miniprogram',
     pluginRoot: '/plugin',
-    qcloudRoot: '/cloud'
+    qcloudRoot: '/cloud',
+    settings: {
+      es6: false
+    }
   }
 }"
 `;

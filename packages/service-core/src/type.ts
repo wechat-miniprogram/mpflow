@@ -56,6 +56,10 @@ export interface MpflowConfig {
    * 打包 page 路径
    */
   pages?: string[] | ((mode: string) => string[])
+  /**
+   * project.config.json 中的 settings
+   */
+  settings?: any
 }
 
 export interface Plugin<Options = any> {

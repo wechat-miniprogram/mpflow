@@ -37,6 +37,7 @@ class MpflowWebpackPlugin {
           miniprogramRoot: '',
           pluginRoot: '',
           qcloudRoot: '',
+          settings: {},
           ...options.program,
         },
       }).apply(compiler)

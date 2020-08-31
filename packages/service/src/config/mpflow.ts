@@ -52,6 +52,7 @@ const mpflow: Plugin = (api, config) => {
             .miniprogramRoot(config.miniprogramRoot)
             .qcloudRoot(config.qcloudRoot)
             .pluginRoot(config.pluginRoot)
+            .settings(config.settings)
 
           emitProjectConfig = true
         }

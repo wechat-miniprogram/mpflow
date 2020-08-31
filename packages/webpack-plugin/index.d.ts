@@ -29,7 +29,8 @@ declare namespace MpflowPlugin {
     compileType(value: string | undefined): this
     miniprogramRoot(value: string | undefined): this
     qcloudRoot(value: string | undefined): this
-    pluginRoot(value: any): this
+    pluginRoot(value: string | undefined): this
+    settings(value: any): this
   }
 
   export class ConfigChain extends ChainedMap<void> {
@@ -66,6 +67,7 @@ declare namespace MpflowPlugin {
       miniprogramRoot?: string
       qcloudRoot?: string
       pluginRoot?: string
+      settings?: any
     }
   }
 }
