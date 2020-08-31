@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@types/wechat-miniprogram": "^2.11.0",
-    "@mpflow/service": "^0.0.1",
+    "@mpflow/service": "file:../service",
     "typescript": "^3.9.7",
     "webpack": "^4.43.0"
   },

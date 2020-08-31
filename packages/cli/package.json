@@ -31,7 +31,7 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
-    "@mpflow/service-core": "^0.0.1",
+    "@mpflow/service-core": "file:../service-core",
     "axios": "^0.19.2",
     "boxen": "^4.2.0",
     "chalk": "^4.1.0",

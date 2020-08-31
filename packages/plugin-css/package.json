@@ -25,7 +25,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@mpflow/wxss-loader": "^0.0.1",
+    "@mpflow/wxss-loader": "file:../wxss-loader",
     "css-loader": "^3.6.0",
     "deepmerge": "^4.2.2",
     "less-loader": "^6.2.0",
@@ -34,7 +34,7 @@
     "stylus-loader": "^3.0.2"
   },
   "devDependencies": {
-    "@mpflow/service": "^0.0.1",
+    "@mpflow/service": "file:../service",
     "webpack": "^4.43.0"
   },
   "peerDependencies": {

@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.9",
-    "@mpflow/service": "^0.0.1",
+    "@mpflow/service": "file:../service",
     "miniprogram-simulate": "^1.2.7"
   },
   "peerDependencies": {

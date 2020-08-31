@@ -33,7 +33,7 @@
     "miniprogram-automator": "^0.10.0"
   },
   "devDependencies": {
-    "@mpflow/service": "^0.0.1",
+    "@mpflow/service": "file:../service",
     "@types/jest": "^26.0.9",
     "@types/ws": "^7.2.6"
   },

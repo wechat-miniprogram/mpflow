@@ -33,7 +33,7 @@
     "babel-loader": "^8.1.0"
   },
   "devDependencies": {
-    "@mpflow/service": "^0.0.1",
+    "@mpflow/service": "file:../service",
     "core-js": "^3.6.5",
     "webpack": "^4.43.0"
   },

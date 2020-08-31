@@ -36,7 +36,7 @@
     "jscpd": "^3.3.13"
   },
   "devDependencies": {
-    "@mpflow/service": "^0.0.1"
+    "@mpflow/service": "file:../service"
   },
   "peerDependencies": {
     "@mpflow/service": "*"
