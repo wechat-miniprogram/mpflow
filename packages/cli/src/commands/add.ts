@@ -26,13 +26,13 @@ const create: CliPlugin = (api, config) => {
           throw new Error('请在 mpflow 项目中执行该命令')
         }
 
-        await getNpmModuleInfo(pluginName, pluginName => [
+        const { name: resolvedPluginName } = await getNpmModuleInfo(pluginName, pluginName => [
           `@mpflow/plugin-${pluginName}`,
           `mpflow-plugin-${pluginName}`,
           pluginName,
         ])
 
-        await api.add(context, [pluginName])
+        await api.add(context, [resolvedPluginName])
       } catch (err) {
         console.error(err)
         process.exit(1)
