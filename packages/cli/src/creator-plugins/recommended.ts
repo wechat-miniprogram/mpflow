@@ -35,6 +35,10 @@ recommended.creator = api => {
       pluginNames.push('@mpflow/plugin-unit-test')
     }
 
+    if (await confirm('是否启用 e2e 测试 ?')) {
+      pluginNames.push('@mpflow/plugin-e2e-test')
+    }
+
     return infos
   })
 

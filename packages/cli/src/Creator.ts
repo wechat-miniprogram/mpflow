@@ -56,8 +56,16 @@ export class CreatorAPI<
     this.service.hooks.emit.tapPromise(this.id, handler)
   }
 
-  tapInit(handler: () => Promise<void>): void {
+  tapInit(
+    handler: (context: string, infos: { projectName: string; appId: string; templatePath: string }) => Promise<void>,
+  ): void {
     this.service.hooks.init.tapPromise(this.id, handler)
+  }
+
+  tapAfterInit(
+    handler: (context: string, infos: { projectName: string; appId: string; templatePath: string }) => Promise<void>,
+  ): void {
+    this.service.hooks.afterInit.tapPromise(this.id, handler)
   }
 }
 
@@ -120,11 +128,17 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     /**
      * 初始化项目
      */
-    init: new AsyncSeriesHook<string>(['context']),
+    init: new AsyncSeriesHook<string, { projectName: string; appId: string; templatePath: string }>([
+      'context',
+      'infos',
+    ]),
     /**
      * 初始化结束后
      */
-    afterInit: new AsyncSeriesHook<string>(['context']),
+    afterInit: new AsyncSeriesHook<string, { projectName: string; appId: string; templatePath: string }>([
+      'context',
+      'infos',
+    ]),
   }
 
   constructor(context: string, { templateName, projectName, appId, ...options }: CreatorOptions) {
@@ -222,13 +236,15 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     const templatePath = await this.hooks.resolveTemplate.promise(templateName)
     const files: Record<string, string> = {}
 
-    await this.hooks.render.promise({ projectName, appId, templatePath }, files)
+    const infos = { projectName, appId, templatePath }
+
+    await this.hooks.render.promise(infos, files)
 
     await this.hooks.beforeEmit.promise(files)
     await this.hooks.emit.promise(this.context, files)
 
-    await this.hooks.init.promise(this.context)
-    await this.hooks.afterInit.promise(this.context)
+    await this.hooks.init.promise(this.context, infos)
+    await this.hooks.afterInit.promise(this.context, infos)
   }
 
   /**
@@ -279,6 +295,10 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
       {
         id: '@mpflow/cli/lib/creator-plugins/init-git',
         module: require('./creator-plugins/init-git'),
+      },
+      {
+        id: '@mpflow/cli/lib/creator-plugins/print-instructions',
+        module: require('./creator-plugins/print-instructions'),
       },
     ]
 
