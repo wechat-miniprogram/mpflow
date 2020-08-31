@@ -1,6 +1,6 @@
 {
   "name": "@mpflow/plugin-unit-test",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
   "homepage": "",
@@ -30,8 +30,8 @@
     "jest": "^26.3.0"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.9",
     "@mpflow/service": "file:../service",
+    "@types/jest": "^26.0.9",
     "miniprogram-simulate": "^1.2.7"
   },
   "peerDependencies": {
