@@ -295,7 +295,8 @@ export function getLocalService(context: string): typeof import('@mpflow/service
  */
 export function shouldUseYarn(): boolean {
   try {
-    cp.execSync('yarn --version', { stdio: 'ignore' })
+    const command = process.platform === 'win32' ? 'yarn.cmd' : 'yarn'
+    cp.execSync(`${command} --version`, { stdio: 'ignore' })
     return true
   } catch (e) {
     return false
@@ -311,7 +312,8 @@ export function installNodeModules(
   { saveDev }: { saveDev?: boolean } = {},
 ): Promise<void> {
   const useYarn = shouldUseYarn()
-  const command = useYarn ? 'yarn' : 'npm'
+  let command = useYarn ? 'yarn' : 'npm'
+  if (process.platform === 'win32') command = command + '.cmd'
   const args: string[] = [useYarn && modules?.length ? 'add' : 'install', ...(modules || [])]
 
   if (saveDev) {
@@ -344,7 +346,7 @@ export function getPaths(path: string): string[] {
 export async function getNpmModuleInfo(
   moduleName: string,
   resolveNames: (moduleName: string) => string[] = moduleName => [moduleName],
-): Promise<{ downloadUrl: string; version: string; versions: string[] }> {
+): Promise<{ name: string; downloadUrl: string; version: string; versions: string[] }> {
   const moduleNames = resolveNames(moduleName)
 
   const getInfo = async (
@@ -357,8 +359,9 @@ export async function getNpmModuleInfo(
       tarball: string
     }
   }> => {
+    const command = process.platform === 'win32' ? 'npm.cmd' : 'npm'
     const stdout = await new Promise<string>((resolve, reject) =>
-      cp.exec(`npm view ${moduleName} -json`, { encoding: 'utf8' }, (err, stdout) =>
+      cp.exec(`${command} view ${moduleName} -json`, { encoding: 'utf8' }, (err, stdout) =>
         err ? reject(err) : resolve(stdout.trim()),
       ),
     )
@@ -372,7 +375,7 @@ export async function getNpmModuleInfo(
         versions,
         dist: { tarball: downloadUrl },
       } = await getInfo(name)
-      return { downloadUrl, version, versions }
+      return { name, downloadUrl, version, versions }
     } catch (err) {
       // do nothing
     }

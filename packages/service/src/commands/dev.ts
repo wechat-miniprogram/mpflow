@@ -17,7 +17,9 @@ const getDevtoolCliPath = async () => {
   const exists = await new Promise<boolean>(resolve => fs.exists(cliPath, resolve))
   if (!exists) {
     // 找不到开发工具
-    throw new Error('cannot find Wechat web devTools')
+    throw new Error(
+      '未找到微信小程序开发者工具，请确认是否安装，如未安装请前往 https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html 下载',
+    )
   }
   return cliPath
 }
