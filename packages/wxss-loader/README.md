@@ -1,11 +1,3 @@
-# `wxss-loader`
+# `@mpflow/wxss-loader`
 
-> TODO: description
-
-## Usage
-
-```
-const wxssLoader = require('wxss-loader');
-
-// TODO: DEMONSTRATE API
-```
+> Mpflow 为 webpack 提供的 wxss loader

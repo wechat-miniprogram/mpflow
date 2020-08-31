@@ -1,11 +1,9 @@
-# `template-miniprogram-plugin`
+# `@mpflow/template-miniprogram-plugin`
 
-> TODO: description
+> Mpflow 小程序插件启动模板
 
-## Usage
+## 使用
 
-```
-const templateMiniprogramPlugin = require('template-miniprogram-plugin');
-
-// TODO: DEMONSTRATE API
+```bash
+mpflow create hello-miniprogram --template miniprogram-plugin
 ```

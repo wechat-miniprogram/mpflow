@@ -1,11 +1,9 @@
-# `service`
+# `@mpflow/service`
 
-> TODO: description
+> Mpflow 的构建和配置服务
 
-## Usage
+## mpflow.config.js 说明
+TODO
 
-```
-const service = require('service');
-
-// TODO: DEMONSTRATE API
-```
+## mpflow 插件编写
+TODO

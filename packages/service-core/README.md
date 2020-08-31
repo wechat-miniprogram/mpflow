@@ -1,11 +1,3 @@
-# `service-core`
+# `@mpflow/service-core`
 
-> TODO: description
-
-## Usage
-
-```
-const serviceCore = require('service-core');
-
-// TODO: DEMONSTRATE API
-```
+> Mpflow cli 和 service 通用基础

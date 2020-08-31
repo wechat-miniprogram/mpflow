@@ -1,11 +1,3 @@
-# `wxml-loader`
+# `@mpflow/wxml-loader`
 
-> TODO: description
-
-## Usage
-
-```
-const wxmlLoader = require('wxml-loader');
-
-// TODO: DEMONSTRATE API
-```
+> Mpflow 为 webpack 提供的 wxml loader
