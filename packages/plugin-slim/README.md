@@ -4,7 +4,7 @@
 
 ## 说明
 
-该插件用于给 Mpflow 的构架提供小程序瘦身功能的集成，功能与 ![瘦身工具](https://developers.weixin.qq.com/miniprogram/dev/extended/utils/miniprogram-slim.html) 相同
+该插件用于给 Mpflow 的构架提供小程序瘦身功能的集成，功能与 [瘦身工具](https://developers.weixin.qq.com/miniprogram/dev/extended/utils/miniprogram-slim.html) 相同
 
 ## 安装
 

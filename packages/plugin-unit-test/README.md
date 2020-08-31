@@ -4,7 +4,7 @@
 
 ## 说明
 
-该插件用于给 Mpflow 的构架提供单元测试功能的集成，，使用 ![jest](https://jestjs.io/) 为测试执行器，![miniprogram-simulate](https://github.com/wechat-miniprogram/miniprogram-simulate) 为自动化执行器
+该插件用于给 Mpflow 的构架提供单元测试功能的集成，，使用 [jest](https://jestjs.io/) 为测试执行器，[miniprogram-simulate](https://github.com/wechat-miniprogram/miniprogram-simulate) 为自动化执行器
 
 `miniprogram-simulate` 是通过模拟小程序的运行环境，让小程序的自定义组件能够在 DOM 环境下进行测试。因此适用于对单一组件进行单元测试，而不适用与对整个小程序进行集成测试
 
