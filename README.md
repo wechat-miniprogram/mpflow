@@ -70,7 +70,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 
 ### 步骤
 
-1. 为项目添加 `@mpflow/service` 依赖
+1. #### 为项目添加 `@mpflow/service` 依赖
 
     直接在项目下执行
 
@@ -80,7 +80,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
     yarn add @mpflow/service --dev
     ```
 
-1. 将项目源码都转移到 `src` 目录下
+1. #### 将项目源码都转移到 `src` 目录下
 
     一个比较典型的小程序目录结构会类似：
     ```
@@ -121,7 +121,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 
     > miniprogram_npm 目录直接删除即可
 
-1. 在项目根目录创建一个 `mpflow.config.js`
+1. #### 在项目根目录创建一个 `mpflow.config.js`
 
     `mpflow.config.js` 是 mpflow 的配置文件，原生小程序项目可以直接根据 project.config.json 来迁移。
 
@@ -139,7 +139,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
     }
     ```
 
-1. 测试项目构建
+1. #### 测试项目构建
 
     之后即可用命令 `mpflow build` 尝试构建小程序
 
