@@ -4,11 +4,11 @@
 
 ## 说明
 
-该插件用于给 Mpflow 的构架提供 e2e 测试功能的集成，使用 ![jest](https://jestjs.io/) 为测试执行器，![miniprogram-automator](https://developers.weixin.qq.com/miniprogram/dev/devtools/auto/) 为自动化执行器
+该插件用于给 Mpflow 的构架提供 e2e 测试功能的集成，使用 [jest](https://jestjs.io/) 为测试执行器，[miniprogram-automator](https://developers.weixin.qq.com/miniprogram/dev/devtools/auto/) 为自动化执行器
 
 e2e 测试代码请按照 `${name}.test.js` 的命名形式，放置在项目的 `tests/e2e/` 目录下
 
-测试文件默认注入了一个全局 `miniProgram` 对象，可以直接操纵小程序开发者工具，使用方法请参考 ![miniprogram-automator 文档](https://developers.weixin.qq.com/miniprogram/dev/devtools/auto/miniprogram.html)
+测试文件默认注入了一个全局 `miniProgram` 对象，可以直接操纵小程序开发者工具，使用方法请参考 [miniprogram-automator 文档](https://developers.weixin.qq.com/miniprogram/dev/devtools/auto/miniprogram.html)
 
 ## 安装
 
