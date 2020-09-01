@@ -11,6 +11,8 @@ mpflow 是微信小程序的命令行工具
 
 ### 安装
 
+![demo-1](img/mpflow-demo-1-min.gif?raw=true)
+
 ```bash
 npm install -g @mpflow/cli
 # 或
@@ -18,6 +20,8 @@ yarn global add @mpflow/cli
 ```
 
 ### 创建项目
+
+![demo-1](img/mpflow-demo-2-min.gif?raw=true)
 
 ```bash
 mpflow create hello-miniprogram
@@ -37,6 +41,8 @@ npm run dev:open
 
 ### 项目构建
 
+![demo-1](img/mpflow-demo-3-min.gif?raw=true)
+
 ```bash
 mpflow build # 构建小程序，用于生产
 # 或
@@ -44,6 +50,8 @@ npm run build
 ```
 
 ### 安装插件
+
+![demo-1](img/mpflow-demo-4-min.gif?raw=true)
 
 ```bash
 mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
