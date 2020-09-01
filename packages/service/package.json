@@ -23,6 +23,9 @@
     "type": "git",
     "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
+  "engines": {
+    "node": ">=10.0.0"
+  },
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
@@ -36,6 +39,7 @@
     "@mpflow/wxml-loader": "file:../wxml-loader",
     "@mpflow/wxss-loader": "file:../wxss-loader",
     "chalk": "^4.1.0",
+    "check-node-version": "^4.0.3",
     "clean-webpack-plugin": "^3.0.0",
     "cli-highlight": "^2.1.4",
     "copy-webpack-plugin": "^6.0.3",

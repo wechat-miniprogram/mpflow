@@ -1,7 +1,24 @@
 #!/usr/bin/env node
 
-const { CliRunner } = require('../lib')
+require('check-node-version')(require('../package.json').engines, function (err, result) {
+  if (err) {
+    console.error(err)
+    process.exit(1)
+  }
 
-const runner = new CliRunner(process.cwd())
+  if (!result.isSatisfied) {
+    for (var name in result.versions) {
+      var info = result.versions[name]
+      if (!info.isSatisfied) {
+        console.error('需要安装 ' + name + ' ' + info.wanted)
+      }
+    }
+    process.exit(1)
+  }
 
-runner.run()
+  var CliRunner = require('../lib').CliRunner
+
+  var runner = new CliRunner(process.cwd())
+
+  runner.run()
+})

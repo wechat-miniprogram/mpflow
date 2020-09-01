@@ -2325,6 +2325,56 @@
     npmlog "^4.1.2"
     write-file-atomic "^2.3.0"
 
+"@mpflow/service-core@file:packages/service-core":
+  version "0.0.4"
+  dependencies:
+    yargs "^15.4.1"
+
+"@mpflow/service@file:packages/service":
+  version "0.0.5"
+  dependencies:
+    "@mpflow/service-core" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/service-core"
+    "@mpflow/webpack-plugin" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/webpack-plugin"
+    "@mpflow/wxml-loader" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/wxml-loader"
+    "@mpflow/wxss-loader" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/wxss-loader"
+    chalk "^4.1.0"
+    clean-webpack-plugin "^3.0.0"
+    cli-highlight "^2.1.4"
+    copy-webpack-plugin "^6.0.3"
+    deepmerge "^4.2.2"
+    file-loader "^6.0.0"
+    json-loader "^0.5.7"
+    mkdirp "^0.5.3"
+    webpack "^4.43.0"
+    webpack-bundle-analyzer "^3.8.0"
+    webpack-chain "^6.5.0"
+    webpack-merge "^5.0.8"
+    yargs "^15.4.0"
+
+"@mpflow/webpack-plugin@file:packages/webpack-plugin":
+  version "0.0.4"
+  dependencies:
+    deepmerge "^4.2.2"
+    ejs "^3.1.3"
+    webpack-chain "^6.5.0"
+
+"@mpflow/wxml-loader@file:packages/wxml-loader":
+  version "0.0.3"
+  dependencies:
+    loader-utils "^2.0.0"
+    schema-utils "^2.7.0"
+    source-map "0.6.1"
+
+"@mpflow/wxss-loader@file:packages/wxss-loader":
+  version "0.0.3"
+  dependencies:
+    cssnano "^4.1.10"
+    loader-utils "^2.0.0"
+    postcss "^7.0.32"
+    postcss-value-parser "^4.1.0"
+    schema-utils "^2.7.0"
+    source-map "0.6.1"
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.npmjs.org/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
@@ -4288,6 +4338,18 @@ chardet@^0.7.0:
   version "0.7.0"
   resolved "https://registry.npmjs.org/chardet/-/chardet-0.7.0.tgz#90094849f0937f2eedc2425d0d28a9e5f0cbad9e"
   integrity sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==
+
+check-node-version@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.npmjs.org/check-node-version/-/check-node-version-4.0.3.tgz#b783dc7267b2db0c2d0f0f51d75c9b6a5ee292f8"
+  integrity sha512-kbnOaF7SE1uasWx3hqxzsU2yz7I+rkxSMuTW0eKoF39eUtSR/a0F4Sm35LwJNx4itOIARf9eLhWHOOh7rlZ5/g==
+  dependencies:
+    chalk "^3.0.0"
+    map-values "^1.0.1"
+    minimist "^1.2.0"
+    object-filter "^1.0.2"
+    run-parallel "^1.1.4"
+    semver "^6.3.0"
 
 check-types@^8.0.3:
   version "8.0.3"
@@ -9232,6 +9294,11 @@ map-obj@^4.0.0:
   resolved "https://registry.npmjs.org/map-obj/-/map-obj-4.1.0.tgz#b91221b542734b9f14256c0132c897c5d7256fd5"
   integrity sha512-glc9y00wgtwcDmp7GaE/0b0OnxpNJsVf3ael/An6Fe2Q51LLwN1er6sdomLRzz5h0+yMpiYLhWYF5R7HeqVd4g==
 
+map-values@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/map-values/-/map-values-1.0.1.tgz#768b8e79c009bf2b64fee806e22a7b1c4190c990"
+  integrity sha1-douOecAJvytk/ugG4ip7HEGQyZA=
+
 map-visit@^1.0.0:
   version "1.0.0"
   resolved "https://registry.npmjs.org/map-visit/-/map-visit-1.0.0.tgz#ecdca8f13144e660f1b5bd41f12f3479d98dfb8f"
@@ -10008,6 +10075,11 @@ object-copy@^0.1.0:
     copy-descriptor "^0.1.0"
     define-property "^0.2.5"
     kind-of "^3.0.3"
+
+object-filter@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/object-filter/-/object-filter-1.0.2.tgz#af0b797ffebeaf8a52c6637cedbe8816cfec1bc8"
+  integrity sha1-rwt5f/6+r4pSxmN87b6IFs/sG8g=
 
 object-inspect@^1.7.0:
   version "1.8.0"
@@ -11886,7 +11958,7 @@ run-async@^2.2.0, run-async@^2.4.0:
   resolved "https://registry.npmjs.org/run-async/-/run-async-2.4.1.tgz#8440eccf99ea3e70bd409d49aab88e10c189a455"
   integrity sha512-tvVnVv01b8c1RrA6Ep7JkStj85Guv/YrMcwqYQnwjsAS2cTmmPGBBjAjpCW7RrSodNSoE2/qg9O4bceNvUuDgQ==
 
-run-parallel@^1.1.9:
+run-parallel@^1.1.4, run-parallel@^1.1.9:
   version "1.1.9"
   resolved "https://registry.npmjs.org/run-parallel/-/run-parallel-1.1.9.tgz#c9dd3a7cf9f4b2c4b6244e173a6ed866e61dd679"
   integrity sha512-DEqnSRTDw/Tc3FXf49zedI638Z9onwUotBMiUFKmrO2sdFKIbXamXGQ3Axd4qgphxKB4kw/qP1w5kTxnfU1B9Q==
