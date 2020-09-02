@@ -37,7 +37,7 @@ const base: Plugin = (api, config) => {
       })
     }
 
-    if (pages) {
+    if (pages && pages.length) {
       addConfig('pages', webpackConfig => {
         pages.forEach(pageEntry => {
           const basename = path.basename(pageEntry, path.extname(pageEntry))
@@ -58,7 +58,7 @@ const base: Plugin = (api, config) => {
 
       webpackConfig.context(api.getCwd())
 
-      webpackConfig.output.filename('_commons/[name].js').chunkFilename('_commons/[name].js')
+      webpackConfig.output.filename('_commons/[name].js').chunkFilename('_commons/[id].js')
 
       webpackConfig.resolve.extensions.add('.js').add('.json')
 
@@ -115,7 +115,7 @@ const base: Plugin = (api, config) => {
         // 生产模式，抽取公共代码
         webpackConfig.optimization.runtimeChunk('single').splitChunks({
           chunks: 'all',
-          minSize: 0,
+          minSize: 2000,
           maxSize: 0,
           minChunks: 1,
           maxAsyncRequests: 100,
@@ -123,7 +123,6 @@ const base: Plugin = (api, config) => {
           automaticNameDelimiter: '~',
           name: true,
           cacheGroups: {
-            vendors: false,
             common: {
               minChunks: 2,
               priority: -20,
