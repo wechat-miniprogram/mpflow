@@ -6,7 +6,7 @@ module.exports = {
   miniprogramRoot: 'miniprogram',
   pluginRoot: 'plugin',
   plugins: [],
-  setting: {
+  settings: {
 		urlCheck: true,
 		es6: false,
 		enhance: false,

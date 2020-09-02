@@ -3,7 +3,7 @@ module.exports = {
   app: 'src/app',
   compileType: 'miniprogram',
   plugins: [],
-  setting: {
+  settings: {
 		urlCheck: true,
 		es6: false,
 		enhance: false,
