@@ -53,6 +53,7 @@ export default asyncLoaderWrapper(async function (source) {
         ),
         'page',
         chunkName,
+        chunkName,
       )
     }
   }
@@ -67,6 +68,7 @@ export default asyncLoaderWrapper(async function (source) {
       stringifyResource(resolvedMainRequest, getMpflowLoaders(this, resolvedMainRequest, 'javascript'), {
         disabled: 'normal',
       }),
+      'main',
       'main',
       'main',
     )

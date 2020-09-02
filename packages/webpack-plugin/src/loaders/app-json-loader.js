@@ -48,6 +48,7 @@ export default asyncLoaderWrapper(async function (source) {
         ),
         'page',
         chunkName,
+        chunkName,
       )
     }
   }
