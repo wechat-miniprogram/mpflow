@@ -1,0 +1,15 @@
+{
+  "pages":[
+    "examples/index/index",
+    "examples/badge/badge",
+    "examples/cell/cell"
+  ],
+  "window":{
+    "backgroundTextStyle":"light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle":"black"
+  },
+  "style": "v2",
+  "debug": true
+}
