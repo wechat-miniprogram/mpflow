@@ -2326,18 +2326,19 @@
     write-file-atomic "^2.3.0"
 
 "@mpflow/service-core@file:packages/service-core":
-  version "0.0.4"
+  version "0.0.5"
   dependencies:
     yargs "^15.4.1"
 
 "@mpflow/service@file:packages/service":
-  version "0.0.5"
+  version "0.0.7"
   dependencies:
-    "@mpflow/service-core" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/service-core"
-    "@mpflow/webpack-plugin" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/webpack-plugin"
-    "@mpflow/wxml-loader" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/wxml-loader"
-    "@mpflow/wxss-loader" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.5-459a9ed6-0095-4703-a872-716f4e0b6214-1598935372291/node_modules/@mpflow/wxss-loader"
+    "@mpflow/service-core" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.7-bbed0657-e406-47cb-850d-6c8822daba24-1599106755654/node_modules/@mpflow/service-core"
+    "@mpflow/webpack-plugin" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.7-bbed0657-e406-47cb-850d-6c8822daba24-1599106755654/node_modules/@mpflow/webpack-plugin"
+    "@mpflow/wxml-loader" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.7-bbed0657-e406-47cb-850d-6c8822daba24-1599106755654/node_modules/@mpflow/wxml-loader"
+    "@mpflow/wxss-loader" "file:../../Library/Caches/Yarn/v6/npm-@mpflow-service-0.0.7-bbed0657-e406-47cb-850d-6c8822daba24-1599106755654/node_modules/@mpflow/wxss-loader"
     chalk "^4.1.0"
+    check-node-version "^4.0.3"
     clean-webpack-plugin "^3.0.0"
     cli-highlight "^2.1.4"
     copy-webpack-plugin "^6.0.3"
@@ -2352,7 +2353,7 @@
     yargs "^15.4.0"
 
 "@mpflow/webpack-plugin@file:packages/webpack-plugin":
-  version "0.0.4"
+  version "0.0.5"
   dependencies:
     deepmerge "^4.2.2"
     ejs "^3.1.3"
@@ -2599,6 +2600,11 @@
   resolved "https://registry.npmjs.org/@types/braces/-/braces-3.0.0.tgz#7da1c0d44ff1c7eb660a36ec078ea61ba7eb42cb"
   integrity sha512-TbH79tcyi9FHwbyboOKeRachRq63mSuWYXOflsNO9ZyE5ClQ/JaozNKl+aWUq87qPNsXasXxi2AbgfwIJ+8GQw==
 
+"@types/caseless@*":
+  version "0.12.2"
+  resolved "https://registry.npmjs.org/@types/caseless/-/caseless-0.12.2.tgz#f65d3d6389e01eeb458bd54dc8f52b95a9463bc8"
+  integrity sha512-6ckxMjBBD8URvjB6J3NcnuAn5Pkl7t3TizAg+xdlzzQGSPSmBcXf8KoIH0ua/i+tio+ZRUHEXp0HEmvaR4kt0w==
+
 "@types/color-name@^1.1.1":
   version "1.1.1"
   resolved "https://registry.npmjs.org/@types/color-name/-/color-name-1.1.1.tgz#1c1261bbeaa10a8055bbc5d8ab84b7b2afc846a0"
@@ -2774,6 +2780,16 @@
   resolved "https://registry.npmjs.org/@types/q/-/q-1.5.4.tgz#15925414e0ad2cd765bfef58842f7e26a7accb24"
   integrity sha512-1HcDas8SEj4z1Wc696tH56G8OlRaH/sqZOynNNB+HF0WOeXPaxTtbYzJY2oEfiUxjSKjhCKr+MvR7dCHcEelug==
 
+"@types/request@^2.48.5":
+  version "2.48.5"
+  resolved "https://registry.npmjs.org/@types/request/-/request-2.48.5.tgz#019b8536b402069f6d11bee1b2c03e7f232937a0"
+  integrity sha512-/LO7xRVnL3DxJ1WkPGDQrp4VTV1reX9RkC85mJ+Qzykj2Bdw+mG15aAfDahc76HtknjzE16SX/Yddn6MxVbmGQ==
+  dependencies:
+    "@types/caseless" "*"
+    "@types/node" "*"
+    "@types/tough-cookie" "*"
+    form-data "^2.5.0"
+
 "@types/rimraf@^3.0.0":
   version "3.0.0"
   resolved "https://registry.npmjs.org/@types/rimraf/-/rimraf-3.0.0.tgz#b9d03f090ece263671898d57bb7bb007023ac19f"
@@ -2828,6 +2844,11 @@
   version "0.2.0"
   resolved "https://registry.npmjs.org/@types/tmp/-/tmp-0.2.0.tgz#e3f52b4d7397eaa9193592ef3fdd44dc0af4298c"
   integrity sha512-flgpHJjntpBAdJD43ShRosQvNC0ME97DCfGvZEDlAThQmnerRXrLbX6YgzRBQCZTthET9eAWFAMaYP0m0Y4HzQ==
+
+"@types/tough-cookie@*":
+  version "4.0.0"
+  resolved "https://registry.npmjs.org/@types/tough-cookie/-/tough-cookie-4.0.0.tgz#fef1904e4668b6e5ecee60c52cc6a078ffa6697d"
+  integrity sha512-I99sngh224D0M7XgW1s120zxCt3VYQ3IQsuw3P3jbq5GG4yc79+ZjyKznyOGIQrflfylLgcfekeZW/vk0yng6A==
 
 "@types/uglify-js@*":
   version "3.9.2"
@@ -3553,13 +3574,6 @@ aws4@^1.8.0:
   version "1.10.0"
   resolved "https://registry.npmjs.org/aws4/-/aws4-1.10.0.tgz#a17b3a8ea811060e74d47d306122400ad4497ae2"
   integrity sha512-3YDiu347mtVtjpyV3u5kVqQLP242c06zwDOgpeRnybmXlYYsLbtTrUBUm8i8srONt+FWobl5aibnU1030PeeuA==
-
-axios@^0.19.2:
-  version "0.19.2"
-  resolved "https://registry.npmjs.org/axios/-/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
-  integrity sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
-  dependencies:
-    follow-redirects "1.5.10"
 
 babel-core@^7.0.0-bridge.0:
   version "7.0.0-bridge.0"
@@ -5304,7 +5318,7 @@ debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@3.1.0, debug@=3.1.0, debug@~3.1.0:
+debug@3.1.0, debug@~3.1.0:
   version "3.1.0"
   resolved "https://registry.npmjs.org/debug/-/debug-3.1.0.tgz#5bb5a0672628b64149566ba16819e61518c67261"
   integrity sha512-OX8XqP7/1a9cqkxYw2yXss15f26NKWBpDXQd0/uK/KPqdQhxbPa994hnzjcE2VqQpDslf55723cKPUOGSmMY3g==
@@ -6562,13 +6576,6 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-follow-redirects@1.5.10:
-  version "1.5.10"
-  resolved "https://registry.npmjs.org/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
-  integrity sha512-0V5l4Cizzvqt5D44aTXbFZz+FtyXV1vrDN6qrelxtfYQKW0KO0W2T/hkE8xvGa/540LkZlkaUjO4ailYTFtHVQ==
-  dependencies:
-    debug "=3.1.0"
-
 for-in@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
@@ -6594,6 +6601,15 @@ fork-ts-checker-webpack-plugin@^5.0.7:
     schema-utils "1.0.0"
     semver "^5.6.0"
     tapable "^1.0.0"
+
+form-data@^2.5.0:
+  version "2.5.1"
+  resolved "https://registry.npmjs.org/form-data/-/form-data-2.5.1.tgz#f2cbec57b5e59e23716e128fe44d4e5dd23895f4"
+  integrity sha512-m21N3WOmEEURgk6B9GLOE4RuWOFf28Lhh9qGYeNlGq4VDXUlJy2th2slBNU8Gp8EzloYZOibZJ7t5ecIrFSjVA==
+  dependencies:
+    asynckit "^0.4.0"
+    combined-stream "^1.0.6"
+    mime-types "^2.1.12"
 
 form-data@~2.3.2:
   version "2.3.3"

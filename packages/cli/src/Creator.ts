@@ -1,7 +1,6 @@
 import { BaseAPI, BaseService, Plugin, PluginInfo } from '@mpflow/service-core'
-import axios from 'axios'
 import path from 'path'
-import Stream from 'stream'
+import request from 'request'
 import { AsyncSeriesHook, AsyncSeriesWaterfallHook } from 'tapable'
 import tar from 'tar'
 import tmp from 'tmp'
@@ -208,9 +207,8 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
 
       // 下载并解压到临时目录
       console.log(`下载 ${downloadUrl}`)
-      const { data: downloadStream } = await axios.get<Stream>(downloadUrl, { responseType: 'stream' })
       await new Promise((resolve, reject) => {
-        downloadStream
+        request.get(downloadUrl)
           .pipe(
             tar.x({
               C: tmpPath,
