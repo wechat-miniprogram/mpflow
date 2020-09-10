@@ -25,16 +25,17 @@ plugin.generator = api => {
 
   api.extendPackage({
     dependencies: {
-      'core-js': pkg.devDependencies['core-js'],
+      // 'core-js': pkg.devDependencies['core-js'],
+      '@babel/runtime': pkg.devDependencies['@babel/runtime'],
     },
   })
 
   api.renderDir(path.resolve(__dirname, '../template'))
 
   api.processFile('src/**/*.js', (file, api) => {
-    api.transform(require('5to6-codemod/transforms/cjs'), {})
-    api.transform(require('5to6-codemod/transforms/no-strict'), {})
-    api.transform(require('5to6-codemod/transforms/exports'), {})
+    // api.transform(require('5to6-codemod/transforms/cjs'), {})
+    // api.transform(require('5to6-codemod/transforms/no-strict'), {})
+    // api.transform(require('5to6-codemod/transforms/exports'), {})
   })
 }
 

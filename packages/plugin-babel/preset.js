@@ -1,6 +1,25 @@
 module.exports = function () {
   return {
-    presets: [[require.resolve('@babel/preset-env'), { targets: { chrome: '67' }, useBuiltIns: 'usage', corejs: 2 }]],
+    presets: [
+      [
+        require.resolve('@babel/preset-env'),
+        {
+          targets: {
+            chrome: 53,
+            ios: 8,
+          },
+        },
+      ],
+    ],
+    plugins: [
+      [
+        require.resolve('@babel/plugin-transform-runtime'),
+        {
+          corejs: false,
+          helpers: true,
+        }
+      ]
+    ],
     env: {
       test: {
         presets: [[require.resolve('@babel/preset-env'), { targets: { node: 'current' } }]],
