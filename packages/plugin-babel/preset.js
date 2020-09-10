@@ -1,9 +1,11 @@
 module.exports = function () {
   return {
+    sourceType: 'unambiguous',
     presets: [
       [
         require.resolve('@babel/preset-env'),
         {
+          modules: false,
           targets: {
             chrome: 53,
             ios: 8,
@@ -17,8 +19,8 @@ module.exports = function () {
         {
           corejs: false,
           helpers: true,
-        }
-      ]
+        },
+      ],
     ],
     env: {
       test: {
