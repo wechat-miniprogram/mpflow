@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@mpflow/service": "file:../service",
-    "core-js": "^3.6.5",
+    "core-js": "^2.6.11",
     "webpack": "^4.43.0"
   },
   "peerDependencies": {
