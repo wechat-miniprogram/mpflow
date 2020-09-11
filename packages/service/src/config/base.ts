@@ -153,7 +153,7 @@ const base: Plugin = (api, config) => {
             append: false,
             filename: '[file].map[query]',
             module: true,
-            columns: false,
+            columns: mode === 'production' ? true : false,
             test: /\.(js|wxss)($|\?)/i,
           },
         ])
