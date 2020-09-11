@@ -1,6 +1,6 @@
 {
   "name": "@mpflow/cli",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
   "homepage": "",
@@ -58,7 +58,7 @@
     "tmp": "^0.2.1"
   },
   "devDependencies": {
-    "@mpflow/service": "^0.0.7",
+    "@mpflow/service": "^0.0.8",
     "@types/configstore": "^4.0.0",
     "@types/fs-extra": "^9.0.1",
     "@types/inquirer": "^7.3.0",
