@@ -9,7 +9,7 @@ import {
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import { assetLoader, pageJsonLoader } from './index'
+import { assetLoader, pageJsonLoader, stubLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -66,6 +66,9 @@ export const pitch = asyncLoaderWrapper(async function () {
             options: {
               type: 'miniprogram/wxss',
             },
+          },
+          {
+            loader: stubLoader,
           },
           ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],

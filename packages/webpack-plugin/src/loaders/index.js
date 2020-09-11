@@ -11,3 +11,5 @@ export const pageJsonLoader = require.resolve('./page-json-loader')
 export const pluginLoader = require.resolve('./plugin-loader')
 
 export const pluginJsonLoader = require.resolve('./plugin-json-loader')
+
+export const stubLoader = require.resolve('./stub-loader')

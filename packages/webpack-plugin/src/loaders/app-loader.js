@@ -7,7 +7,7 @@ import {
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import { appJsonLoader, assetLoader } from './index'
+import { appJsonLoader, assetLoader, stubLoader } from './index'
 import path from 'path'
 
 /**
@@ -36,6 +36,9 @@ export const pitch = asyncLoaderWrapper(async function () {
             options: {
               type: 'miniprogram/wxss',
             },
+          },
+          {
+            loader: stubLoader,
           },
           ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],

@@ -1,3 +1,4 @@
+@import "./_commons/index~logs.wxss";
 .log-list {
   display: flex;
   flex-direction: column;
