@@ -7,6 +7,7 @@ const base: Plugin = (api, config) => {
     const app = typeof config.app === 'function' ? config.app(mode) : config.app
     const plugin = typeof config.plugin === 'function' ? config.plugin(mode) : config.plugin
     const pages = typeof config.pages === 'function' ? config.pages(mode) : config.pages
+    const sourceMap = typeof config.sourceMap === 'function' ? config.sourceMap(mode) : (config.sourceMap ?? true)
     const sourceDir = config.sourceDir || 'src'
 
     const miniprogramRoot = config.miniprogramRoot || ''
@@ -61,8 +62,6 @@ const base: Plugin = (api, config) => {
       webpackConfig.output.filename('_commons/[name].js').chunkFilename('_commons/[id].js')
 
       webpackConfig.resolve.extensions.add('.js').add('.json')
-
-      webpackConfig.devtool(false)
 
       webpackConfig.module
         .rule('json-type')
@@ -139,17 +138,19 @@ const base: Plugin = (api, config) => {
         ])
       }
 
-      const { SourceMapDevToolPlugin } = require('webpack') as typeof import('webpack')
-      // 生成 sourceMap
-      webpackConfig.plugin('source-map').use(SourceMapDevToolPlugin, [
-        {
-          append: false,
-          filename: '[file].map[query]',
-          module: true,
-          columns: true,
-          test: /\.(js|wxss)($|\?)/i,
-        },
-      ])
+      if (sourceMap) {
+        const { SourceMapDevToolPlugin } = require('webpack') as typeof import('webpack')
+        // 生成 sourceMap
+        webpackConfig.plugin('source-map').use(SourceMapDevToolPlugin, [
+          {
+            append: false,
+            filename: '[file].map[query]',
+            module: true,
+            columns: false,
+            test: /\.(js|wxss)($|\?)/i,
+          },
+        ])
+      }
 
       if ((config as any)._clean !== false) {
         webpackConfig

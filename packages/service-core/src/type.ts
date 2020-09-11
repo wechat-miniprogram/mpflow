@@ -57,6 +57,10 @@ export interface MpflowConfig {
    */
   pages?: string[] | ((mode: string) => string[])
   /**
+   * 是否输出 sourceMap
+   */
+  sourceMap?: boolean | ((mode: string) => boolean)
+  /**
    * project.config.json 中的 settings
    */
   settings?: any
