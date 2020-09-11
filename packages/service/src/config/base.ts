@@ -7,7 +7,10 @@ const base: Plugin = (api, config) => {
     const app = typeof config.app === 'function' ? config.app(mode) : config.app
     const plugin = typeof config.plugin === 'function' ? config.plugin(mode) : config.plugin
     const pages = typeof config.pages === 'function' ? config.pages(mode) : config.pages
-    const sourceMap = typeof config.sourceMap === 'function' ? config.sourceMap(mode) : (config.sourceMap ?? true)
+    const sourceMap = typeof config.sourceMap === 'function' ? config.sourceMap(mode) : config.sourceMap ?? true
+    const minimize = (minimize => (typeof minimize === 'function' ? minimize(mode) : minimize))(
+      config.minimize ?? ((mode: string) => mode === 'production'),
+    )
     const sourceDir = config.sourceDir || 'src'
 
     const miniprogramRoot = config.miniprogramRoot || ''
@@ -59,7 +62,7 @@ const base: Plugin = (api, config) => {
 
       webpackConfig.context(api.getCwd())
 
-      webpackConfig.output.filename('_commons/[name].js').chunkFilename('_commons/[id].js')
+      webpackConfig.output.filename('_commons/[id].js').chunkFilename('_commons/[id].js')
 
       webpackConfig.resolve.extensions.add('.js').add('.json')
 
@@ -110,11 +113,13 @@ const base: Plugin = (api, config) => {
 
       webpackConfig.target(MpflowPlugin.target as any)
 
-      if (mode === 'production') {
-        // 生产模式，抽取公共代码
-        webpackConfig.optimization.runtimeChunk('single').splitChunks({
+      // 生产模式，抽取公共代码
+      webpackConfig.optimization
+        .namedChunks(false)
+        .runtimeChunk('single')
+        .splitChunks({
           chunks: 'all',
-          minSize: 2000,
+          minSize: 1000,
           maxSize: 0,
           minChunks: 1,
           maxAsyncRequests: 100,
@@ -129,6 +134,8 @@ const base: Plugin = (api, config) => {
             },
           },
         })
+
+      if (minimize) {
         const { LoaderOptionsPlugin } = require('webpack') as typeof import('webpack')
         // 生产模式，压缩代码
         webpackConfig.plugin('loader-minimize').use(LoaderOptionsPlugin, [

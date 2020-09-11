@@ -57,9 +57,13 @@ export interface MpflowConfig {
    */
   pages?: string[] | ((mode: string) => string[])
   /**
-   * 是否输出 sourceMap
+   * 是否输出 sourceMap，默认 true
    */
   sourceMap?: boolean | ((mode: string) => boolean)
+  /**
+   * 是否对代码进行压缩，默认为 mode => mode === 'production'
+   */
+  minimize?: boolean | ((mode: string) => boolean)
   /**
    * project.config.json 中的 settings
    */
