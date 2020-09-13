@@ -46,6 +46,33 @@ export const pitch = asyncLoaderWrapper(async function () {
     // app.wxss 可选
   }
 
+  try {
+    // 加载第三方平台代开发小程序的 ext.json
+    const extJsonRequest = await resolveWithType(this, 'miniprogram/json', 'ext')
+
+    addDependency(
+      this,
+      stringifyResource(
+        extJsonRequest,
+        [
+          {
+            loader: assetLoader,
+            options: {
+              type: 'miniprogram/json',
+              outputPath: 'ext.json',
+            },
+          },
+          ...getMpflowLoaders(this, extJsonRequest, 'json'),
+        ],
+        {
+          disabled: 'normal',
+        },
+      ),
+    )
+  } catch (error) {
+    // ext.json 可选
+  }
+
   // 加载 json
   const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
 
