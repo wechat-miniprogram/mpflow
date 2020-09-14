@@ -98,13 +98,7 @@ class ExternalPlugin {
       const renderTemplate = async (filename, render, mainFiles, chunkFiles) => {
         const content = render(filename, mainFiles, chunkFiles)
 
-        compilation.emitAsset(filename, content)
-      }
-
-      const getEntryChunk = () => {
-        const chunk = compilation.addChunk('miniprogram entries')
-        chunk.ids = []
-        return chunk
+        compilation.emitAsset(filename, content, { __mpflowExternal: true })
       }
 
       compilation.dependencyFactories.set(ExternalDependency, normalModuleFactory)
@@ -129,6 +123,7 @@ class ExternalPlugin {
             const entryPoint = compilation.entrypoints.get(entryName)
             const mainFiles = new Map()
             const chunkFiles = new Map()
+            const entryChunk = entryPoint.chunks.find(chunk => !!chunk.entryModule)
 
             // 只处理被标记为 External 的 Entry
             const externalInfo = isExternalEntryPoint(entryPoint)
@@ -142,12 +137,12 @@ class ExternalPlugin {
               const shouldInline = chunk.getNumberOfGroups() === 1
 
               chunk.files.forEach(filename => {
+                const { source: content, info: assetInfo } = compilation.getAsset(filename)
+
+                if (assetInfo.__mpflowExternal) return // 跳过被自己添加的
+
                 if (shouldInline) {
                   // 当该 chunk 只被一个 entry 引用，则将其文件内联到最终产出
-                  const content =
-                    typeof compilation.getAsset === 'function'
-                      ? compilation.getAsset(filename).source
-                      : compilation.assets[filename]
                   if (!files.has(filename)) files.set(filename, content)
                 } else {
                   // 当 chunk 被多个 entry 引用，则直接通过 require 引用
@@ -175,13 +170,13 @@ class ExternalPlugin {
             if (jsMainFiles.size || jsChunkFiles.size) {
               const renderFilename = `${outputPath}.js`
               await renderTemplate(renderFilename, renderJavascriptEntry, jsMainFiles, jsChunkFiles)
-              getEntryChunk().files.push(renderFilename)
+              entryChunk.files.push(renderFilename)
             }
 
             if (wxssMainFiles.size || wxssChunkFiles.size) {
               const renderFilename = `${outputPath}.wxss`
               await renderTemplate(renderFilename, renderWxssEntry, wxssMainFiles, wxssChunkFiles)
-              getEntryChunk().files.push(renderFilename)
+              entryChunk.files.push(renderFilename)
             }
 
             // 删除被内联的文件
