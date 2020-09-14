@@ -1,6 +1,8 @@
 import fs from 'fs'
 import path from 'path'
 import { Plugin, MpflowConfig } from './type'
+import rimraf from 'rimraf'
+import mkdirp from 'mkdirp'
 
 export class BaseAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> {
   public id: string
@@ -25,6 +27,36 @@ export class BaseAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> {
 
   hasPlugin(id: string): boolean {
     return this.service.pluginOptions.some(p => p.id === id)
+  }
+
+  async mkdirp(dirPath: string): Promise<void> {
+    return new Promise((resolve, reject) =>
+      mkdirp(dirPath, { fs: this.service.outputFileSystem }, err => (err ? reject(err) : resolve())),
+    )
+  }
+
+  async rmrf(dirPath: string): Promise<void> {
+    const fs = this.service.outputFileSystem
+    return new Promise((resolve, reject) =>
+      rimraf(
+        dirPath,
+        {
+          unlink: fs.unlink.bind(fs),
+          chmod: fs.chmod.bind(fs),
+          stat: fs.stat.bind(fs),
+          lstat: fs.lstat.bind(fs),
+          rmdir: fs.rmdir.bind(fs),
+          readdir: fs.readdir.bind(fs),
+          unlinkSync: fs.unlinkSync.bind(fs),
+          chmodSync: fs.chmodSync.bind(fs),
+          statSync: fs.statSync.bind(fs),
+          lstatSync: fs.lstatSync.bind(fs),
+          rmdirSync: fs.rmdirSync.bind(fs),
+          readdirSync: fs.readdirSync.bind(fs),
+        },
+        err => (err ? reject(err) : resolve()),
+      ),
+    )
   }
 }
 

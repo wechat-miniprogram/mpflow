@@ -34,6 +34,9 @@ const build: Plugin = (api, config) => {
       const webpackConfigs = Object.values(await api.resolveWebpackConfigs())
 
       try {
+        // 开始构建前，清理输出目录
+        await api.rmrf(api.resolve(config.outputDir || 'dist'))
+
         const compiler = webpack(webpackConfigs)
 
         ;(compiler as any).outputFileSystem = new WebpackOutputFileSystem((api as any).service.outputFileSystem)

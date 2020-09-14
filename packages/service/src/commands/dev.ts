@@ -95,6 +95,9 @@ const dev: Plugin = (api, config) => {
           })
         })
 
+        // 开始构建前，清理输出目录
+        await api.rmrf(api.resolve(config.outputDir || 'dist'))
+
         const webpackConfig = Object.values(await api.resolveWebpackConfigs())
 
         const compiler = webpack(webpackConfig)
