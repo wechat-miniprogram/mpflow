@@ -4,6 +4,8 @@ export const appJsonLoader = require.resolve('./app-json-loader')
 
 export const assetLoader = require.resolve('./asset-loader')
 
+export const extJsonLoader = require.resolve('./ext-json-loader')
+
 export const pageLoader = require.resolve('./page-loader')
 
 export const pageJsonLoader = require.resolve('./page-json-loader')

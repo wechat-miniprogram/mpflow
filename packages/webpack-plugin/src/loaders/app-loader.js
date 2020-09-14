@@ -1,4 +1,5 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
+import path from 'path'
 import {
   addDependency,
   asyncLoaderWrapper,
@@ -7,8 +8,7 @@ import {
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import { appJsonLoader, assetLoader } from './index'
-import path from 'path'
+import { appJsonLoader, assetLoader, extJsonLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -60,6 +60,12 @@ export const pitch = asyncLoaderWrapper(async function () {
             options: {
               type: 'miniprogram/json',
               outputPath: 'ext.json',
+            },
+          },
+          {
+            loader: extJsonLoader,
+            options: {
+              appContext: appContext,
             },
           },
           ...getMpflowLoaders(this, extJsonRequest, 'json'),
