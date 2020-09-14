@@ -42,15 +42,19 @@ const build: Plugin = (api, config) => {
           compiler.run((err, stats) => (err ? reject(err) : resolve(stats)))
         })
 
-        process.stdout.write(
-          stats.toString({
-            colors: true,
-            modules: false,
-            children: true,
-            chunks: false,
-            chunkModules: false,
-          }) + '\n\n',
-        )
+        const statsJson = stats.toJson({
+          all: false,
+          modules: true,
+          maxModules: 0,
+          errors: true,
+          warnings: true,
+          children: true,
+          assets: true,
+        })
+        statsJson.children!.forEach(children => {
+          children.children = undefined
+        })
+        process.stdout.write((webpack.Stats as any).jsonToString(statsJson, true) + '\n\n')
         console.log(chalk.cyan('Build complete.\n'))
         if (stats.hasErrors()) throw new Error('Webpack build with errors.')
       } catch (err) {
