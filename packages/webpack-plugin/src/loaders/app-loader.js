@@ -1,4 +1,5 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
+import path from 'path'
 import {
   addDependency,
   asyncLoaderWrapper,
@@ -7,8 +8,7 @@ import {
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import { appJsonLoader, assetLoader, stubLoader } from './index'
-import path from 'path'
+import { appJsonLoader, assetLoader, extJsonLoader, stubLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -47,6 +47,39 @@ export const pitch = asyncLoaderWrapper(async function () {
     )
   } catch (e) {
     // app.wxss 可选
+  }
+
+  try {
+    // 加载第三方平台代开发小程序的 ext.json
+    const extJsonRequest = await resolveWithType(this, 'miniprogram/json', 'ext')
+
+    addDependency(
+      this,
+      stringifyResource(
+        extJsonRequest,
+        [
+          {
+            loader: assetLoader,
+            options: {
+              type: 'miniprogram/json',
+              outputPath: 'ext.json',
+            },
+          },
+          {
+            loader: extJsonLoader,
+            options: {
+              appContext: appContext,
+            },
+          },
+          ...getMpflowLoaders(this, extJsonRequest, 'json'),
+        ],
+        {
+          disabled: 'normal',
+        },
+      ),
+    )
+  } catch (error) {
+    // ext.json 可选
   }
 
   // 加载 json
