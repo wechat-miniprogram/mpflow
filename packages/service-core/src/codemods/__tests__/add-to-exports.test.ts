@@ -1,7 +1,7 @@
-import jscodeshift from 'jscodeshift'
+import { transform } from '@codemod/core'
 import fs from 'fs'
 import path from 'path'
-import transform from '../add-to-exports'
+import plugin from '../add-to-exports'
 
 const transformShouldEqual = (
   options: { fieldName?: string; items?: (string | [string, any])[] },
@@ -10,13 +10,11 @@ const transformShouldEqual = (
 ) => {
   const fixtureDir = path.resolve(__dirname, './fixtures/add-to-exports')
   const sourceContent = fs.readFileSync(path.join(fixtureDir, source), 'utf8')
-  const expectedContent = expected ? fs.readFileSync(path.join(fixtureDir, expected), 'utf8') : undefined
-  const transformedContent = transform(
-    { path: source, source: sourceContent },
-    { jscodeshift, j: jscodeshift, report: () => {}, stats: () => {} },
-    options,
-  )
-  expect(transformedContent).toEqual(expectedContent)
+  const expectedContent = fs.readFileSync(path.join(fixtureDir, expected ?? source), 'utf8')
+  const result = transform(sourceContent, {
+    plugins: [[plugin, options]]
+  })
+  expect(result.code).toEqual(expectedContent)
 }
 
 describe('add-to-exports', () => {

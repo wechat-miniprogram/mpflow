@@ -262,23 +262,14 @@ export class Generator<P extends Plugin = Plugin> extends BaseService<P> {
         remove: (remove = true) => {
           removed = remove
         },
-        transform: (transform, options) => {
-          const jscodeshift = require('jscodeshift') as typeof import('jscodeshift')
-          // const j = jscodeshift.withParser('ts')
-          const j = jscodeshift
+        transform: (transformer, options = {}) => {
+          const { transform } = require('@codemod/core') as typeof import('@codemod/core')
 
-          const out = transform(
-            fileInfo,
-            {
-              j,
-              jscodeshift: j,
-              report: () => {},
-              stats: () => {},
-            },
-            options,
-          )
+          const out = transform(fileInfo.source, {
+            plugins: [[transformer, options]],
+          })
 
-          if (out) fileInfo.source = out
+          if (out.code) fileInfo.source = out.code
         },
       }
 

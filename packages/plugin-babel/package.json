@@ -27,7 +27,6 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "5to6-codemod": "^1.8.0",
     "@babel/core": "^7.10.4",
     "@babel/plugin-transform-runtime": "^7.11.5",
     "@babel/preset-env": "^7.10.4",

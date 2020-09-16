@@ -29,8 +29,10 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "devDependencies": {
+    "@babel/helper-plugin-utils": "^7.10.4",
+    "@codemod/core": "^1.0.7",
+    "@codemod/matchers": "^1.0.11",
     "@types/ejs": "^3.0.4",
-    "@types/jscodeshift": "^0.7.1",
     "@types/webpack": "^4.41.21",
     "@types/webpack-chain": "^5.2.0",
     "@types/yargs": "^15.0.5"
