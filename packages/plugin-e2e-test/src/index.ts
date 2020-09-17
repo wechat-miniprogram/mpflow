@@ -96,7 +96,7 @@ plugin.generator = async api => {
     scripts: {
       'test:e2e': 'mpflow-service test:e2e',
     },
-    dependencies: {
+    devDependencies: {
       '@types/jest': pkg.devDependencies['@types/jest'],
     },
   })

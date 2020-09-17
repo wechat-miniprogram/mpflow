@@ -37,7 +37,7 @@ const plugin: Plugin = (api, config) => {
 plugin.generator = async api => {
   const pkg = require('../package.json')
   api.extendPackage({
-    dependencies: {
+    devDependencies: {
       typescript: pkg.devDependencies.typescript,
       '@types/wechat-miniprogram': pkg.devDependencies['@types/wechat-miniprogram'],
     },
