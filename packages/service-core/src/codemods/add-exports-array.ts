@@ -16,16 +16,19 @@ export default function (api: typeof babel, options: Options): PluginObj {
   const { types: t, template } = api
   const { fieldName, items } = options
 
-  let pluginsArrayExpression: NodePath<ArrayExpression>
+  let pluginsArrayExpression: NodePath<ArrayExpression> | null
 
   if (!fieldName || !items || !items.length)
     return {
-      name: 'add-to-exports',
+      name: 'add-exports-array',
       visitor: {},
     }
 
   return {
-    name: 'add-to-exports',
+    name: 'add-exports-array',
+    pre() {
+      pluginsArrayExpression = null
+    },
     visitor: {
       AssignmentExpression(p) {
         // 寻找 module.exports = { plugins: [] }
@@ -67,13 +70,14 @@ export default function (api: typeof babel, options: Options): PluginObj {
             const [statementPath] = p.pushContainer('body', statement)
             pluginsArrayExpression = statementPath.get('expression.right.arguments.0') as NodePath<ArrayExpression>
           }
+          const targetArray = pluginsArrayExpression
           // 添加 item
           items.forEach(item => {
             const [pluginName, option] = Array.isArray(item) ? item : [item]
             if (!option) {
-              pluginsArrayExpression.pushContainer('elements', t.stringLiteral(pluginName))
+              targetArray.pushContainer('elements', t.stringLiteral(pluginName))
             } else {
-              pluginsArrayExpression.pushContainer(
+              targetArray.pushContainer(
                 'elements',
                 t.arrayExpression([t.stringLiteral(pluginName), template.expression(JSON.stringify(option))()]),
               )

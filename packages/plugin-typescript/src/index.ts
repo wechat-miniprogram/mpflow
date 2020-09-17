@@ -52,7 +52,7 @@ plugin.generator = async api => {
 
   if (api.hasPlugin('@mpflow/plugin-babel')) {
     api.processFile('babel.config.js', (file, api) => {
-      api.transform(require('@mpflow/service-core/lib/codemods/add-to-exports').default, {
+      api.transform(require('@mpflow/service-core/lib/codemods/add-exports-array').default, {
         fieldName: 'presets',
         items: ['@mpflow/plugin-typescript/preset'],
       })

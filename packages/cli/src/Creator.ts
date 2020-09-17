@@ -266,7 +266,7 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
 
     // 将插件添加到 mpflow.config.js
     generator.processFile('creator', 'mpflow.config.js', (file, api) => {
-      api.transform(require('@mpflow/service-core/lib/codemods/add-to-exports').default, {
+      api.transform(require('@mpflow/service-core/lib/codemods/add-exports-array').default, {
         fieldName: 'plugins',
         items: plugins.map(({ id, option }) => [id, option]),
       })

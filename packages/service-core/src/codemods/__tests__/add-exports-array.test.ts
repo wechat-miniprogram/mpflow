@@ -1,14 +1,14 @@
 import { transform } from '@codemod/core'
 import fs from 'fs'
 import path from 'path'
-import plugin from '../add-to-exports'
+import plugin from '../add-exports-array'
 
 const transformShouldEqual = (
   options: { fieldName?: string; items?: (string | [string, any])[] },
   source: string,
   expected?: string,
 ) => {
-  const fixtureDir = path.resolve(__dirname, './fixtures/add-to-exports')
+  const fixtureDir = path.resolve(__dirname, './fixtures/add-exports-array')
   const sourceContent = fs.readFileSync(path.join(fixtureDir, source), 'utf8')
   const expectedContent = fs.readFileSync(path.join(fixtureDir, expected ?? source), 'utf8')
   const result = transform(sourceContent, {
@@ -17,7 +17,7 @@ const transformShouldEqual = (
   expect(result.code).toEqual(expectedContent)
 }
 
-describe('add-to-exports', () => {
+describe('add-exports-array', () => {
   test('should ignore', () => {
     transformShouldEqual({}, 'ignore.js')
     transformShouldEqual({ fieldName: 'presets' }, 'ignore.js')
