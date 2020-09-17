@@ -1,4 +1,5 @@
 var plugin = requirePlugin("hello-plugin");
+
 Page({
   data: {
     items: [],
