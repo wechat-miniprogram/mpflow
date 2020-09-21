@@ -105,7 +105,8 @@ export function isExternalEntryPoint(entryPoint) {
 export function isExternalChunk(chunk) {
   if (!chunk || !chunk.entryModule) return false
   for (const module of Array.from(chunk.modulesIterable)) {
-    if (module && module[MODULE_EXTERNAL_SYMBOL]) return module[MODULE_EXTERNAL_SYMBOL]
+    if (module && module.buildMeta && module.buildMeta[MODULE_EXTERNAL_SYMBOL])
+      return module.buildMeta[MODULE_EXTERNAL_SYMBOL]
   }
   return false
 }
@@ -117,8 +118,9 @@ export function isExternalChunk(chunk) {
  * @param {string} outputPath
  */
 export function markAsExternal(module, type, outputPath) {
-  if (!module[MODULE_EXTERNAL_SYMBOL]) {
-    module[MODULE_EXTERNAL_SYMBOL] = { type, outputPath }
+  if (!module.buildMeta) module.buildMeta = {}
+  if (!module.buildMeta[MODULE_EXTERNAL_SYMBOL]) {
+    module.buildMeta[MODULE_EXTERNAL_SYMBOL] = { type, outputPath }
   }
 }
 
