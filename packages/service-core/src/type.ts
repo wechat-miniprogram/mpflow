@@ -57,6 +57,10 @@ export interface MpflowConfig {
    */
   pages?: string[] | ((mode: string) => string[])
   /**
+   * 打包 js 文件路径
+   */
+  libs?: Record<string, string> | ((mode: string) => Record<string, string>)
+  /**
    * 是否输出 sourceMap，默认 true
    */
   sourceMap?: boolean | ((mode: string) => boolean)

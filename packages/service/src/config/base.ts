@@ -7,6 +7,8 @@ const base: Plugin = (api, config) => {
     const app = typeof config.app === 'function' ? config.app(mode) : config.app
     const plugin = typeof config.plugin === 'function' ? config.plugin(mode) : config.plugin
     const pages = typeof config.pages === 'function' ? config.pages(mode) : config.pages
+    const libs = typeof config.libs === 'function' ? config.libs(mode) : config.libs
+
     const sourceMap = typeof config.sourceMap === 'function' ? config.sourceMap(mode) : config.sourceMap ?? true
     const minimize = (minimize => (typeof minimize === 'function' ? minimize(mode) : minimize))(
       config.minimize ?? ((mode: string) => mode === 'production'),
@@ -54,6 +56,18 @@ const base: Plugin = (api, config) => {
 
           webpackConfig.output.path(outputPath)
         })
+
+        if (libs) {
+          Object.keys(libs).forEach(outputPath => {
+            const entry = libs[outputPath]
+
+            webpackConfig
+              .name('libs')
+              .entry(outputPath)
+              .add(`${MpflowPlugin.libLoader}?outputPath=${encodeURIComponent(outputPath)}!${api.resolve(entry)}`)
+              .end()
+          })
+        }
       })
     }
 

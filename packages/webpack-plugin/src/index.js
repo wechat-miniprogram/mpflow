@@ -2,7 +2,7 @@ import AssetPlugin from './AssetPlugin'
 import { ConfigChain } from './ConfigChain'
 import ExternalPlugin from './ExternalPlugin'
 import LoaderRulesPlugin from './LoaderRulesPlugin'
-import { appLoader, pageLoader, pluginLoader } from './loaders'
+import { appLoader, pageLoader, pluginLoader, libLoader } from './loaders'
 import ResolverPlugin from './ResolverPlugin'
 import target from './target'
 import TemplatePlugin from './TemplatePlugin'
@@ -50,6 +50,7 @@ MpflowWebpackPlugin.target = target
 MpflowWebpackPlugin.appLoader = appLoader
 MpflowWebpackPlugin.pageLoader = pageLoader
 MpflowWebpackPlugin.pluginLoader = pluginLoader
+MpflowWebpackPlugin.libLoader = libLoader
 
 MpflowWebpackPlugin.ConfigChain = ConfigChain
 

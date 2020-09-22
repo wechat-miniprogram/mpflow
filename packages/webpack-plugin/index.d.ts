@@ -81,6 +81,7 @@ declare class MpflowPlugin {
   static appLoader: string
   static pageLoader: string
   static pluginLoader: string
+  static libLoader: string
 
   // static ConfigChain: typeof MpflowPlugin.ConfigChain
 }
