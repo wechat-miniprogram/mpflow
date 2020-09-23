@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@codemod/core": "^1.0.7",
+    "@codemod/matchers": "^1.0.11",
     "@mpflow/service-core": "file:../service-core",
     "boxen": "^4.2.0",
     "chalk": "^4.1.0",

@@ -35,7 +35,7 @@ function renderJavascriptEntry(outputPath, mainFiles, chunkFiles) {
     if (!content) return new RawSource(`require(${getRelativePath(outputPath, filename)})`)
     const source = new ReplaceSource(content)
     const sourceStr = source.source()
-    if (sourceStr.startsWith('var globalThis = this;\nmodule.exports =')) {
+    if (sourceStr.startsWith('var globalThis = this, self = this;\nmodule.exports =')) {
       source.replace(0, 39, '')
     }
     const match = sourceStr.match(/[\s;]+$/)
