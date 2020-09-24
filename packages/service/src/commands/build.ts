@@ -1,6 +1,7 @@
 import { Plugin } from '@mpflow/service-core'
-import WebpackOutputFileSystem from '../utils/WebpackOutputFileSystem'
+import path from 'path'
 import { compilation } from 'webpack'
+import WebpackOutputFileSystem from '../utils/WebpackOutputFileSystem'
 
 const build: Plugin = (api, config) => {
   api.registerCommand(
@@ -35,7 +36,7 @@ const build: Plugin = (api, config) => {
 
       try {
         // 开始构建前，清理输出目录
-        await api.rmrf(api.resolve(config.outputDir || 'dist'))
+        await api.rmrf(path.join(api.resolve(config.outputDir || 'dist'), '*'))
 
         const compiler = webpack(webpackConfigs)
 
