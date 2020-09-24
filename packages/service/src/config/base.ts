@@ -125,6 +125,14 @@ const base: Plugin = (api, config) => {
           name: '_assets/[name].[hash:8].[ext]',
         })
 
+      // 小程序不支持字体文件，转换成 base64
+      webpackConfig.module
+        .rule('fonts')
+        .test(/\.(eot|ttf|woff|woff2)$/)
+        .pre()
+        .use('url-loader')
+        .loader(require.resolve('url-loader'))
+
       webpackConfig.target(MpflowPlugin.target as any)
 
       // 生产模式，抽取公共代码
