@@ -122,7 +122,7 @@ const base: Plugin = (api, config) => {
         .use('file-loader')
         .loader(require.resolve('file-loader'))
         .options({
-          name: '_assets/[name].[hash:8].[ext]',
+          name: '/_assets/[name].[hash:8].[ext]',
         })
 
       // 小程序不支持字体文件，转换成 base64
