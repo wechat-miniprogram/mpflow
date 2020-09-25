@@ -53,6 +53,48 @@ export default asyncLoaderWrapper(async function (source) {
     }
   }
 
+  if (Array.isArray(moduleContent.subpackages)) {
+    // 处理分包规则
+    for (const pkg of moduleContent.subpackages) {
+      const { root, pages } = pkg
+
+      if (!root || !Array.isArray(pages)) continue
+
+      for (const page of pages) {
+        if (!isRequest(page)) continue
+
+        // 尝试使用 root/page 解析
+        const pageRequest = path.join(root, page)
+
+        const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
+        const chunkName = getPageOutputPath(this.rootContext, appContext, '/', pageRequest, resolvedPageRequest)
+
+        await addExternal(
+          this,
+          stringifyResource(
+            resolvedPageRequest,
+            [
+              {
+                loader: pageLoader,
+                options: {
+                  appContext: appContext,
+                  outputPath: chunkName,
+                },
+              },
+              ...getMpflowLoaders(this, resolvedPageRequest, 'page'),
+            ],
+            {
+              disabled: 'normal',
+            },
+          ),
+          'page',
+          chunkName,
+          chunkName,
+        )
+      }
+    }
+  }
+
   if (moduleContent.tabBar?.custom) {
     // 自定义 tabBar 则将 custom-tab-bar 加入构建
     const tabBarRequest =
