@@ -23,8 +23,7 @@
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
-    "build-ts": "node ../../scripts/build-ts",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build-ts": "node ../../scripts/build-ts"
   },
   "dependencies": {
     "@babel/core": "^7.10.4",
@@ -34,7 +33,7 @@
   },
   "devDependencies": {
     "@babel/runtime": "^7.11.2",
-    "@mpflow/service": "file:../service",
+    "@mpflow/service": "link:../service",
     "core-js": "^2.6.11",
     "webpack": "^4.43.0"
   },

@@ -21,11 +21,10 @@
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
-    "build-ts": "node ../../scripts/build-ts",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build-ts": "node ../../scripts/build-ts"
   },
   "dependencies": {
-    "@mpflow/wxss-loader": "file:../wxss-loader",
+    "@mpflow/wxss-loader": "link:../wxss-loader",
     "css-loader": "^3.6.0",
     "deepmerge": "^4.2.2",
     "less-loader": "^6.2.0",
@@ -34,7 +33,7 @@
     "stylus-loader": "^3.0.2"
   },
   "devDependencies": {
-    "@mpflow/service": "file:../service",
+    "@mpflow/service": "link:../service",
     "webpack": "^4.43.0"
   },
   "peerDependencies": {

@@ -23,8 +23,7 @@
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
-    "build-ts": "node ../../scripts/build-ts",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build-ts": "node ../../scripts/build-ts"
   },
   "dependencies": {
     "babel-plugin-istanbul": "^6.0.0",
@@ -33,7 +32,7 @@
     "miniprogram-automator": "^0.10.0"
   },
   "devDependencies": {
-    "@mpflow/service": "file:../service",
+    "@mpflow/service": "link:../service",
     "@types/jest": "^26.0.9",
     "@types/ws": "^7.2.6"
   },

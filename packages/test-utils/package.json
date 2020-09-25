@@ -14,10 +14,7 @@
     "type": "git",
     "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
-  "scripts": {
-    "build": "echo \"skip\"",
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  },
+  "scripts": {},
   "devDependencies": {
     "glob": "^7.1.6",
     "memfs": "^3.2.0",

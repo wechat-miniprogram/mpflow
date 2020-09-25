@@ -23,8 +23,7 @@
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
-    "build-ts": "node ../../scripts/build-ts",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build-ts": "node ../../scripts/build-ts"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.10.4",
@@ -33,7 +32,7 @@
     "tsconfig-paths-webpack-plugin": "^3.2.0"
   },
   "devDependencies": {
-    "@mpflow/service": "file:../service",
+    "@mpflow/service": "link:../service",
     "@types/wechat-miniprogram": "^2.11.0",
     "typescript": "^3.9.7",
     "webpack": "^4.43.0"

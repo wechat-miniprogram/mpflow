@@ -17,7 +17,5 @@
     "type": "git",
     "url": "git@git.code.oa.com:wxweb/mpflow.git"
   },
-  "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
-  }
+  "scripts": {}
 }
