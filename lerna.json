@@ -4,7 +4,11 @@
   "useWorkspaces": true,
   "command": {
     "version": {
-      "conventionalCommits": true
+      "conventionalCommits": true,
+      "noPrivate": true
+    },
+    "publish": {
+      "message": "chore: publish %s"
     }
   },
   "ignoreChanges": ["**/*.md"],
