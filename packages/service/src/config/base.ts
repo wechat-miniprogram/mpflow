@@ -98,7 +98,7 @@ const base: Plugin = (api, config) => {
         .use('file-loader')
         .loader(require.resolve('file-loader'))
         .options({
-          name: '_commons/[name].[hash:8].[ext]',
+          name: '/_commons/[name].[hash:8].[ext]',
         })
 
       webpackConfig.module
