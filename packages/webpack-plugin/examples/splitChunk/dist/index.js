@@ -1,4 +1,4 @@
-var globalThis = this;
+var globalThis = this, self = this;
 module.exports =
 require("./_commons/runtime.js")([
 require("./_commons/index~logs.js"),

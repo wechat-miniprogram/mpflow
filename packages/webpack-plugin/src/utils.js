@@ -1,14 +1,14 @@
 import NativeModule from 'module'
 import path from 'path'
 import qs from 'querystring'
-import SingleEntryDependency from 'webpack/lib/dependencies/SingleEntryDependency'
 import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin'
+import ModuleReason from 'webpack/lib/ModuleReason'
 import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin'
 import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin'
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin'
 import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin'
-import VirtualDependency from './VirtualDependency'
 import ExternalDependency from './ExternalDependency'
+import VirtualDependency from './VirtualDependency'
 
 /**
  *
@@ -105,8 +105,17 @@ export function isExternalEntryPoint(entryPoint) {
 export function isExternalChunk(chunk) {
   if (!chunk || !chunk.entryModule) return false
   for (const module of Array.from(chunk.modulesIterable)) {
-    if (module && module.buildMeta && module.buildMeta[MODULE_EXTERNAL_SYMBOL])
-      return module.buildMeta[MODULE_EXTERNAL_SYMBOL]
+    if (module && module.reasons) {
+      for (const reason of module.reasons) {
+        const dependency = reason.dependency
+        if (dependency && dependency instanceof ExternalDependency) {
+          return {
+            type: dependency.externalType,
+            outputPath: dependency.outputPath,
+          }
+        }
+      }
+    }
   }
   return false
 }
@@ -118,10 +127,9 @@ export function isExternalChunk(chunk) {
  * @param {string} outputPath
  */
 export function markAsExternal(module, type, outputPath) {
-  if (!module.buildMeta) module.buildMeta = {}
-  if (!module.buildMeta[MODULE_EXTERNAL_SYMBOL]) {
-    module.buildMeta[MODULE_EXTERNAL_SYMBOL] = { type, outputPath }
-  }
+  const dependency = new ExternalDependency(module.request, type, outputPath)
+  const reason = new ModuleReason(module, dependency, 'weflow markAsExternal')
+  module.reasons.push(reason)
 }
 
 /**

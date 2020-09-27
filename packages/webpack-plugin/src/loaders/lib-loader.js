@@ -7,7 +7,6 @@ import { asyncLoaderWrapper, markAsExternal } from '../utils'
  */
 export const pitch = asyncLoaderWrapper(async function (remainRequest) {
   const options = getOptions(this) || {}
-  console.log(options)
   const outputPath = options.outputPath || path.basename(this.resourcePath)
 
   this.cacheable()

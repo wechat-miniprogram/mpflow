@@ -26,7 +26,7 @@ export default class ChunkTemplatePlugin {
       const source = new ConcatSource()
       // const prefetchChunks = chunk.getChildIdsByOrders().prefetch;
 
-      source.add(`var globalThis = this;\n`)
+      source.add(`var globalThis = this, self = this;\n`)
       source.add(`module.exports = {\n`)
       source.add(`"ids": ${JSON.stringify(chunk.ids)},\n`)
       source.add(`"modules":`)

@@ -1,4 +1,4 @@
-var globalThis = this;
+var globalThis = this, self = this;
 module.exports = 
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	function webpackLoadCallback(loadModules) {

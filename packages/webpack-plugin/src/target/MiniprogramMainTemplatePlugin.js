@@ -18,7 +18,7 @@ export default class MainTemplatePlugin {
       const varExpression = mainTemplate.getAssetPath('module.exports', { hash, chunk })
       const resultSource = new ConcatSource()
 
-      resultSource.add(`var globalThis = this;\n`)
+      resultSource.add(`var globalThis = this, self = this;\n`)
       resultSource.add(`${varExpression} = \n`)
       resultSource.add(source)
 

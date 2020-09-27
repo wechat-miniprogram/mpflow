@@ -36,7 +36,7 @@ function renderJavascriptEntry(outputPath, mainFiles, chunkFiles) {
     const source = new ReplaceSource(content)
     const sourceStr = source.source()
     if (sourceStr.startsWith('var globalThis = this, self = this;\nmodule.exports =')) {
-      source.replace(0, 39, '')
+      source.replace(0, 52, '')
     }
     const match = sourceStr.match(/[\s;]+$/)
     if (match) {
@@ -47,7 +47,7 @@ function renderJavascriptEntry(outputPath, mainFiles, chunkFiles) {
 
   const source = new ConcatSource()
 
-  source.add('var globalThis = this;\n')
+  source.add('var globalThis = this, self = this;\n')
   source.add('module.exports =\n')
   source.add(renderModule(Array.from(mainFiles.entries())[0])) // 第一个 mainFile 为 runtime
 
@@ -103,16 +103,6 @@ class ExternalPlugin {
 
       compilation.dependencyFactories.set(ExternalDependency, normalModuleFactory)
       compilation.dependencyTemplates.set(ExternalDependency, new ExternalDependency.Template())
-
-      normalModuleFactory.hooks.module.tap(PLUGIN_NAME, (module, createOptions) => {
-        const {
-          dependencies: [dependency],
-        } = createOptions
-        if (dependency instanceof ExternalDependency) {
-          markAsExternal(module, dependency.externalType, dependency.outputPath)
-        }
-        return module
-      })
 
       compilation.hooks.additionalAssets.tapAsync(PLUGIN_NAME, async callback => {
         try {
