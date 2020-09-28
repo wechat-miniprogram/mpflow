@@ -2,6 +2,10 @@ import { Plugin } from '@mpflow/service'
 import path from 'path'
 
 const plugin: Plugin = (api, config) => {
+  if (!api.hasPlugin('@mpflow/plugin-babel')) {
+    throw new Error('@mpflow/plugin-typescript 需要安装 @mpflow/plugin-babel')
+  }
+
   api.registerCommand('test:unit', '执行单元测试', {}, {}, async args => {
     process.env.NODE_ENV = 'test'
     const jest = require('jest') as typeof import('jest')
