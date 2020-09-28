@@ -1,14 +1,11 @@
 import { Plugin } from '@mpflow/service'
 import path from 'path'
-// import type Automator from 'miniprogram-automator'
-
-// type PromiseResult<P extends Promise<any>> = P extends Promise<infer R> ? R : never
-
-// declare global {
-//   const miniProgram: PromiseResult<ReturnType<typeof Automator.connect>>
-// }
 
 const plugin: Plugin = (api, config) => {
+  if (!api.hasPlugin('@mpflow/plugin-babel')) {
+    throw new Error('@mpflow/plugin-typescript 需要安装 @mpflow/plugin-babel')
+  }
+
   api.registerCommand(
     'test:e2e',
     '执行集成测试',
