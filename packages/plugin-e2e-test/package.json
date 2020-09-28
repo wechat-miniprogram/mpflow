@@ -6,7 +6,7 @@
   "homepage": "",
   "license": "ISC",
   "main": "lib/index.js",
-  "type": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -37,6 +37,7 @@
     "@types/ws": "^7.2.6"
   },
   "peerDependencies": {
+    "@mpflow/plugin-babel": "*",
     "@mpflow/service": "*"
   }
 }

@@ -6,7 +6,7 @@
   "homepage": "",
   "license": "ISC",
   "main": "lib/index.js",
-  "type": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -34,6 +34,7 @@
     "miniprogram-simulate": "^1.2.7"
   },
   "peerDependencies": {
+    "@mpflow/plugin-babel": "*",
     "@mpflow/service": "*",
     "miniprogram-simulate": "^1.2.7"
   }
