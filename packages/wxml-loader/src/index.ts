@@ -135,7 +135,11 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
     const contentStr = typeof content === 'string' ? content : content.toString('utf8')
     const ast = parser.parse(this.resourcePath, contentStr)
 
-    const { messages } = await pluginRunner([importPlugin()]).process(ast)
+    const { messages } = await pluginRunner([importPlugin()]).process(ast, {
+      messages: [],
+      fs: this.fs,
+      context: this.context,
+    })
 
     const imports: PluginImportMessage['value'][] = []
     const childImports: PluginChildImportMessage['value'][] = []

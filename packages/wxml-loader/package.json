@@ -23,9 +23,10 @@
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
     "test": "jest ./test --config ../../jest.config.js",
-    "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
+    "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ../../jest.config.js --runInBand"
   },
   "dependencies": {
+    "fast-glob": "^3.2.4",
     "loader-utils": "^2.0.0",
     "schema-utils": "^2.7.0",
     "source-map": "0.6.1"

@@ -17,6 +17,15 @@ export interface PluginChildImportMessage {
   }
 }
 
+export interface PluginDeclareMessage {
+  pluginName: string
+  type: 'declare'
+  value: {
+    id: string
+    init: string
+  }
+}
+
 export interface PluginReplaceMessage {
   pluginName: string
   type: 'replacer'
@@ -27,10 +36,12 @@ export interface PluginReplaceMessage {
   }
 }
 
-export type PluginMessage = PluginImportMessage | PluginChildImportMessage | PluginReplaceMessage
+export type PluginMessage = PluginImportMessage | PluginChildImportMessage | PluginDeclareMessage | PluginReplaceMessage
 
 export interface PluginContext {
   messages: PluginMessage[]
+  fs: typeof import('fs')
+  context: string
 }
 
 export interface Plugin {

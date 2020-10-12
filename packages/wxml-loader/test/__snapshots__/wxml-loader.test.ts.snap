@@ -132,3 +132,26 @@ module.exports = {
 `;
 
 exports[`wxml-loader work with minimize: warnings 1`] = `Array []`;
+
+exports[`wxml-loader work with mustache: errors 1`] = `Array []`;
+
+exports[`wxml-loader work with mustache: exports 1`] = `
+Object {
+  "default": WxmlModule {
+    "exports": Array [
+      Array [
+        1,
+        "<wxs module=\\"$w0\\">module.exports={\\"./img/m-a.png\\":\\"m-a.31d6cfe0.png\\",\\"./img/m-b.png\\":\\"m-b.31d6cfe0.png\\"}</wxs><image src=\\"$w0[./img/m-{{id}}.png]\\"/>",
+        "a.wxml",
+        undefined,
+      ],
+    ],
+    "imported": Set {
+      1,
+    },
+    "url": "a.wxml",
+  },
+}
+`;
+
+exports[`wxml-loader work with mustache: warnings 1`] = `Array []`;

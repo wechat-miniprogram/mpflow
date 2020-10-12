@@ -444,21 +444,48 @@ export function parse(fileName: string, wxml: string): WxmlTree {
   return root.children
 }
 
+export interface WxmlPath {
+  node: WxmlNode
+  replace(node: WxmlNode): void
+  insertBefore(node: WxmlNode): void
+  insertAfter(node: WxmlNode): void
+}
+
+function getPath(parent: WxmlTree, index: number, node: WxmlNode): WxmlPath {
+  return {
+    node,
+    replace(node: WxmlNode) {
+      parent[index] = node
+    },
+    insertBefore(node: WxmlNode) {
+      parent.splice(index, 0, node)
+    },
+    insertAfter(node: WxmlNode) {
+      if (index < parent.length - 1) {
+        parent.splice(index + 1, 0, node)
+      } else {
+        parent.push(node)
+      }
+    },
+  }
+}
+
 /**
  * 遍历
  */
 export function walk(
   ast: WxmlTree,
   handler: {
-    begin?: (elem: WxmlNode) => void
-    end?: (elem: WxmlNode) => void
+    begin?: (path: WxmlPath) => void
+    end?: (path: WxmlPath) => void
   },
 ): void {
-  for (const elem of ast) {
-    handler.begin && handler.begin(elem)
-    if (elem.type === 'element') walk(elem.children, handler)
-    handler.end && handler.end(elem)
-  }
+  Array.from(ast).forEach((node, index) => {
+    const path = getPath(ast, index, node)
+    handler.begin && handler.begin(path)
+    if (node.type === 'element') walk(node.children, handler)
+    handler.end && handler.end(path)
+  })
 }
 
 /**
