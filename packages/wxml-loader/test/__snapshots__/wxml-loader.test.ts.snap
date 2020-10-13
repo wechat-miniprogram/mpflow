@@ -141,7 +141,7 @@ Object {
     "exports": Array [
       Array [
         1,
-        "<wxs module=\\"$w0\\">module.exports={\\"./img/m-a.png\\":\\"m-a.31d6cfe0.png\\",\\"./img/m-b.png\\":\\"m-b.31d6cfe0.png\\"}</wxs><image src=\\"$w0[./img/m-{{id}}.png]\\"/>",
+        "<wxs module=\\"___WXML_LOADER_WXS_0___\\">module.exports={\\"./img/m-a.png\\":\\"m-a.31d6cfe0.png\\",\\"./img/m-b.png\\":\\"m-b.31d6cfe0.png\\"}</wxs><image src=\\"{{___WXML_LOADER_WXS_0___['./img/m-'+id+'.png']}}\\"/>",
         "a.wxml",
         undefined,
       ],

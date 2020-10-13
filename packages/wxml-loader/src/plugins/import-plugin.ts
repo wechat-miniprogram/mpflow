@@ -188,23 +188,27 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
 
   const importsMap = new Map<string, string>()
   const replacementMap = new Map<string, string>()
-  const inlineReplacementMap = new Map<string, string>()
+  const mustacheImportsMap = new Map<string, string>()
+  // const inlineReplacementMap = new Map<string, string>()
   const wxsMap = new Map<string, string>()
 
   return (ast, context) => {
-    const getImportName = (importKey: string) => {
-      let importName = importsMap.get(importKey)
+    /**
+     * 增加一个 import 导入
+     */
+    const getImportName = (url: string) => {
+      let importName = importsMap.get(url)
 
       if (!importName) {
         importName = `___WXML_LOADER_IMPORT_${importsMap.size}___`
-        importsMap.set(importKey, importName)
+        importsMap.set(url, importName)
 
         context.messages.push({
           type: 'import',
           pluginName: PLUGIN_NAME,
           value: {
             importName,
-            url: importKey,
+            url: url,
           },
         })
       }
@@ -212,15 +216,87 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
       return importName
     }
 
-    const getWxsModuleName = (wxsKey: string) => {
-      let wxsModuleName = wxsMap.get(wxsKey)
+    /**
+     * 增加一个转换，将返回的 placeholder 插入到 wxml 中，最终会被替换为 target
+     * @param target
+     */
+    const getPlaceholderName = (target: string) => {
+      const replacementKey = target
+      let placeholderName = replacementMap.get(replacementKey)
+
+      if (!placeholderName) {
+        placeholderName = `___WXML_LOADER_PLACEHOLDER_${replacementMap.size}___`
+        const replacementName = `___WXML_LOADER_REPLACEMENT_${replacementMap.size}___`
+        replacementMap.set(replacementKey, placeholderName)
+
+        context.messages.push({
+          type: 'replacer',
+          pluginName: PLUGIN_NAME,
+          value: {
+            pattern: new RegExp(placeholderName, 'g'),
+            target,
+            replacementName,
+          },
+        })
+      }
+
+      return placeholderName
+    }
+
+    const getWxsModuleName = (path: parser.WxmlPath, content: string) => {
+      let wxsModuleName = wxsMap.get(content)
 
       if (!wxsModuleName) {
-        wxsModuleName = `$w${wxsMap.size}`
-        wxsMap.set(wxsKey, wxsModuleName)
+        wxsModuleName = `___WXML_LOADER_WXS_${wxsMap.size}___`
+        wxsMap.set(content, wxsModuleName)
+
+        path.insertBefore({
+          type: 'element',
+          tag: 'wxs',
+          attrs: [
+            {
+              name: 'module',
+              value: wxsModuleName,
+            },
+          ],
+          children: [
+            {
+              type: 'text',
+              raw: true,
+              text: content,
+            },
+          ],
+        })
       }
 
       return wxsModuleName
+    }
+
+    const getMustacheImportName = (wxmlPath: parser.WxmlPath, mustacheUrl: string) => {
+      let importName = mustacheImportsMap.get(mustacheUrl)
+
+      if (!importName) {
+        // 获取所有可能的文件路径
+        const importKeys = resolveMustacheUrl(context.fs, context.context, mustacheUrl).map(importUrl =>
+          urlToRequest(importUrl),
+        )
+        const importNames = importKeys
+          .map(importKey => `"${importKey}":exports.u(${getImportName(importKey)})`)
+          .join(',')
+
+        const placeholder = getPlaceholderName(`JSON.stringify({${importNames}})`)
+
+        const wxsModuleName = getWxsModuleName(wxmlPath, `module.exports=${placeholder}`)
+
+        let normalizedMustachUrl = path.normalize(mustacheUrl)
+        if (!['.', '/'].includes(normalizedMustachUrl[0])) normalizedMustachUrl = './' + normalizedMustachUrl
+
+        importName = JSON.stringify(
+          `{{${wxsModuleName}['${normalizedMustachUrl.replace(/\{\{/g, "'+").replace(/\}\}/g, "+'")}']}}`,
+        )
+      }
+
+      return importName
     }
 
     parser.walk(ast, {
@@ -239,102 +315,32 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
         const url = decodeURIComponent(attr.value)
         const isMustacheUrl = hasMustache(url)
 
-        let importKey = urlToRequest(url)
+        const importKey = urlToRequest(url)
         let importName: string
 
         if (isMustacheUrl) {
-          // 如果 url 中包含花括号，获取所有可能的文件路径
-          const importKeys = resolveMustacheUrl(context.fs, context.context, url).map(importUrl =>
-            urlToRequest(importUrl),
-          )
-          importName = importsMap.get(url)!
-
-          if (!importName) {
-            const importNames = importKeys
-              .map(importKey => `"${importKey}":exports.u(${getImportName(importKey)})`)
-              .join(',')
-
-            const replacementKey = importKey
-            let placeholderName = replacementMap.get(replacementKey)
-
-            if (!placeholderName) {
-              placeholderName = `___WXML_LOADER_WXS_PLACEHOLDER_${replacementMap.size}___`
-              const replacementName = `___WXML_LOADER_WXS_REPLACEMENT_${replacementMap.size}___`
-              replacementMap.set(replacementKey, placeholderName)
-
-              context.messages.push({
-                type: 'replacer',
-                pluginName: PLUGIN_NAME,
-                value: {
-                  pattern: new RegExp(placeholderName, 'g'),
-                  target: `JSON.stringify({${importNames}})`,
-                  replacementName,
-                },
-              })
-            }
-
-            const wxsModuleName = getWxsModuleName(importKey)
-
-            // 在当前 node 之前插入一个 <wxs> 标签用来存放文件路径 map 对象
-            path.insertBefore({
-              type: 'element',
-              tag: 'wxs',
-              attrs: [
-                {
-                  name: 'module',
-                  value: wxsModuleName,
-                },
-              ],
-              children: [
-                {
-                  type: 'text',
-                  raw: true,
-                  text: `module.exports=${placeholderName}`,
-                },
-              ],
-            })
-
-            importName = JSON.stringify(`${wxsModuleName}[${url}]`)
-            importsMap.set(importKey, importName)
-            importKey = `${wxsModuleName}[${url}]`
-          }
+          // 如果 url 中包含花括号
+          importName = getMustacheImportName(path, url)
         } else {
           // url 没有花括号，直接作为单个引用处理
           importName = getImportName(importKey)
+        }
 
-          if (option.importType === 'child') {
-            // 是否作为子组件导入
-            context.messages.push({
-              type: 'child-import',
-              pluginName: PLUGIN_NAME,
-              value: {
-                importName,
-              },
-            })
-          }
+        if (option.importType === 'child') {
+          // 是否作为子组件导入
+          context.messages.push({
+            type: 'child-import',
+            pluginName: PLUGIN_NAME,
+            value: {
+              importName,
+            },
+          })
         }
 
         if (option.importType === 'inline') {
           // 是否作为内联内容导入
 
-          const replacementKey = importKey
-          let placeholderName: string = inlineReplacementMap.get(replacementKey)!
-
-          if (!placeholderName) {
-            placeholderName = `___WXML_LOADER_INLINE_PLACEHOLDER_${inlineReplacementMap.size}___`
-            const replacementName = `___WXML_LOADER_INLINE_REPLACEMENT_${inlineReplacementMap.size}___`
-            inlineReplacementMap.set(replacementKey, placeholderName)
-
-            context.messages.push({
-              type: 'replacer',
-              pluginName: PLUGIN_NAME,
-              value: {
-                pattern: new RegExp(placeholderName, 'g'),
-                target: `exports.l(${importName},${isMustacheUrl})`,
-                replacementName,
-              },
-            })
-          }
+          const placeholderName = getPlaceholderName(`exports.l(${importName},${isMustacheUrl})`)
 
           // 将 ast 中的 content 替换
           node.children = [
@@ -348,24 +354,7 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
           node.attrs.splice(node.attrs.findIndex(elemAttr => elemAttr === attr))
         } else {
           // 普通导入
-          const replacementKey = importKey
-          let placeholderName = replacementMap.get(replacementKey)
-
-          if (!placeholderName) {
-            placeholderName = `___WXML_LOADER_PLACEHOLDER_${replacementMap.size}___`
-            const replacementName = `___WXML_LOADER_REPLACEMENT_${replacementMap.size}___`
-            replacementMap.set(replacementKey, placeholderName)
-
-            context.messages.push({
-              type: 'replacer',
-              pluginName: PLUGIN_NAME,
-              value: {
-                pattern: new RegExp(placeholderName, 'g'),
-                target: `exports.u(${importName},${isMustacheUrl})`,
-                replacementName,
-              },
-            })
-          }
+          const placeholderName = getPlaceholderName(`exports.u(${importName},${isMustacheUrl})`)
 
           // 将 ast 中的 src 替换
           attr.value = placeholderName
