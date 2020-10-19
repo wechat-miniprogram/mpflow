@@ -84,6 +84,7 @@ export interface Options {
   esModule?: boolean
   sourceMap?: boolean
   minimize?: boolean
+  resolveMustache?: boolean
 }
 
 const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
@@ -119,6 +120,10 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
             description: 'A filesystem path where the target file(s) will be placed',
             type: 'string',
           },
+          resolveMustache: {
+            description: 'Should transform mustache url to require',
+            type: 'boolean',
+          },
         },
       },
       options,
@@ -135,7 +140,11 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
     const contentStr = typeof content === 'string' ? content : content.toString('utf8')
     const ast = parser.parse(this.resourcePath, contentStr)
 
-    const { messages } = await pluginRunner([importPlugin()]).process(ast, {
+    const { messages } = await pluginRunner([
+      importPlugin({
+        resolveMustache: options.resolveMustache,
+      }),
+    ]).process(ast, {
       messages: [],
       fs: this.fs,
       context: this.context,

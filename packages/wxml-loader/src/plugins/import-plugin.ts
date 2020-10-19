@@ -162,9 +162,19 @@ const defaultImportAttributes: ImportAttributes[] = [
   },
 ]
 
+export interface ImportPluginOptions {
+  resolveMustache?: boolean
+  attributes?: ImportAttributes[]
+}
+
 const PLUGIN_NAME = 'wxml import plugin'
 
-export default function importPlugin(attributes: ImportAttributes[] = defaultImportAttributes): Plugin {
+export default function importPlugin(options: ImportPluginOptions = {}): Plugin {
+  const { attributes, resolveMustache } = {
+    attributes: defaultImportAttributes,
+    ...options,
+  }
+
   const tagAttrMap = new Map<string, Map<string, ImportAttributes>>()
 
   for (const item of attributes) {
@@ -314,6 +324,9 @@ export default function importPlugin(attributes: ImportAttributes[] = defaultImp
 
         const url = decodeURIComponent(attr.value)
         const isMustacheUrl = hasMustache(url)
+
+        // 跳过带 {{ }} 花括号的 url
+        if (!resolveMustache && isMustacheUrl) return
 
         const importKey = urlToRequest(url)
         let importName: string

@@ -133,9 +133,32 @@ module.exports = {
 
 exports[`wxml-loader work with minimize: warnings 1`] = `Array []`;
 
-exports[`wxml-loader work with mustache: errors 1`] = `Array []`;
+exports[`wxml-loader work with mustache disabled: errors 1`] = `Array []`;
 
-exports[`wxml-loader work with mustache: exports 1`] = `
+exports[`wxml-loader work with mustache disabled: exports 1`] = `
+Object {
+  "default": WxmlModule {
+    "exports": Array [
+      Array [
+        1,
+        "<image src=\\"img/m-{{id}}.png\\"/>",
+        "a.wxml",
+        undefined,
+      ],
+    ],
+    "imported": Set {
+      1,
+    },
+    "url": "a.wxml",
+  },
+}
+`;
+
+exports[`wxml-loader work with mustache disabled: warnings 1`] = `Array []`;
+
+exports[`wxml-loader work with mustache enabled: errors 1`] = `Array []`;
+
+exports[`wxml-loader work with mustache enabled: exports 1`] = `
 Object {
   "default": WxmlModule {
     "exports": Array [
@@ -154,4 +177,4 @@ Object {
 }
 `;
 
-exports[`wxml-loader work with mustache: warnings 1`] = `Array []`;
+exports[`wxml-loader work with mustache enabled: warnings 1`] = `Array []`;
