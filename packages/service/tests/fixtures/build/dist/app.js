@@ -1,4 +1,1 @@
-module.exports = require(/* runtime */"./_commons/runtime.js")
-([
-  require("./_commons/app.js"),
-]);
+var globalThis=this,self=this;module.exports=require("./_commons/0.js")([{ids:[1],modules:{0:function(s,e,o){s.exports=o(12)},12:function(s,e){App({onLaunch(){var s=wx.getStorageSync("logs")||[];s.unshift(Date.now()),wx.setStorageSync("logs",s),wx.login({success:s=>{}}),wx.getSetting({success:s=>{s.authSetting["scope.userInfo"]&&wx.getUserInfo({success:s=>{this.globalData.userInfo=s.userInfo,this.userInfoReadyCallback&&this.userInfoReadyCallback(s)}})}})},globalData:{userInfo:null}})},4:function(s,e,o){s.exports=o(0)}},entries:[[4,0]]}]);

@@ -26,9 +26,9 @@ class PluginMpflow extends ChainedPlugin {
 }
 
 const mpflow: Plugin = (api, config) => {
-  let emitProjectConfig = false
-
   api.configureWebpack(({ configure, hasConfig }) => {
+    let emitProjectConfig = hasConfig('app') || hasConfig('plugin')
+
     configure(webpackConfig => {
       webpackConfig.plugins
         .getOrCompute('mpflow', () => new PluginMpflow(webpackConfig, 'mpflow') as any)
@@ -38,7 +38,7 @@ const mpflow: Plugin = (api, config) => {
         mpflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src'))
 
         // 找一个 webpack 生成 project.config.json
-        if (!emitProjectConfig) {
+        if (emitProjectConfig) {
           mpflowConfig.program
             .appId(config.appId)
             .outputPath(
@@ -54,7 +54,7 @@ const mpflow: Plugin = (api, config) => {
             .pluginRoot(config.pluginRoot)
             .settings(config.settings)
 
-          emitProjectConfig = true
+          emitProjectConfig = false
         }
 
         return [mpflowConfig]

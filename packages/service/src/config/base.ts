@@ -9,7 +9,9 @@ const base: Plugin = (api, config) => {
     const pages = typeof config.pages === 'function' ? config.pages(mode) : config.pages
     const libs = typeof config.libs === 'function' ? config.libs(mode) : config.libs
 
-    const sourceMap = typeof config.sourceMap === 'function' ? config.sourceMap(mode) : config.sourceMap ?? true
+    const sourceMap = (sourceMap => (typeof sourceMap === 'function' ? sourceMap(mode) : sourceMap))(
+      config.sourceMap ?? true,
+    )
     const minimize = (minimize => (typeof minimize === 'function' ? minimize(mode) : minimize))(
       config.minimize ?? ((mode: string) => mode === 'production'),
     )
@@ -81,13 +83,10 @@ const base: Plugin = (api, config) => {
       webpackConfig.resolve.extensions.add('.js').add('.json')
 
       webpackConfig.module
-        .rule('json-type')
-        .test(/\.json$/)
-        .type('javascript/auto')
-
-      webpackConfig.module
         .rule('json')
         .test(/\.json$/)
+        .type('javascript/auto')
+        .pre()
         .use('json')
         .loader(require.resolve('json-loader'))
 

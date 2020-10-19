@@ -1,4 +1,1 @@
-module.exports = require(/* runtime */"../../_commons/runtime.js")
-([
-  require("../../_commons/1.js"),
-]);
+var globalThis=this,self=this;module.exports=require("../../_commons/0.js")([{ids:[3],modules:{1:function(o,s,n){o.exports=n(22)},22:function(o,s){const n=getApp();Page({data:{motto:"Hello World",userInfo:{},hasUserInfo:!1,canIUse:wx.canIUse("button.open-type.getUserInfo")},bindViewTap:function(){wx.navigateTo({url:"../logs/logs"})},onLoad:function(){n.globalData.userInfo?this.setData({userInfo:n.globalData.userInfo,hasUserInfo:!0}):this.data.canIUse?n.userInfoReadyCallback=o=>{this.setData({userInfo:o.userInfo,hasUserInfo:!0})}:wx.getUserInfo({success:o=>{n.globalData.userInfo=o.userInfo,this.setData({userInfo:o.userInfo,hasUserInfo:!0})}})},getUserInfo:function(o){console.log(o),n.globalData.userInfo=o.detail.userInfo,this.setData({userInfo:o.detail.userInfo,hasUserInfo:!0})},onInput(o){console.log("onInput",o)},onChange(o){console.log("onChange",o)},onBlur(o){console.log("onBlur",o)},onAutofill(o){console.log("onAutofill",o)}})}},entries:[[1,0]]}]);

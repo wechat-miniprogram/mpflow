@@ -3,8 +3,8 @@
 	"compileType": "miniprogram",
 	"appid": "wx123",
   "projectname": "",
-  
-  
-  
-	"simulatorType": "wechat"
+  "simulatorType": "wechat",
+  "setting": {},
+	"simulatorPluginLibVersion": {},
+	"condition": {}
 }

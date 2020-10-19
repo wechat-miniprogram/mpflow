@@ -1,4 +1,1 @@
-module.exports = require(/* runtime */"../../_commons/runtime.js")
-([
-  require("../../_commons/3.js"),
-]);
+var globalThis=this,self=this;module.exports=require("../../_commons/0.js")([{ids:[4],modules:{3:function(t,e,o){t.exports=o(35)},35:function(t,e,o){const n=o(36);Page({data:{logs:[]},onLoad:function(){this.setData({logs:(wx.getStorageSync("logs")||[]).map(t=>n.formatTime(new Date(t)))})}})},36:function(t,e){const o=t=>(t=t.toString())[1]?t:"0"+t;t.exports={formatTime:t=>{const e=t.getFullYear(),n=t.getMonth()+1,s=t.getDate(),a=t.getHours(),i=t.getMinutes(),r=t.getSeconds();return[e,n,s].map(o).join("/")+" "+[a,i,r].map(o).join(":")}}}},entries:[[3,0]]}]);
