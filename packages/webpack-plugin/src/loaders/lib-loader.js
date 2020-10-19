@@ -3,6 +3,7 @@ import path from 'path'
 import { asyncLoaderWrapper, markAsExternal } from '../utils'
 
 /**
+ * lib-loader 用于生成独立于小程序/插件的 js 入口
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function (remainRequest) {

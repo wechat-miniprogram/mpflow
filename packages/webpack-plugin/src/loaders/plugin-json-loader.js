@@ -1,17 +1,19 @@
 import { getOptions } from 'loader-utils'
-import { pageLoader } from './index'
+import path from 'path'
 import {
   addExternal,
   asyncLoaderWrapper,
-  getPageOutputPath,
+  evalModuleBundleCode,
   getMpflowLoaders,
+  getPageOutputPath,
   isRequest,
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import path from 'path'
+import { pageLoader } from './index'
 
 /**
+ * plugin-loader 用于读取 plugin.json 的文件内容，并收集其中的依赖
  * @type {import('webpack').loader.Loader}
  */
 export default asyncLoaderWrapper(async function (source) {
@@ -20,7 +22,7 @@ export default asyncLoaderWrapper(async function (source) {
 
   this.cacheable(false) // 由于需要 addEntry 所以不能缓存
 
-  const moduleContent = JSON.parse(source)
+  const { exports: moduleContent } = await evalModuleBundleCode(this, source, this.resource)
 
   if (moduleContent.publicComponents || moduleContent.pages) {
     // 对 plugin.json 中读取到的 publicComponents 和 pages 分别设立为入口
@@ -72,9 +74,7 @@ export default asyncLoaderWrapper(async function (source) {
       'main',
       'main',
     )
-
-    moduleContent.main = 'main.js'
   }
 
-  return JSON.stringify(moduleContent, null, 2)
+  return '//'
 })

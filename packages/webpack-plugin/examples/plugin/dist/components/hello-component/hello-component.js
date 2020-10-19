@@ -84,12 +84,12 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 10:
+/***/ 12:
 /***/ (function(module, exports) {
 
 // plugin/components/hello-component/hello-component.js
@@ -114,10 +114,10 @@ Component({
 
 /***/ }),
 
-/***/ 3:
+/***/ 4:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(10)
+module.exports = __webpack_require__(12)
 
 /***/ })
 

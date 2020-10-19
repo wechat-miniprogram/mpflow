@@ -7,13 +7,14 @@ const PLUGIN_NAME = 'Mpflow Loader Rules Plugin'
  */
 class LoaderRulesPlugin {
   constructor(options = {}) {
-    const { sitemap, page, json, javascript, wxml, wxss } = {
+    const { sitemap, page, json, javascript, wxml, wxss, icon } = {
       sitemap: [],
       page: [],
       json: [],
       javascript: [],
       wxml: [],
       wxss: [],
+      icon: [],
       ...options,
     }
 
@@ -24,6 +25,7 @@ class LoaderRulesPlugin {
       javascript: new RuleSet(javascript),
       wxml: new RuleSet(wxml),
       wxss: new RuleSet(wxss),
+      icon: new RuleSet(icon),
     }
   }
 

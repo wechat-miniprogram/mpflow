@@ -11,6 +11,7 @@ declare namespace MpflowPlugin {
     javascript: ResolveChain<ResolveConfigChain<T>>
     wxml: ResolveChain<ResolveConfigChain<T>>
     wxss: ResolveChain<ResolveConfigChain<T>>
+    icon: ResolveChain<ResolveConfigChain<T>>
   }
 
   class RulesConfigChain<T> extends ChainedMap<T> {
@@ -20,6 +21,7 @@ declare namespace MpflowPlugin {
     javascript(name: string): RuleChain<RulesConfigChain<T>>
     wxml(name: string): RuleChain<RulesConfigChain<T>>
     wxss(name: string): RuleChain<RulesConfigChain<T>>
+    icon(name: string): RuleChain<RulesConfigChain<T>>
   }
 
   class ProgramConfigChain<T> extends ChainedMap<T> {

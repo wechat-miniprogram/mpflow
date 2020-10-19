@@ -8,7 +8,7 @@ import {
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import { appJsonLoader, assetLoader, extJsonLoader, stubLoader } from './index'
+import { appJsonLoader, appJsonRawLoader, assetLoader, extJsonLoader, extJsonRawLoader, stubLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -53,6 +53,27 @@ export const pitch = asyncLoaderWrapper(async function () {
     // 加载第三方平台代开发小程序的 ext.json
     const extJsonRequest = await resolveWithType(this, 'miniprogram/json', 'ext')
 
+    // 用 ext-json-loader 解析 ext.json 中的依赖
+    addDependency(
+      this,
+      stringifyResource(
+        extJsonRequest,
+        [
+          {
+            loader: extJsonLoader,
+            options: {
+              appContext: appContext,
+            },
+          },
+          ...getMpflowLoaders(this, extJsonRequest, 'json'),
+        ],
+        {
+          disabled: 'normal',
+        },
+      ),
+    )
+
+    // 用 ext-json-raw-loader 获取最终的 ext.json
     addDependency(
       this,
       stringifyResource(
@@ -66,10 +87,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             },
           },
           {
-            loader: extJsonLoader,
-            options: {
-              appContext: appContext,
-            },
+            loader: extJsonRawLoader,
           },
           ...getMpflowLoaders(this, extJsonRequest, 'json'),
         ],
@@ -85,7 +103,27 @@ export const pitch = asyncLoaderWrapper(async function () {
   // 加载 json
   const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
 
-  // 用 app-json-loader 解析 app.json 中的依赖, 并提取输出
+  // 用 app-json-loader 解析 app.json 中的依赖
+  addDependency(
+    this,
+    stringifyResource(
+      jsonRequest,
+      [
+        {
+          loader: appJsonLoader,
+          options: {
+            appContext: appContext,
+          },
+        },
+        ...getMpflowLoaders(this, jsonRequest, 'json'),
+      ],
+      {
+        disabled: 'normal',
+      },
+    ),
+  )
+
+  // 用 app-json-raw-loader 获取最终的 app.json
   addDependency(
     this,
     stringifyResource(
@@ -99,10 +137,7 @@ export const pitch = asyncLoaderWrapper(async function () {
           },
         },
         {
-          loader: appJsonLoader,
-          options: {
-            appContext: appContext,
-          },
+          loader: appJsonRawLoader,
         },
         ...getMpflowLoaders(this, jsonRequest, 'json'),
       ],

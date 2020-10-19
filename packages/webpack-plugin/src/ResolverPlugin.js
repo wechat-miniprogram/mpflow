@@ -123,6 +123,23 @@ class MpflowResolverPlugin {
           resolveOptions,
         ),
       }))
+
+      /**
+       * 注册 icon 查找
+       */
+      compiler.resolverFactory.hooks.resolveOptions.for('miniprogram/icon').tap(PLUGIN_NAME, resolveOptions => ({
+        fileSystem: compiler.inputFileSystem,
+        ...deepMerge(
+          compiler.resolverFactory.hooks.resolveOptions.for('normal').call({}),
+          {
+            plugins: [
+              new MiniprogramResolverPlugin({ moduleToRelative: true, roots: this.options.roots, usePkgField: true }),
+            ],
+          },
+          this.options.icon || {},
+          resolveOptions,
+        ),
+      }))
     })
   }
 }

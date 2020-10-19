@@ -84,20 +84,25 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 22);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 22:
+/***/ 0:
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(6)
+
+/***/ }),
+
+/***/ 6:
 /***/ (function(module, exports) {
 
-module.exports = {
-  sayHello: function () {
-    console.log('Hello plugin!')
-  },
-  answer: 42,
-}
+//app.js
+App({
+
+})
 
 
 /***/ })

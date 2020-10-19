@@ -1,15 +1,16 @@
 import { getOptions } from 'loader-utils'
 import path from 'path'
-import { pageLoader } from './index'
 import {
   addExternal,
   asyncLoaderWrapper,
-  getPageOutputPath,
+  evalModuleBundleCode,
   getMpflowLoaders,
+  getPageOutputPath,
   isRequest,
   resolveWithType,
   stringifyResource,
 } from '../utils'
+import { pageLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -30,7 +31,7 @@ export default asyncLoaderWrapper(async function (source) {
       this.resourcePath,
     )
 
-  const moduleContent = JSON.parse(source)
+  const { exports: moduleContent } = await evalModuleBundleCode(this, source, this.resource)
 
   if (moduleContent.usingComponents) {
     // 对 comp.json 中读取到的 usingComponents 分别设立为入口
@@ -69,5 +70,5 @@ export default asyncLoaderWrapper(async function (source) {
     }
   }
 
-  return JSON.stringify(moduleContent, null, 2)
+  return '//'
 })

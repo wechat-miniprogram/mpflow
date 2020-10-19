@@ -16,6 +16,7 @@ class ResolveConfig extends ChainedMap {
     this.javascript = new Resolve(this)
     this.wxml = new Resolve(this)
     this.wxss = new Resolve(this)
+    this.icon = new Resolve(this)
   }
 
   toConfig() {
@@ -28,6 +29,7 @@ class ResolveConfig extends ChainedMap {
       javascript: this.javascript.toConfig(),
       wxml: this.wxml.toConfig(),
       wxss: this.wxss.toConfig(),
+      icon: this.icon.toConfig(),
     })
   }
 }
@@ -42,6 +44,7 @@ class RulesConfig extends ChainedMap {
     this.javascriptRules = this.setupRules('javascript', this)
     this.wxmlRules = this.setupRules('wxml', this)
     this.wxssRules = this.setupRules('wxss', this)
+    this.iconRules = this.setupRules('icon', this)
   }
 
   setupRules(field, parent) {
@@ -59,6 +62,7 @@ class RulesConfig extends ChainedMap {
       javascript: this.javascriptRules.values().map(r => r.toConfig()),
       wxml: this.wxmlRules.values().map(r => r.toConfig()),
       wxss: this.wxssRules.values().map(r => r.toConfig()),
+      icon: this.iconRules.values().map(r => r.toConfig()),
     })
   }
 }

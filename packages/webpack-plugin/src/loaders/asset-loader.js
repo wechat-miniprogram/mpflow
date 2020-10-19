@@ -20,7 +20,10 @@ export default asyncLoaderWrapper(async function (source) {
     }
     case 'miniprogram/json': {
       const identifier = this._module.identifier()
-      this._module.addDependency(new AssetDependency(type, identifier, this.context, source, outputPath))
+      const { exports: moduleContent } = await evalModuleBundleCode(this, source, this.request)
+      this._module.addDependency(
+        new AssetDependency(type, identifier, this.context, JSON.stringify(moduleContent, null, 2), outputPath),
+      )
       break
     }
     case 'miniprogram/wxml': {

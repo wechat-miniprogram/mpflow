@@ -6,11 +6,12 @@ import {
   getMpflowLoaders,
   markAsExternal,
   resolveWithType,
-  stringifyResource
+  stringifyResource,
 } from '../utils'
-import { assetLoader, pluginJsonLoader } from './index'
+import { assetLoader, pluginJsonLoader, pluginJsonRawLoader } from './index'
 
 /**
+ * plugin-loader 用于导入插件入口
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
@@ -25,7 +26,28 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   // 加载 json
   const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
+
   // 用 plugin-json-loader 解析 plugin.json 中的依赖
+  addDependency(
+    this,
+    stringifyResource(
+      jsonRequest,
+      [
+        {
+          loader: pluginJsonLoader,
+          options: {
+            appContext,
+          },
+        },
+        ...getMpflowLoaders(this, jsonRequest, 'json'),
+      ],
+      {
+        disabled: 'normal',
+      },
+    ),
+  )
+
+  // 用 plugin-json-raw-loader 获取最终 plugin.json
   addDependency(
     this,
     stringifyResource(
@@ -39,10 +61,7 @@ export const pitch = asyncLoaderWrapper(async function () {
           },
         },
         {
-          loader: pluginJsonLoader,
-          options: {
-            appContext,
-          },
+          loader: pluginJsonRawLoader,
         },
         ...getMpflowLoaders(this, jsonRequest, 'json'),
       ],

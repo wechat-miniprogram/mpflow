@@ -1,24 +1,29 @@
 import { getOptions } from 'loader-utils'
-import { assetLoader, pageLoader } from './index'
+import path from 'path'
 import {
   addDependency,
   addExternal,
   asyncLoaderWrapper,
-  getPageOutputPath,
+  evalModuleBundleCode,
   getMpflowLoaders,
+  getPageOutputPath,
   isRequest,
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import path from 'path'
+import { assetLoader, pageLoader } from './index'
 
+/**
+ * app-json-loader 用于读取 app.json 的文件内容，并收集其中的依赖
+ * 不负责生成最终的 app.json 文件
+ */
 export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable(false) // 由于需要 addEntry 所以不能缓存
 
-  const moduleContent = JSON.parse(source)
+  const { exports: moduleContent } = await evalModuleBundleCode(this, source, this.resource)
 
   if (Array.isArray(moduleContent.pages)) {
     // 对 app.json 中读取到的 pages 分别设立为入口
@@ -172,6 +177,9 @@ export default asyncLoaderWrapper(async function (source) {
               outputPath: 'theme.json',
             },
           },
+          {
+            loader: require.resolve('json-loader'),
+          },
           ...getMpflowLoaders(this, resolvedThemeRequest, 'json'),
         ],
         {
@@ -183,5 +191,5 @@ export default asyncLoaderWrapper(async function (source) {
     moduleContent.themeLocation = 'theme.json'
   }
 
-  return JSON.stringify(moduleContent, null, 2)
+  return '//'
 })

@@ -29,6 +29,12 @@ module.exports = {
       {
         test: /\.json$/,
         type: 'javascript/auto',
+        enforce: 'pre',
+        use: [
+          {
+            loader: 'json-loader',
+          },
+        ],
       },
       {
         test: /\.wxss$/,

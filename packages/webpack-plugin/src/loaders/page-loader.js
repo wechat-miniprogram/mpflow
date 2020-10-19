@@ -9,7 +9,7 @@ import {
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import { assetLoader, pageJsonLoader, stubLoader } from './index'
+import { assetLoader, pageJsonLoader, pageJsonRawLoader, stubLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -82,7 +82,29 @@ export const pitch = asyncLoaderWrapper(async function () {
   // 加载 json
   try {
     const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)
-    // 用 page-json-loader 解析 page.json 中的依赖, 并提取输出
+
+    // 用 page-json-loader 解析 page.json 中的依赖
+    addDependency(
+      this,
+      stringifyResource(
+        jsonRequest,
+        [
+          {
+            loader: pageJsonLoader,
+            options: {
+              appContext,
+              outputPath,
+            },
+          },
+          ...getMpflowLoaders(this, jsonRequest, 'json'),
+        ],
+        {
+          disabled: 'normal',
+        },
+      ),
+    )
+
+    // 用 page-json-raw-loader 获取最终的 page.json
     addDependency(
       this,
       stringifyResource(
@@ -96,11 +118,7 @@ export const pitch = asyncLoaderWrapper(async function () {
             },
           },
           {
-            loader: pageJsonLoader,
-            options: {
-              appContext,
-              outputPath,
-            },
+            loader: pageJsonRawLoader,
           },
           ...getMpflowLoaders(this, jsonRequest, 'json'),
         ],
