@@ -14,7 +14,6 @@ const plugin: Plugin = (api, config) => {
         .loader(require.resolve('babel-loader'))
         .options({
           cacheDirectory: true,
-          configFile: api.resolve('babel.config.js'),
         })
     })
   })
