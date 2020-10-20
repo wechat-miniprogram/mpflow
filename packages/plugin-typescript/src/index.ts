@@ -11,9 +11,7 @@ const plugin: Plugin = (api, config) => {
     configure(webpackConfig => {
       webpackConfig.resolve.extensions.prepend('.ts').prepend('.tsx')
 
-      webpackConfig.resolve
-        .plugin('tsconfig-paths')
-        .use(require('tsconfig-paths-webpack-plugin'), [{ configFile: api.resolve('tsconfig.json') }])
+      webpackConfig.resolve.plugin('tsconfig-paths').use(require('tsconfig-paths-webpack-plugin'), [{}])
 
       webpackConfig.module
         .rule('ts')
