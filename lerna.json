@@ -5,10 +5,8 @@
   "command": {
     "version": {
       "conventionalCommits": true,
-      "noPrivate": true
-    },
-    "publish": {
-      "message": "chore: publish %s"
+      "noPrivate": true,
+      "message": "chore(release): publish %s"
     }
   },
   "ignoreChanges": ["**/*.md"],

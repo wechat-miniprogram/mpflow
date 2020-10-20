@@ -3,6 +3,7 @@ const { pathsToModuleNameMapper } = require('ts-jest/utils')
 module.exports = {
   rootDir: process.cwd(),
   testMatch: ['**/*.test.{js,ts}'],
+  testEnvironment: 'node',
   transform: {
     '^.+\\.(j|t)s$': ['babel-jest', { configFile: require.resolve('./babel.config.js') }],
     // "^.+\\.ts$": "babel-jest",
