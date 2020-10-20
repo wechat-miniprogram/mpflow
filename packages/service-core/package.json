@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@codemod/matchers": "^1.0.11",
+    "chalk": "^4.1.0",
     "yargs": "^15.4.1"
   }
 }

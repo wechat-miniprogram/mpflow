@@ -122,6 +122,7 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
     builder: (args: Argv<any>) => Argv<any>,
     handler: (args: any) => void,
   ): void {
+    const chalk = require('chalk') as typeof import('chalk')
     this.program.command({
       command,
       describe,
@@ -130,7 +131,7 @@ export abstract class Runner<P = Plugin> extends BaseService<P> {
           try {
             await handler(args as any)
           } catch (e) {
-            console.error(e)
+            console.error(chalk.red(e))
             process.exit(1)
           } finally {
             this._commandPromise = null
