@@ -6,7 +6,7 @@
     "version": {
       "conventionalCommits": true,
       "noPrivate": true,
-      "message": "chore(release): publish %s"
+      "message": "chore: publish %s"
     }
   },
   "ignoreChanges": ["**/*.md"],
