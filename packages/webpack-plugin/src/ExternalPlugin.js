@@ -25,7 +25,7 @@ function filterMapValues(map, filter) {
 }
 
 function getRelativePath(outputPath, file) {
-  let relativePath = path.relative(path.dirname(outputPath), file)
+  let relativePath = path.relative(path.dirname(outputPath), file).replace(/\\/g, '/')
   if (relativePath[0] !== '.') relativePath = './' + relativePath
   return JSON.stringify(relativePath)
 }
