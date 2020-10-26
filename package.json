@@ -13,9 +13,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://git.code.oa.com/wxweb/mpflow.git"
+    "url": "http://github.com/wechat-miniprogram/mpflow.git"
   },
-  "author": "jimmytian",
+  "author": "wechat-miniprogram",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.10.3",

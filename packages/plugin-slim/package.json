@@ -4,7 +4,7 @@
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
   "homepage": "",
-  "license": "ISC",
+  "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "directories": {
@@ -17,7 +17,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@git.code.oa.com:wxweb/weflow.git"
+    "url": "git@github.com:wechat-miniprogram/weflow.git"
   },
   "scripts": {
     "build": "node ../../scripts/build",

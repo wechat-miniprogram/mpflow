@@ -5,14 +5,14 @@
   "description": "> TODO: description",
   "author": "chyizheng <chyizheng@tencent.com>",
   "homepage": "",
-  "license": "ISC",
+  "license": "MIT",
   "main": "src/index.ts",
   "directories": {
     "lib": "src"
   },
   "repository": {
     "type": "git",
-    "url": "git@git.code.oa.com:wxweb/mpflow.git"
+    "url": "git@github.com:wechat-miniprogram/mpflow.git"
   },
   "scripts": {},
   "devDependencies": {
