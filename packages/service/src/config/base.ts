@@ -6,7 +6,14 @@ const base: Plugin = (api, config) => {
   api.configureWebpack(({ addConfig, configure }, mode) => {
     const app = typeof config.app === 'function' ? config.app(mode) : config.app
     const plugin = typeof config.plugin === 'function' ? config.plugin(mode) : config.plugin
-    const pages = typeof config.pages === 'function' ? config.pages(mode) : config.pages
+    const pages = (pages =>
+      Array.isArray(pages)
+        ? pages.reduce((pages, pageEntry) => {
+            const basename = path.basename(pageEntry, path.extname(pageEntry))
+            pages[basename] = pageEntry
+            return pages
+          }, {} as Record<string, string>)
+        : pages)(typeof config.pages === 'function' ? config.pages(mode) : config.pages)
     const libs = typeof config.libs === 'function' ? config.libs(mode) : config.libs
 
     const sourceMap = (sourceMap => (typeof sourceMap === 'function' ? sourceMap(mode) : sourceMap))(
@@ -45,15 +52,15 @@ const base: Plugin = (api, config) => {
       })
     }
 
-    if (pages && pages.length) {
+    if (pages) {
       addConfig('pages', webpackConfig => {
-        pages.forEach(pageEntry => {
-          const basename = path.basename(pageEntry, path.extname(pageEntry))
+        Object.keys(pages).forEach(pageName => {
+          const pageEntry = pages[pageName]
 
           webpackConfig
             .name('pages')
-            .entry(basename)
-            .add(`${MpflowPlugin.pageLoader}!${api.resolve(pageEntry)}`)
+            .entry(pageName)
+            .add(`${MpflowPlugin.pageLoader}?outputPath=${encodeURIComponent(pageName)}!${api.resolve(pageEntry)}`)
             .end()
 
           webpackConfig.output.path(outputPath)
@@ -140,7 +147,7 @@ const base: Plugin = (api, config) => {
         .runtimeChunk('single')
         .splitChunks({
           chunks: 'all',
-          minSize: 1000,
+          minSize: 0,
           maxSize: 0,
           minChunks: 1,
           maxAsyncRequests: 100,

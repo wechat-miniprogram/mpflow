@@ -55,7 +55,7 @@ export interface MpflowConfig {
   /**
    * 打包 page 路径
    */
-  pages?: string[] | ((mode: string) => string[])
+  pages?: string[] | Record<string, string> | ((mode: string) => string[] | Record<string, string>)
   /**
    * 打包 js 文件路径
    */
