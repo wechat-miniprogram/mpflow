@@ -14,6 +14,7 @@ const plugin: Plugin = (api, config) => {
         .loader(require.resolve('babel-loader'))
         .options({
           cacheDirectory: true,
+          rootMode: 'upward-optional',
         })
     })
   })
