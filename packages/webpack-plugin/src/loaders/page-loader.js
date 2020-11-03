@@ -45,6 +45,7 @@ export const pitch = asyncLoaderWrapper(async function () {
           options: {
             type: 'miniprogram/wxml',
             outputDir: path.dirname(outputPath),
+            outputPath: `${outputPath}.wxml`,
           },
         },
         ...getMpflowLoaders(this, wxmlRequest, 'wxml'),

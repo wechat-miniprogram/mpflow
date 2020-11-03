@@ -11,8 +11,11 @@ export default asyncLoaderWrapper(async function (source) {
 
   switch (type) {
     case 'miniprogram/wxss': {
-      const { exports: moduleContent, compilation } = await evalModuleBundleCode(this, source, this.request)
-      moduleContent.exports.forEach(([moduleId, content, sourceMap]) => {
+      const {
+        exports: { exports },
+        compilation,
+      } = await evalModuleBundleCode(this, source, this.request)
+      exports.forEach(([moduleId, content, sourceMap]) => {
         const identifier = getModuleIdentifier(compilation, moduleId)
         this._module.addDependency(new AssetDependency(type, identifier, this.context, content, outputPath, sourceMap))
       })
@@ -27,11 +30,23 @@ export default asyncLoaderWrapper(async function (source) {
       break
     }
     case 'miniprogram/wxml': {
-      const { exports: moduleContent, compilation } = await evalModuleBundleCode(this, source, this.request)
-      moduleContent.exports.forEach(([moduleId, content, url, sourceMap]) => {
+      const {
+        exports: { exports },
+        compilation,
+      } = await evalModuleBundleCode(this, source, this.request)
+      exports.forEach(([moduleId, content, url, sourceMap], index) => {
         const identifier = getModuleIdentifier(compilation, moduleId)
         this._module.addDependency(
-          new AssetDependency(type, identifier, this.context, content, path.join(outputDir, url), sourceMap),
+          new AssetDependency(
+            type,
+            identifier,
+            this.context,
+            content,
+            index === exports.length - 1 // 列表最后一个是最顶层 wxml, 直接使用 outputPath
+              ? outputPath
+              : path.join(outputDir, url),
+            sourceMap,
+          ),
         )
       })
       break
