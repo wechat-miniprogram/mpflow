@@ -7,6 +7,10 @@
 - 通过插件提供开箱即用的 Babel, Typescript, Less, 单元测试, e2e 测试 等能力
 - 与小程序开发者工具深度结合 (TODO)
 
+## 文档
+
+[在线文档](https://wechat-miniprogram.github.io/mpflow/docs/)
+
 ## 起步
 
 ### 安装
@@ -80,76 +84,78 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 
 1. #### 为项目添加 `@mpflow/service` 依赖
 
-    直接在项目下执行
+   直接在项目下执行
 
-    ```bash
-    npm install @mpflow/service --save-dev
-    # 或
-    yarn add @mpflow/service --dev
-    ```
+   ```bash
+   npm install @mpflow/service --save-dev
+   # 或
+   yarn add @mpflow/service --dev
+   ```
 
 1. #### 将项目源码都转移到 `src` 目录下
 
-    一个比较典型的小程序目录结构会类似：
-    ```
-    node_modules/
-    miniprogram_npm/
-    components/
-    -- comp/
-      -- comp.js
-      -- comp.json
-      -- comp.wxml
-      -- comp.wxss
-    pages/
-    -- index/
-      -- index.js
-      -- index.json
-      -- index.wxml
-      -- index.wxss
-    app.js
-    app.wxss
-    app.json
-    project.config.json
-    package.json
-    ```
+   一个比较典型的小程序目录结构会类似：
 
-    mpflow 为了更方便地管理源码和产物，会要求将项目源码以及图片视频等静态资源，都放置到 `src` 目录下。迁移后的目录结构会类似：
+   ```
+   node_modules/
+   miniprogram_npm/
+   components/
+   -- comp/
+     -- comp.js
+     -- comp.json
+     -- comp.wxml
+     -- comp.wxss
+   pages/
+   -- index/
+     -- index.js
+     -- index.json
+     -- index.wxml
+     -- index.wxss
+   app.js
+   app.wxss
+   app.json
+   project.config.json
+   package.json
+   ```
 
-    ```
-    node_modules/
-    src/
-    -- components/
-    -- pages/
-    -- app.js
-    -- app.wxss
-    -- app.json
-    project.config.json
-    package.json
-    ```
+   mpflow 为了更方便地管理源码和产物，会要求将项目源码以及图片视频等静态资源，都放置到 `src` 目录下。迁移后的目录结构会类似：
 
-    > miniprogram_npm 目录直接删除即可
+   ```
+   node_modules/
+   src/
+   -- components/
+   -- pages/
+   -- app.js
+   -- app.wxss
+   -- app.json
+   project.config.json
+   package.json
+   ```
+
+   > miniprogram_npm 目录直接删除即可
 
 1. #### 在项目根目录创建一个 `mpflow.config.js`
 
-    `mpflow.config.js` 是 mpflow 的配置文件，原生小程序项目可以直接根据 project.config.json 来迁移。
+   `mpflow.config.js` 是 mpflow 的配置文件，原生小程序项目可以直接根据 project.config.json 来迁移。
 
-    需要在 `mpflow.config.js` 中填写的内容参考：
+   需要在 `mpflow.config.js` 中填写的内容参考：
 
-    ```javascript
-    module.exports = {
-      appId: 'hello-miniprogram', // 填写项目名称，与 project.config.json 中的 projectname 相同即可
-      app: 'src/app', // 小程序 app 入口路径，为按上述步骤迁移后的 app.js 所在位置相对项目根目录的路径
-      compileType: 'miniprogram', // 小程序项目类型，与 project.config.json 中的 compileType 相同即可
-      plugins: [], // 插件列表，留空
-      settings: { // 项目配置，与 project.config.json 中的 settings 相同即可
-        es6: false,
-      }
-    }
-    ```
+   ```javascript
+   module.exports = {
+     appId: 'hello-miniprogram', // 填写项目名称，与 project.config.json 中的 projectname 相同即可
+     app: 'src/app', // 小程序 app 入口路径，为按上述步骤迁移后的 app.js 所在位置相对项目根目录的路径
+     compileType: 'miniprogram', // 小程序项目类型，与 project.config.json 中的 compileType 相同即可
+     plugins: [], // 插件列表，留空
+     settings: {
+       // 项目配置，与 project.config.json 中的 settings 相同即可
+       es6: false,
+     },
+   }
+   ```
 
 1. #### 测试项目构建
 
-    之后即可用命令 `mpflow build` 尝试构建小程序
+   之后即可用命令 `mpflow build` 尝试构建小程序
 
 ## Packages
 
