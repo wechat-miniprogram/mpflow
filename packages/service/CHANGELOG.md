@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.16](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.15...@mpflow/service@0.0.16) (2020-11-12)
+
+### Features
+
+- **service:** 支持 pages 配置导出路径 ([855738f](https://github.com/wechat-miniprogram/mpflow/commit/855738f8a445fe0a841e1cfb352eda3ec1b9dad4))
+
 ## [0.0.15](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.14...@mpflow/service@0.0.15) (2020-10-20)
 
 **Note:** Version bump only for package @mpflow/service
