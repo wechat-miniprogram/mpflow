@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.14](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.12...@mpflow/webpack-plugin@0.0.14) (2020-11-12)
+
+### Bug Fixes
+
+- **webpack-plugin:** support private api ([3e8244a](https://github.com/wechat-miniprogram/mpflow/commit/3e8244a4dfa2395bffffa369129357340e92ad87))
+- **webpack-plugin:** 修复 index 组件 wxml 导出错误 ([663d836](https://github.com/wechat-miniprogram/mpflow/commit/663d8363fb0d8dad302f04806ff624e0e7a15563))
+
 ## [0.0.13](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.12...@mpflow/webpack-plugin@0.0.13) (2020-11-12)
 
 ### Bug Fixes

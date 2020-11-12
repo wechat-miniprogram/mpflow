@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.17](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.15...@mpflow/plugin-typescript@0.0.17) (2020-11-12)
+
+### Bug Fixes
+
+- **plugin-typescript:** 修复 class properties ([e8efc0e](https://github.com/wechat-miniprogram/mpflow/commit/e8efc0e0a660c6026237ed88b20c3bf07639bb88))
+
 ## [0.0.16](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.15...@mpflow/plugin-typescript@0.0.16) (2020-11-12)
 
 **Note:** Version bump only for package @mpflow/plugin-typescript
