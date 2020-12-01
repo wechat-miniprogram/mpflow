@@ -142,7 +142,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 
    ```javascript
    module.exports = {
-     appId: 'hello-miniprogram', // 填写项目名称，与 project.config.json 中的 projectname 相同即可
+     appId: 'wx12345678', // 填写项目 appid，与 project.config.json 中的 appid 相同即可
      app: 'src/app', // 小程序 app 入口路径，为按上述步骤迁移后的 app.js 所在位置相对项目根目录的路径
      compileType: 'miniprogram', // 小程序项目类型，与 project.config.json 中的 compileType 相同即可
      plugins: [], // 插件列表，留空
