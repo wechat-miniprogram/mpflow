@@ -84,63 +84,23 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 38);
+/******/ 	return __webpack_require__(__webpack_require__.s = 9);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 38:
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(43)
-
-/***/ }),
-
-/***/ 43:
-/***/ (function(module, exports, __webpack_require__) {
-
-//logs.js
-const util = __webpack_require__(44)
-
-Page({
-  data: {
-    logs: [],
-  },
-  onLoad: function () {
-    this.setData({
-      logs: (wx.getStorageSync('logs') || []).map(log => {
-        return util.formatTime(new Date(log))
-      }),
-    })
-  },
-})
-
-
-/***/ }),
-
-/***/ 44:
+/***/ 17:
 /***/ (function(module, exports) {
 
-const formatTime = date => {
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const hour = date.getHours()
-  const minute = date.getMinutes()
-  const second = date.getSeconds()
+Component({})
 
-  return [year, month, day].map(formatNumber).join('/') + ' ' + [hour, minute, second].map(formatNumber).join(':')
-}
 
-const formatNumber = n => {
-  n = n.toString()
-  return n[1] ? n : '0' + n
-}
+/***/ }),
 
-module.exports = {
-  formatTime: formatTime,
-}
+/***/ 9:
+/***/ (function(module, exports, __webpack_require__) {
 
+module.exports = __webpack_require__(17)
 
 /***/ })
 

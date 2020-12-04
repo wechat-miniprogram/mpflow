@@ -25,6 +25,38 @@ export default asyncLoaderWrapper(async function (source) {
 
   const { exports: moduleContent } = await evalModuleBundleCode(this, source, this.resource)
 
+  // 全局使用组件
+  if (moduleContent.usingComponents) {
+    // 对 app.json 中读取到的 usingComponents 分别设立为入口
+    for (const componentRequest of Object.values(moduleContent.usingComponents)) {
+      if (!isRequest(componentRequest)) continue
+
+      const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
+      const chunkName = getPageOutputPath(this.rootContext, appContext, '/', componentRequest, resolvedComponentRequest)
+
+      await addExternal(
+        this,
+        stringifyResource(
+          resolvedComponentRequest,
+          [
+            {
+              loader: pageLoader,
+              options: {
+                appContext: appContext,
+                outputPath: chunkName,
+              },
+            },
+            ...getMpflowLoaders(this, resolvedComponentRequest, 'page'),
+          ],
+          { disabled: 'normal' },
+        ),
+        'page',
+        chunkName,
+        chunkName,
+      )
+    }
+  }
+
   if (Array.isArray(moduleContent.pages)) {
     // 对 app.json 中读取到的 pages 分别设立为入口
     for (const pageRequest of moduleContent.pages) {
