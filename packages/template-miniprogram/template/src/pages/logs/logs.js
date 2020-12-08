@@ -1,5 +1,5 @@
 //logs.js
-import util from '../../utils/util'
+import * as util from '../../utils/util'
 
 Page({
   data: {
