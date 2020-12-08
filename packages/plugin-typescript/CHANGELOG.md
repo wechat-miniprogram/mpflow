@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.18](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.17...@mpflow/plugin-typescript@0.0.18) (2020-12-08)
+
+
+### Bug Fixes
+
+* **plugin-typescript:** 添加 proposal plugins ([0e186fd](https://github.com/wechat-miniprogram/mpflow/commit/0e186fd5a6b412c49b5385cc91e47a55d91eaf63))
+
+
+
+
+
 ## [0.0.17](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.15...@mpflow/plugin-typescript@0.0.17) (2020-11-12)
 
 ### Bug Fixes

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.15](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.14...@mpflow/webpack-plugin@0.0.15) (2020-12-08)
+
+
+### Bug Fixes
+
+* **webpack-plugin:** 修复app.json配置全局组件编译失败问题 ([eb4fc08](https://github.com/wechat-miniprogram/mpflow/commit/eb4fc08d140bc52e3ca00d34fee9edf318a179ab))
+
+
+
+
+
 ## [0.0.14](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.12...@mpflow/webpack-plugin@0.0.14) (2020-11-12)
 
 ### Bug Fixes
