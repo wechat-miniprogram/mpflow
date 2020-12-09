@@ -209,9 +209,6 @@ export default asyncLoaderWrapper(async function (source) {
               outputPath: 'theme.json',
             },
           },
-          {
-            loader: require.resolve('json-loader'),
-          },
           ...getMpflowLoaders(this, resolvedThemeRequest, 'json'),
         ],
         {

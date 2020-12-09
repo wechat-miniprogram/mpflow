@@ -84,23 +84,23 @@ module.exports =
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 38);
+/******/ 	return __webpack_require__(__webpack_require__.s = 40);
 /******/ })
 /************************************************************************/
 /******/ ({
 
-/***/ 38:
+/***/ 40:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(43)
+module.exports = __webpack_require__(45)
 
 /***/ }),
 
-/***/ 43:
+/***/ 45:
 /***/ (function(module, exports, __webpack_require__) {
 
 //logs.js
-const util = __webpack_require__(44)
+const util = __webpack_require__(46)
 
 Page({
   data: {
@@ -118,7 +118,7 @@ Page({
 
 /***/ }),
 
-/***/ 44:
+/***/ 46:
 /***/ (function(module, exports) {
 
 const formatTime = date => {

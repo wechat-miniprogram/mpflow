@@ -29,6 +29,10 @@ export class BaseAPI<P = Plugin, S extends BaseService<P> = BaseService<P>> {
     return this.service.pluginOptions.some(p => p.id === id)
   }
 
+  isPluginAfter(pluginId: string): boolean {
+    return this.service
+  }
+
   async mkdirp(dirPath: string): Promise<void> {
     return new Promise((resolve, reject) =>
       mkdirp(dirPath, { fs: this.service.outputFileSystem }, err => (err ? reject(err) : resolve())),
