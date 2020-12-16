@@ -12,6 +12,8 @@ const plugin: Plugin = (api, config) => {
 
         rule.use('wxss-loader').loader(require.resolve('@mpflow/wxss-loader'))
 
+        rule.use('postcss-loader').loader(require.resolve('postcss-loader'))
+
         if (loader) {
           rule.use(loader).loader(require.resolve(loader)).options(options)
         }

@@ -28,6 +28,7 @@
     "css-loader": "^3.6.0",
     "deepmerge": "^4.2.2",
     "less-loader": "^6.2.0",
+    "postcss-loader": "^4.1.0",
     "sass-loader": "^9.0.2",
     "stylus": "^0.54.7",
     "stylus-loader": "^3.0.2"
