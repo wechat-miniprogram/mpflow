@@ -14,6 +14,7 @@ module.exports = function () {
       [require.resolve('@babel/plugin-proposal-class-properties'), { loose: true }],
       require.resolve('@babel/plugin-proposal-nullish-coalescing-operator'),
       require.resolve('@babel/plugin-proposal-optional-chaining'),
+      require.resolve('@babel/plugin-proposal-export-namespace-from'),
     ],
   }
 }
