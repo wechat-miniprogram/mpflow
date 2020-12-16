@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.16](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.15...@mpflow/webpack-plugin@0.0.16) (2020-12-16)
+
+
+### Bug Fixes
+
+* **webpack-plugin:** fix app.json themeLocation ([bb8abd8](https://github.com/wechat-miniprogram/mpflow/commit/bb8abd8dc729efba3c3acf111b168be2181a8eb4))
+
+
+
+
+
 ## [0.0.15](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.14...@mpflow/webpack-plugin@0.0.15) (2020-12-08)
 
 

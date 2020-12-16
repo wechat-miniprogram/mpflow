@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.19](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.18...@mpflow/plugin-typescript@0.0.19) (2020-12-16)
+
+
+### Features
+
+* **plugin-typescript:** add proposal-export-ns ([a4ae831](https://github.com/wechat-miniprogram/mpflow/commit/a4ae83143ecd8af60cfa129b96eb0604989a9228))
+
+
+
+
+
 ## [0.0.18](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.17...@mpflow/plugin-typescript@0.0.18) (2020-12-08)
 
 

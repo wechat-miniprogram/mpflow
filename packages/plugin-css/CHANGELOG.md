@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.19](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-css@0.0.18...@mpflow/plugin-css@0.0.19) (2020-12-16)
+
+
+### Features
+
+* **plugin-css:** add postcss-loader ([c358662](https://github.com/wechat-miniprogram/mpflow/commit/c358662061ffe7bf417b64819f843efb1c83e396))
+
+
+
+
+
 ## [0.0.18](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-css@0.0.17...@mpflow/plugin-css@0.0.18) (2020-12-08)
 
 **Note:** Version bump only for package @mpflow/plugin-css

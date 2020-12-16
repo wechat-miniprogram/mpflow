@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.20](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/cli@0.0.19...@mpflow/cli@0.0.20) (2020-12-16)
+
+**Note:** Version bump only for package @mpflow/cli
+
+
+
+
+
 ## [0.0.19](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/cli@0.0.18...@mpflow/cli@0.0.19) (2020-12-08)
 
 **Note:** Version bump only for package @mpflow/cli
