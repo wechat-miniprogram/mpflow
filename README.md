@@ -245,6 +245,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 | @mpflow/service                     | 开发、构建、测试能力，安装到用户本地项目中，用户可选升级      |
 | @mpflow/service-core                | cli 和 service-core 共用的一些通用代码                        |
 | @mpflow/template-miniprogram        | 小程序创建模板                                                |
+| @mpflow/template-miniprogram-components | 小程序组件库项目模板                                        |
 | @mpflow/template-miniprogram-plugin | 小程序插件创建模板                                            |
 | @mpflow/test-utils                  | 测试工具（private)                                            |
 | @mpflow/webpack-plugin              | 通过 webpack 构建小程序的 webpack 插件                        |
