@@ -155,6 +155,9 @@ const base: Plugin = (api, config) => {
           automaticNameDelimiter: '~',
           name: true,
           cacheGroups: {
+            defaultVendors: false,
+            default: false,
+            vendors: false,
             common: {
               minChunks: 2,
               priority: -20,
