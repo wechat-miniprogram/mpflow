@@ -152,7 +152,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
      },
    }
    ```
-   
+
 1. #### 手动安装 `plugin-babel`
 
    首先确保根目录下存在 `babel.config.js`
@@ -160,7 +160,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
    ```bash
    npm install @mpflow/plugin-babel --save-dev
    ```
-   
+
    然后在 `babel.config.js` 文件中加入以下内容：
    ```js
    module.exports = {
@@ -169,7 +169,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
       ]
    }
    ```
-   
+
    最后将 `plugin-babel` 加入 `mpflow.config.js` 的插件列表
    ```js
    // mpflow.config.js
@@ -178,16 +178,16 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
    }
    ```
 
-1. #### 手动改安装 `plugin-typescript`
+1. #### 手动安装 `plugin-typescript`
 
    如果你的旧项目是使用 ts，则需要安装该插件
-   
+
    首先确保已安装 `@mpflow/plugin-babel` 且根目录下存在 `tsconfig.json`
-   
+
    ```bash
    npm install @mpflow/plugin-typescript --save-dev
    ```
-   
+
    然后在 `babel.config.js` 文件中加入以下内容：
    ```js
    module.exports = {
@@ -198,18 +198,29 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
    }
    ```
 
+   最后将 `plugin-typescript` 加入 `mpflow.config.js` 的插件列表
+   ```js
+   // mpflow.config.js
+   module.exports = {
+      plugins: [
+         "@mpflow/plugin-babel",
+         "@mpflow/plugin-typescript",
+      ]
+   }
+   ```
+
 1. #### 安装其他插件
-   
+
    根据你的需要安装如 `@mpflow/plugin-css` 等插件
 
 1. #### 测试项目构建
 
    之后即可用命令 `mpflow build` 尝试构建小程序
-   
+
 1. #### 修改项目的构建 script
-   
+
    修改在 package.json 中构建相关的 script 改为使用 mpflow
-   
+
    ```json
    {
       "scripts": {
