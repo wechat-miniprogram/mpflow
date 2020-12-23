@@ -205,6 +205,20 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 1. #### 测试项目构建
 
    之后即可用命令 `mpflow build` 尝试构建小程序
+   
+1. #### 修改项目的构建 script
+   
+   修改在 package.json 中构建相关的 script 改为使用 mpflow
+   
+   ```json
+   {
+      "scripts": {
+         "build": "mpflow-service build",
+         "dev": "mpflow-service dev",
+         "dev:open": "mpflow-service dev:open"
+      }
+   }
+   ```
 
 ## Packages
 
