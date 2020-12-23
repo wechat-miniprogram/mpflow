@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.20](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.19...@mpflow/service@0.0.20) (2020-12-23)
+
+
+### Bug Fixes
+
+* **service:** fix build from node_modules ([d16beeb](https://github.com/wechat-miniprogram/mpflow/commit/d16beeb3cc3c4e3c1e66d759527c744724da4755))
+
+
+
+
+
 ## [0.0.19](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.18...@mpflow/service@0.0.19) (2020-12-16)
 
 **Note:** Version bump only for package @mpflow/service
