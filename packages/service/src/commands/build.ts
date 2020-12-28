@@ -40,27 +40,10 @@ const build: Plugin = (api, config) => {
 
         const compiler = webpack(webpackConfigs)
 
-        ;(compiler as any).outputFileSystem = new WebpackOutputFileSystem((api as any).service.outputFileSystem)
-
-        const stats = await new Promise<compilation.MultiStats>((resolve, reject) => {
+        await new Promise<compilation.MultiStats>((resolve, reject) => {
           compiler.run((err, stats) => (err ? reject(err) : resolve(stats)))
         })
-
-        const statsJson = stats.toJson({
-          all: false,
-          modules: true,
-          maxModules: 0,
-          errors: true,
-          warnings: true,
-          children: true,
-          assets: true,
-        })
-        statsJson.children!.forEach(children => {
-          children.children = undefined
-        })
-        process.stdout.write((webpack.Stats as any).jsonToString(statsJson, true) + '\n\n')
-        console.log(chalk.cyan('Build complete.\n'))
-        if (stats.hasErrors()) throw new Error('Webpack build with errors.')
+        process.exit(0)
       } catch (err) {
         console.error(err)
         process.exit(1)
