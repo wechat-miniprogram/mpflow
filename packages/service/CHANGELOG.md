@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.21](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.20...@mpflow/service@0.0.21) (2020-12-28)
+
+
+### Features
+
+* **service:** 优化日志输出格式 ([446adab](https://github.com/wechat-miniprogram/mpflow/commit/446adab677bd670c970ac1da2a3779c2b1a2c3eb))
+* add PrettyPlugin ([600aefe](https://github.com/wechat-miniprogram/mpflow/commit/600aefecfa9a54f2f7cce73fa080f1dd6a76e81a))
+
+
+
+
+
 ## [0.0.20](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.19...@mpflow/service@0.0.20) (2020-12-23)
 
 

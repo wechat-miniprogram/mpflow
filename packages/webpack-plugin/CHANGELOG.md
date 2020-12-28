@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.17](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.16...@mpflow/webpack-plugin@0.0.17) (2020-12-28)
+
+
+### Bug Fixes
+
+* **webpack-plugin:**  修复 subPackages 支持 ([740a377](https://github.com/wechat-miniprogram/mpflow/commit/740a377a9008aa2b8954afee2c4bec644c54e446))
+* **webpack-plugin:**  按照小程序文档 subPackages 也被支持 ([23cb238](https://github.com/wechat-miniprogram/mpflow/commit/23cb238843b59002f16fc54e5a71a5252253db2f)), closes [#5](https://github.com/wechat-miniprogram/mpflow/issues/5)
+
+
+
+
+
 ## [0.0.16](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.15...@mpflow/webpack-plugin@0.0.16) (2020-12-16)
 
 
