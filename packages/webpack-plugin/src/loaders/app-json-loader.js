@@ -90,10 +90,10 @@ export default asyncLoaderWrapper(async function (source) {
     }
   }
 
-  if (Array.isArray(moduleContent.subpackages) || Array.isArray(moduleContent.subPackages)) {
-    moduleContent.subpackages = moduleContent.subpackages || moduleContent.subPackages;
+  const subPackages = moduleContent.subPackages || moduleContent.subpackages;
+  if (Array.isArray(subPackages)) {
     // 处理分包规则
-    for (const pkg of moduleContent.subpackages) {
+    for (const pkg of subPackages) {
       const { root, pages } = pkg
 
       if (!root || !Array.isArray(pages)) continue
