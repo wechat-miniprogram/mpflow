@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "init": "lerna clean && lerna bootstrap",
-    "build": "lerna run build"
+    "build": "lerna run build",
+    "publish": "npm run build && lerna publish"
   },
   "repository": {
     "type": "git",

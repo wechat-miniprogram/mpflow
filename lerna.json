@@ -7,6 +7,9 @@
       "conventionalCommits": true,
       "noPrivate": true,
       "message": "chore: publish %s"
+    },
+    "publish": {
+      "registry": "https://registry.npmjs.org/"
     }
   },
   "ignoreChanges": ["**/*.md"],
