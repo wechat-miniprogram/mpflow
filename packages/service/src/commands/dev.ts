@@ -39,10 +39,6 @@ interface DevContext {
   stats?: compilation.MultiStats
 }
 
-const printStats = (compiler: MultiCompiler, stats: compilation.MultiStats) => {
-  process.stdout.write(stats.toString('minimal') + '\n\n')
-}
-
 const setupHooks = (context: DevContext, firstDone: () => void) => {
   let _firstDone = true
 
@@ -54,15 +50,13 @@ const setupHooks = (context: DevContext, firstDone: () => void) => {
     context.stats = stats
 
     process.nextTick(() => {
-      const { stats, compiler } = context
+      const { stats } = context
       if (!stats) return
 
       if (_firstDone) {
         _firstDone = false
         firstDone()
       }
-
-      printStats(compiler, stats)
     })
   }
 

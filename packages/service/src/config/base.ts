@@ -1,5 +1,6 @@
 import { Plugin } from '@mpflow/service-core'
 import MpflowPlugin from '@mpflow/webpack-plugin'
+import PrettyPlugin from './pretty'
 import path from 'path'
 
 const base: Plugin = (api, config) => {
@@ -201,6 +202,7 @@ const base: Plugin = (api, config) => {
       }
 
       webpackConfig.plugin('progress').use((require('webpack') as typeof import('webpack')).ProgressPlugin, [{}])
+      webpackConfig.plugin('pretty').use(PrettyPlugin)
     })
   })
 }
