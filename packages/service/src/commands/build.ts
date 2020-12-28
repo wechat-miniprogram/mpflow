@@ -40,10 +40,13 @@ const build: Plugin = (api, config) => {
 
         const compiler = webpack(webpackConfigs)
 
-        await new Promise<compilation.MultiStats>((resolve, reject) => {
+        ;(compiler as any).outputFileSystem = new WebpackOutputFileSystem((api as any).service.outputFileSystem)
+
+        const stats = await new Promise<compilation.MultiStats>((resolve, reject) => {
           compiler.run((err, stats) => (err ? reject(err) : resolve(stats)))
         })
-        process.exit(0)
+
+        if (stats.hasErrors()) throw new Error('Webpack build with errors.')
       } catch (err) {
         console.error(err)
         process.exit(1)
