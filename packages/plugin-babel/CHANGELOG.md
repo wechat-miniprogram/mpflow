@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.25](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-babel@0.0.24...@mpflow/plugin-babel@0.0.25) (2021-01-12)
+
+
+### Bug Fixes
+
+* **plugin-babel:** 强制使用 regenerator-runtime@0.13.1 ([28a2643](https://github.com/wechat-miniprogram/mpflow/commit/28a264328ea4f9b2c378816d2bc2d1dbfee46956))
+
+
+
+
+
 ## [0.0.24](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-babel@0.0.23...@mpflow/plugin-babel@0.0.24) (2020-12-28)
 
 **Note:** Version bump only for package @mpflow/plugin-babel
