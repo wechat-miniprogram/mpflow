@@ -4,6 +4,9 @@ import path from 'path'
 const plugin: Plugin = (api, config) => {
   api.configureWebpack(({ configure }) => {
     configure(webpackConfig => {
+      // 强制使用 regenerator-runtime@0.13.1
+      webpackConfig.resolve.alias.set('regenerator-runtime', require.resolve('regenerator-runtime'))
+
       webpackConfig.module
         .rule('js')
         .test(/\.m?jsx?$/)
