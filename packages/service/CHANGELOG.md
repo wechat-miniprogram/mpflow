@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.22](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.21...@mpflow/service@0.0.22) (2021-01-18)
+
+
+### Features
+
+* **service:** 添加 sourceMappingURL ([7f47d63](https://github.com/wechat-miniprogram/mpflow/commit/7f47d63088ba6eb5433062152c7439c67e341b2d))
+
+
+
+
+
 ## [0.0.21](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.20...@mpflow/service@0.0.21) (2020-12-28)
 
 
