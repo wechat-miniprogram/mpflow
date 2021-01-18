@@ -180,14 +180,24 @@ const base: Plugin = (api, config) => {
       if (sourceMap) {
         const { SourceMapDevToolPlugin } = require('webpack') as typeof import('webpack')
         // 生成 sourceMap
-        webpackConfig.plugin('source-map').use(SourceMapDevToolPlugin, [
+        webpackConfig.plugin('source-map-js').use(SourceMapDevToolPlugin, [
           {
-            append: false,
             filename: '[file].map[query]',
             module: true,
             columns: mode === 'production' ? true : false,
-            test: /\.(js|wxss)($|\?)/i,
-          },
+            test: /\.(js)($|\?)/i,
+            append: "\n// # sourceMappingURL=[url]"
+          }
+        ])
+
+        webpackConfig.plugin('source-map-wxss').use(SourceMapDevToolPlugin, [
+          {
+            filename: '[file].map[query]',
+            module: true,
+            columns: mode === 'production' ? true : false,
+            test: /\.(wxss)($|\?)/i,
+            append: "\n/* # sourceMappingURL=[url] */"
+          }
         ])
       }
 
