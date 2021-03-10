@@ -40,7 +40,7 @@
     "@mpflow/service": "link:../service",
     "@types/wechat-miniprogram": "^2.11.0",
     "typescript": "^3.9.7",
-    "webpack": "^4.43.0"
+    "webpack": "^5.11.1"
   },
   "peerDependencies": {
     "@mpflow/plugin-babel": "*",

@@ -71,11 +71,7 @@ const base: Plugin = (api, config) => {
           Object.keys(libs).forEach(outputPath => {
             const entry = libs[outputPath]
 
-            webpackConfig
-              .name('libs')
-              .entry(outputPath)
-              .add(`${MpflowPlugin.libLoader}?outputPath=${encodeURIComponent(outputPath)}!${api.resolve(entry)}`)
-              .end()
+            webpackConfig.name('libs').entry(outputPath).add(api.resolve(entry)).end()
           })
         }
       })
@@ -86,7 +82,7 @@ const base: Plugin = (api, config) => {
 
       webpackConfig.context(api.getCwd())
 
-      webpackConfig.output.filename('_commons/[id].js').chunkFilename('_commons/[id].js')
+      webpackConfig.output.filename('[id].js').chunkFilename('[id].js')
 
       webpackConfig.resolve.extensions.add('.js').add('.json')
 
@@ -186,8 +182,8 @@ const base: Plugin = (api, config) => {
             module: true,
             columns: mode === 'production' ? true : false,
             test: /\.(js)($|\?)/i,
-            append: "\n// # sourceMappingURL=[url]"
-          }
+            append: '\n// # sourceMappingURL=[url]',
+          },
         ])
 
         webpackConfig.plugin('source-map-wxss').use(SourceMapDevToolPlugin, [
@@ -196,8 +192,8 @@ const base: Plugin = (api, config) => {
             module: true,
             columns: mode === 'production' ? true : false,
             test: /\.(wxss)($|\?)/i,
-            append: "\n/* # sourceMappingURL=[url] */"
-          }
+            append: '\n/* # sourceMappingURL=[url] */',
+          },
         ])
       }
 

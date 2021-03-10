@@ -1,13 +1,7 @@
 import NativeModule from 'module'
 import path from 'path'
 import qs from 'querystring'
-import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin'
-import ModuleReason from 'webpack/lib/ModuleReason'
-import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin'
-import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin'
-import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin'
-import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin'
-import ExternalDependency from './ExternalDependency'
+import webpack from 'webpack'
 import VirtualDependency from './VirtualDependency'
 
 /**
@@ -29,7 +23,6 @@ export function getMpflowLoaders(loaderContext, resource, type) {
     resource: resourcePath,
     realResource: resourcePath,
     resourceQuery,
-    issuer: loaderContext._module.issuer,
     compiler: loaderContext._compiler,
   })
 
@@ -81,72 +74,17 @@ export function stringifyResource(resource, loaders, options = {}) {
   return `${prefix}${segs.join('!')}`
 }
 
-const MODULE_EXTERNAL_SYMBOL = Symbol('Module External')
-
-/**
- * 检查一个 entryPoint 是否为小程序入口
- * @param {*} entryPoint
- * @return {{ type: string, outputPath: string } | undefined}
- */
-export function isExternalEntryPoint(entryPoint) {
-  if (!entryPoint || !entryPoint.chunks) return false
-  for (const chunk of entryPoint.chunks) {
-    const externalInfo = isExternalChunk(chunk)
-    if (externalInfo) return externalInfo
-  }
-  return false
-}
-
-/**
- * 检查一个 chunk 是否为小程序入口
- * @param {*} chunk
- * @return {{ type: string, outputPath: string } | undefined}
- */
-export function isExternalChunk(chunk) {
-  if (!chunk || !chunk.entryModule) return false
-  for (const module of Array.from(chunk.modulesIterable)) {
-    if (module && module.reasons) {
-      for (const reason of module.reasons) {
-        const dependency = reason.dependency
-        if (dependency && dependency instanceof ExternalDependency) {
-          return {
-            type: dependency.externalType,
-            outputPath: dependency.outputPath,
-          }
-        }
-      }
-    }
-  }
-  return false
-}
-
-/**
- * 标记当前的 chunk 为小程序入口
- * @param {*} module
- * @param {string} type
- * @param {string} outputPath
- */
-export function markAsExternal(module, type, outputPath) {
-  const dependency = new ExternalDependency(module.request, type, outputPath)
-  const reason = new ModuleReason(module, dependency, 'weflow markAsExternal')
-  module.reasons.push(reason)
-}
-
 /**
  * 添加新的小程序入口
  * @param {*} loaderContext
  * @param {string} request
- * @param {string} type
- * @param {string} outputPath
  * @param {string} name
  */
-export async function addExternal(loaderContext, request, externalType, outputPath, name) {
+export async function addEntry(loaderContext, request, name) {
   return new Promise((resolve, reject) => {
     const { _compilation: compilation, context } = loaderContext
-    const dependency = new ExternalDependency(request, externalType, outputPath)
-    compilation.addEntry(context, dependency, name || String(compilation._preparedEntrypoints.length), err =>
-      err ? reject(err) : resolve(),
-    )
+    const dependency = webpack.EntryPlugin.createDependency(request, name)
+    compilation.addEntry(context, dependency, name, err => (err ? reject(err) : resolve()))
   })
 }
 
@@ -170,89 +108,6 @@ export function evalModuleCode(loaderContext, code, filename) {
   return module.exports
 }
 
-// export function evalModuleBundleCode(loaderContext, code, filename, publicPath = '') {
-//   const moduleCache = new Map()
-//   const context = loaderContext.context
-//   const normalResolver = loaderContext._compiler.resolverFactory.get('normal')
-
-//   const loadModule = deasync(function (request, callback) {
-//     loaderContext.loadModule(request, (err, source) => {
-//       if (err) return callback(err)
-//       callback(null, source)
-//     })
-//   })
-
-//   const resolveRequest = deasync(function (request, callback) {
-//     const prefix = request.startsWith('-!')
-//       ? '-!'
-//       : request.startsWith('!!')
-//       ? '!!'
-//       : request.startsWith('!')
-//       ? '!'
-//       : ''
-//     const elements = request.replace(/^-?!+/, '').replace(/!!+/g, '!').split('!')
-//     const resource = elements.pop()
-
-//     normalResolver.resolve({}, context, resource, {}, (err, resolvedResource) => {
-//       if (err) return callback(err)
-//       callback(null, prefix + elements.concat([resolvedResource]).join('!'))
-//     })
-//   })
-
-//   function evalModule(src, filename) {
-//     const transpiled = babel.transform(src, {
-//       babelrc: false,
-//       presets: [
-//         [
-//           require('@babel/preset-env'),
-//           {
-//             modules: 'commonjs',
-//             targets: { node: 'current' },
-//           },
-//         ],
-//       ],
-//     })
-
-//     const script = new vm.Script(transpiled.code, {
-//       filename,
-//       displayErrors: true,
-//     })
-//     const moduleExports = { exports: {}, id: filename }
-//     const sandbox = Object.assign({}, global, {
-//       module: moduleExports,
-//       exports: moduleExports.exports,
-//       __webpack_public_path__: publicPath,
-//       require: requestPath => {
-//         const resolvedRequestPath = resolveRequest(requestPath)
-//         if (moduleCache.has(resolvedRequestPath)) return moduleCache.get(resolvedRequestPath).exports
-//         const requestContent = loadModule(resolvedRequestPath)
-//         const requestModule = evalModule(requestContent, resolvedRequestPath)
-//         return requestModule.exports
-//       },
-//     })
-//     script.runInNewContext(sandbox)
-
-//     moduleCache.set(filename, moduleExports)
-
-//     return moduleExports
-//   }
-
-//   return evalModule(code, filename)
-// }
-
-/**
- * 获取一个模块的 identifier
- * @param {*} compilation
- * @param {string} id
- */
-export function getModuleIdentifier(compilation, id) {
-  const modules = compilation.modules
-  for (const module of modules) {
-    if (module.id === id) return module.identifier()
-  }
-  return null
-}
-
 /**
  * 执行获取一个 module 的实际导出内容
  * @param {*} loaderContext
@@ -272,15 +127,17 @@ export async function evalModuleBundleCode(loaderContext, code, filename, public
   const outputOptions = { filename: childFilename, publicPath }
   const childCompiler = compilation.createChildCompiler(`eval module code ${resource}`, outputOptions)
 
-  new NodeTemplatePlugin(outputOptions).apply(childCompiler)
-  new LibraryTemplatePlugin(null, 'commonjs2').apply(childCompiler)
-  new NodeTargetPlugin().apply(childCompiler)
-  new SingleEntryPlugin(context, `!!${resource}`, resource).apply(childCompiler)
-  new LimitChunkCountPlugin({ maxChunks: 1 }).apply(childCompiler)
+  new webpack.node.NodeTemplatePlugin(outputOptions).apply(childCompiler)
+  new webpack.library.EnableLibraryPlugin('commonjs2').apply(childCompiler)
+  new webpack.EntryPlugin(context, `!!${resource}`, {
+    name: resource,
+    library: { type: 'commonjs2' },
+  }).apply(childCompiler)
+  new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }).apply(childCompiler)
 
   // 设置 loader
   childCompiler.hooks.thisCompilation.tap(`eval module code loader`, compilation => {
-    compilation.hooks.normalModuleLoader.tap(`eval module code loader`, (context, module) => {
+    webpack.NormalModule.getCompilationHooks(compilation).loader.tap(`eval module code loader`, (context, module) => {
       context.emitFile = loaderContext.emitFile
 
       if (module.request === resource && loaders.length) {
@@ -298,15 +155,16 @@ export async function evalModuleBundleCode(loaderContext, code, filename, public
   let source
 
   // 截获 childCompiler 编译结果
-  childCompiler.hooks.afterCompile.tap('eval module code', compilation => {
-    if (compilation.compiler !== childCompiler) return
+  childCompiler.hooks.compilation.tap('eval module code', compilation => {
+    compilation.hooks.processAssets.tap('eval module code', () => {
+      if (compilation.compiler !== childCompiler) return
+      source = compilation.assets[childFilename] && compilation.assets[childFilename].source()
 
-    source = compilation.assets[childFilename] && compilation.assets[childFilename].source()
-
-    // Remove all chunk assets
-    compilation.chunks.forEach(chunk => {
-      chunk.files.forEach(file => {
-        delete compilation.assets[file] // eslint-disable-line no-param-reassign
+      // Remove all chunk assets
+      compilation.chunks.forEach(chunk => {
+        chunk.files.forEach(file => {
+          compilation.deleteAsset(file)
+        })
       })
     })
   })

@@ -33,4 +33,3 @@
         <view class="weui-actionsheet__cell" data-type="close" id="iosActionsheetCancel" bindtap="closeActionSheet">{{cancelText}}</view>
     </view>
 </view>
-

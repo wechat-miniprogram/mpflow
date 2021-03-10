@@ -1,4 +1,4 @@
-@import "./_commons/index~logs.wxss";
+@import 'utils_util_js.wxss';
 .log-list {
   display: flex;
   flex-direction: column;
@@ -7,5 +7,3 @@
 .log-item {
   margin: 10rpx;
 }
-
-

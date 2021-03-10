@@ -12,17 +12,60 @@ class VirtualPlugin {
     this.options = options
   }
 
+  /**
+   * @param {import('webpack').Compiler} compiler
+   */
   apply(compiler) {
-    compiler.hooks.compilation.tap(PLUGIN_NAME, (compilation, { normalModuleFactory }) => {
+    compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (compilation, { normalModuleFactory }) => {
       compilation.dependencyFactories.set(VirtualDependency, normalModuleFactory)
       compilation.dependencyTemplates.set(VirtualDependency, new VirtualDependency.Template())
 
-      normalModuleFactory.hooks.createModule.tap(PLUGIN_NAME, createOptions => {
+      normalModuleFactory.hooks.createModule.tapPromise(PLUGIN_NAME, async (createData, resolveData) => {
         const {
           dependencies: [dependency],
-        } = createOptions
-        if (dependency instanceof VirtualDependency) return new VirtualModule(createOptions)
+        } = resolveData
+        if (dependency instanceof VirtualDependency) {
+          return new VirtualModule(createData)
+        }
       })
+
+      // 删除只有 VirtualModule 的 chunk
+      // TODO current not working
+      /**
+       *
+       * @param {Iterable<import('webpack').Chunk>} chunks
+       */
+      const handler = chunks => {
+        const chunkGraph = compilation.chunkGraph
+        for (const chunk of chunks) {
+          const virtualModules = chunkGraph.getChunkModulesIterableBySourceType(chunk, 'virtual')
+          if (
+            virtualModules &&
+            virtualModules.size === chunkGraph.getNumberOfChunkModules(chunk) &&
+            !chunk.hasRuntime() &&
+            chunkGraph.getNumberOfEntryModules(chunk) === 0
+          ) {
+            chunkGraph.disconnectChunk(chunk)
+            compilation.chunks.delete(chunk)
+          }
+        }
+      }
+
+      compilation.hooks.optimizeChunks.tap(
+        {
+          name: PLUGIN_NAME,
+          stage: 0,
+        },
+        handler,
+      )
+
+      compilation.hooks.optimizeChunks.tap(
+        {
+          name: PLUGIN_NAME,
+          stage: 10,
+        },
+        handler,
+      )
     })
   }
 }

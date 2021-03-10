@@ -1,13 +1,6 @@
 import { getOptions, interpolateName, urlToRequest } from 'loader-utils'
 import path from 'path'
-import {
-  addDependency,
-  asyncLoaderWrapper,
-  getMpflowLoaders,
-  markAsExternal,
-  resolveWithType,
-  stringifyResource,
-} from '../utils'
+import { addDependency, asyncLoaderWrapper, getMpflowLoaders, resolveWithType, stringifyResource } from '../utils'
 import { assetLoader, pluginJsonLoader, pluginJsonRawLoader } from './index'
 
 /**
@@ -19,8 +12,6 @@ export const pitch = asyncLoaderWrapper(async function () {
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable()
-
-  markAsExternal(this._module, 'plugin', 'plugin')
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 

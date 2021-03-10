@@ -1,14 +1,7 @@
 import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
 import path from 'path'
-import {
-  addDependency,
-  asyncLoaderWrapper,
-  getMpflowLoaders,
-  markAsExternal,
-  resolveWithType,
-  stringifyResource,
-} from '../utils'
-import { appJsonLoader, appJsonRawLoader, assetLoader, extJsonLoader, extJsonRawLoader, stubLoader } from './index'
+import { addDependency, asyncLoaderWrapper, getMpflowLoaders, resolveWithType, stringifyResource } from '../utils'
+import { appJsonLoader, appJsonRawLoader, assetLoader, extJsonLoader, extJsonRawLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -18,8 +11,6 @@ export const pitch = asyncLoaderWrapper(async function () {
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable()
-
-  markAsExternal(this._module, 'app', 'app')
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 
@@ -36,9 +27,6 @@ export const pitch = asyncLoaderWrapper(async function () {
             options: {
               type: 'miniprogram/wxss',
             },
-          },
-          {
-            loader: stubLoader,
           },
           ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],
@@ -151,7 +139,7 @@ export const pitch = asyncLoaderWrapper(async function () {
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
   const exports = stringifyResource(jsRequest, getMpflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
-  return `module.exports = require(${stringifyRequest(this, exports)})`
+  return `import ${stringifyRequest(this, exports)}`
 })
 
 export default () => {}

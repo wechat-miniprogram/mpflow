@@ -11,38 +11,25 @@ module.exports = {
     logs: `${mpflowPlugin.pageLoader}!./pages/logs/logs.js`,
   },
 
-  devtool: 'none',
+  devtool: false,
 
   output: {
     path: path.resolve(__dirname, 'dist'),
     pathinfo: false,
-    filename: '_commons/[id].js',
-    chunkFilename: '_commons/[id].js',
-    libraryTarget: 'var',
+    filename: '[id].js',
+    chunkFilename: '[id].js',
   },
 
   optimization: {
-    namedModules: false,
-    runtimeChunk: 'single',
+    moduleIds: 'natural',
     splitChunks: {
       chunks: 'all',
       minSize: 0,
-      maxSize: 0,
+      maxSize: Infinity,
+      defaultSizeTypes: ['javascript', 'unknown', 'miniprogram/wxss', 'miniprogram/wxml', 'miniprogram/json'],
       minChunks: 1,
-      maxAsyncRequests: 100,
-      maxInitialRequests: 100,
-      automaticNameDelimiter: '~',
-      name: true,
       cacheGroups: {
-        vendors: {
-          test: /[\\/]node_modules[\\/]/,
-          priority: -10,
-        },
-        common: {
-          minChunks: 2,
-          priority: -20,
-          reuseExistingChunk: true,
-        },
+        defaultVendors: false,
       },
     },
   },
@@ -95,8 +82,6 @@ module.exports = {
       },
     ],
   },
-
-  target: mpflowPlugin.target,
 
   plugins: [
     new mpflowPlugin({

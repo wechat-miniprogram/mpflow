@@ -8,21 +8,32 @@ module.exports = {
   context: __dirname,
 
   entry: {
-    app: `${mpflowPlugin.pageLoader}!./pages/index/index`,
+    index: `${mpflowPlugin.pageLoader}!./pages/index/index`,
   },
 
-  devtool: 'none',
+  devtool: false,
 
   output: {
     path: path.resolve(__dirname, 'dist'),
     pathinfo: false,
-    filename: '_commons/[id].js',
-    chunkFilename: '_commons/[id].js',
-    libraryTarget: 'var',
+    filename: '[id].js',
+    chunkFilename: '[id].js',
+    globalObject: 'globalThis',
+    chunkFormat: 'commonjs',
+    chunkLoading: 'require',
+    environment: {
+      arrowFunction: false,
+      const: false,
+      destructuring: false,
+      forOf: false,
+      bigIntLiteral: false,
+      dynamicImport: false,
+      module: false,
+    },
   },
 
   optimization: {
-    namedModules: false,
+    moduleIds: 'natural',
   },
 
   module: {
@@ -79,8 +90,6 @@ module.exports = {
       },
     ],
   },
-
-  target: mpflowPlugin.target,
 
   plugins: [
     new webpack.SourceMapDevToolPlugin({

@@ -5,11 +5,10 @@ import {
   asyncLoaderWrapper,
   getPageOutputPath,
   getMpflowLoaders,
-  markAsExternal,
   resolveWithType,
   stringifyResource,
 } from '../utils'
-import { assetLoader, pageJsonLoader, pageJsonRawLoader, stubLoader } from './index'
+import { assetLoader, pageJsonLoader, pageJsonRawLoader } from './index'
 
 /**
  * @type {import('webpack').loader.Loader}
@@ -28,8 +27,6 @@ export const pitch = asyncLoaderWrapper(async function () {
     )
 
   this.cacheable()
-
-  markAsExternal(this._module, 'page', outputPath)
 
   const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
 
@@ -67,9 +64,6 @@ export const pitch = asyncLoaderWrapper(async function () {
             options: {
               type: 'miniprogram/wxss',
             },
-          },
-          {
-            loader: stubLoader,
           },
           ...getMpflowLoaders(this, wxssRequest, 'wxss'),
         ],
@@ -136,7 +130,7 @@ export const pitch = asyncLoaderWrapper(async function () {
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
   const exports = stringifyResource(jsRequest, getMpflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
-  return `module.exports = require(${stringifyRequest(this, exports)})`
+  return `import ${stringifyRequest(this, exports)};`
 })
 
 export default () => {}

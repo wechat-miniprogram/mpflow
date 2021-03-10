@@ -1,5 +1,9 @@
 import ejs from 'ejs'
-import { RawSource } from 'webpack-sources'
+import webpack from 'webpack'
+
+const {
+  sources: { RawSource },
+} = webpack
 
 const PLUGIN_NAME = 'Mpflow Template Plugin'
 

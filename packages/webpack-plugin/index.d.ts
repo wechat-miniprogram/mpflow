@@ -1,4 +1,4 @@
-import { Compiler, Resolve, RuleSetRule } from 'webpack'
+import { Compiler, ResolveOptions, RuleSetRule } from 'webpack'
 import { ChainedMap, Resolve as ResolveChain, Rule as RuleChain, TypedChainedSet } from 'webpack-chain'
 
 declare namespace MpflowPlugin {
@@ -46,12 +46,12 @@ declare namespace MpflowPlugin {
   export interface Options {
     resolve?: {
       roots?: string[]
-      sitemap?: Resolve
-      page?: Resolve
-      json?: Resolve
-      javascript?: Resolve
-      wxml?: Resolve
-      wxss?: Resolve
+      sitemap?: ResolveOptions
+      page?: ResolveOptions
+      json?: ResolveOptions
+      javascript?: ResolveOptions
+      wxml?: ResolveOptions
+      wxss?: ResolveOptions
     }
     rules?: {
       sitemap?: RuleSetRule[]
@@ -78,12 +78,9 @@ declare class MpflowPlugin {
   constructor(options?: MpflowPlugin.Options)
   apply(compiler: Compiler): void
 
-  static target: (compiler: Compiler) => void
-
   static appLoader: string
   static pageLoader: string
   static pluginLoader: string
-  static libLoader: string
 
   // static ConfigChain: typeof MpflowPlugin.ConfigChain
 }

@@ -5,7 +5,7 @@ class AssetModuleFactory {
     return callback(
       null,
       new AssetModule(
-        dependency.type,
+        dependency.mpType,
         dependency.context,
         dependency.content,
         dependency.getResourceIdentifier(),

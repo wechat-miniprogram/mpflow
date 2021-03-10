@@ -12,8 +12,6 @@ export const extJsonRawLoader = require.resolve('./ext-json-raw-loader')
 
 export const pageLoader = require.resolve('./page-loader')
 
-export const libLoader = require.resolve('./lib-loader')
-
 export const pageJsonLoader = require.resolve('./page-json-loader')
 
 export const pageJsonRawLoader = require.resolve('./page-json-raw-loader')
@@ -23,5 +21,3 @@ export const pluginLoader = require.resolve('./plugin-loader')
 export const pluginJsonLoader = require.resolve('./plugin-json-loader')
 
 export const pluginJsonRawLoader = require.resolve('./plugin-json-raw-loader')
-
-export const stubLoader = require.resolve('./stub-loader')

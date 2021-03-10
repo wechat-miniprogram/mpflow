@@ -1,7 +1,7 @@
 import { getOptions } from 'loader-utils'
 import path from 'path'
 import {
-  addExternal,
+  addEntry,
   asyncLoaderWrapper,
   evalModuleBundleCode,
   getMpflowLoaders,
@@ -37,7 +37,7 @@ export default asyncLoaderWrapper(async function (source) {
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
       const chunkName = getPageOutputPath(this.rootContext, appContext, '/', pageRequest, resolvedComponentRequest)
 
-      await addExternal(
+      await addEntry(
         this,
         stringifyResource(
           resolvedComponentRequest,
@@ -53,8 +53,6 @@ export default asyncLoaderWrapper(async function (source) {
           ],
           { disabled: 'normal' },
         ),
-        'page',
-        chunkName,
         chunkName,
       )
     }
@@ -65,13 +63,11 @@ export default asyncLoaderWrapper(async function (source) {
 
     const resolvedMainRequest = await resolveWithType(this, 'miniprogram/javascript', mainRequest)
 
-    await addExternal(
+    await addEntry(
       this,
       stringifyResource(resolvedMainRequest, getMpflowLoaders(this, resolvedMainRequest, 'javascript'), {
         disabled: 'normal',
       }),
-      'main',
-      'main',
       'main',
     )
   }

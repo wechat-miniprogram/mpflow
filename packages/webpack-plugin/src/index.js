@@ -1,10 +1,10 @@
 import AssetPlugin from './AssetPlugin'
 import { ConfigChain } from './ConfigChain'
-import ExternalPlugin from './ExternalPlugin'
 import LoaderRulesPlugin from './LoaderRulesPlugin'
-import { appLoader, pageLoader, pluginLoader, libLoader } from './loaders'
+import { appLoader, pageLoader, pluginLoader } from './loaders'
+import OptionsPlugin from './OptionsPlugin'
 import ResolverPlugin from './ResolverPlugin'
-import target from './target'
+import TargetPlugin from './target'
 import TemplatePlugin from './TemplatePlugin'
 import VirtualPlugin from './VirtualPlugin'
 
@@ -19,9 +19,10 @@ class MpflowWebpackPlugin {
   apply(compiler) {
     const options = this.options
 
+    new OptionsPlugin().apply(compiler)
+    new TargetPlugin().apply(compiler)
     new AssetPlugin().apply(compiler)
     new VirtualPlugin().apply(compiler)
-    new ExternalPlugin().apply(compiler)
     new ResolverPlugin(options.resolve).apply(compiler)
     new LoaderRulesPlugin(options.rules).apply(compiler)
 
@@ -45,12 +46,9 @@ class MpflowWebpackPlugin {
   }
 }
 
-MpflowWebpackPlugin.target = target
-
 MpflowWebpackPlugin.appLoader = appLoader
 MpflowWebpackPlugin.pageLoader = pageLoader
 MpflowWebpackPlugin.pluginLoader = pluginLoader
-MpflowWebpackPlugin.libLoader = libLoader
 
 MpflowWebpackPlugin.ConfigChain = ConfigChain
 

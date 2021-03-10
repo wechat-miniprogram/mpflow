@@ -36,7 +36,7 @@
     "@babel/runtime": "^7.11.2",
     "@mpflow/service": "link:../service",
     "core-js": "^2.6.11",
-    "webpack": "^4.43.0"
+    "webpack": "^5.11.1"
   },
   "peerDependencies": {
     "@mpflow/service": "*"

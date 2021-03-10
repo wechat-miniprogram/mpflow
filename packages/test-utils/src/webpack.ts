@@ -8,21 +8,21 @@ import fs from 'fs'
 
 export function getCompiler(config: Configuration): Compiler {
   const fullConfig = merge(
-    {
-      mode: 'development',
-      devtool: false,
-      target: 'node',
-      optimization: {
-        minimize: false,
-        namedModules: false,
-      },
-      output: {
-        filename: '[name].bundle.js',
-        chunkFilename: '[name].chunk.js',
-        libraryTarget: 'commonjs2',
-        pathinfo: false,
-      },
-    },
+    // {
+    //   mode: 'development',
+    //   devtool: false,
+    //   target: 'node',
+    //   optimization: {
+    //     minimize: false,
+    //     moduleIds: 'natural',
+    //   },
+    //   output: {
+    //     filename: '[name].bundle.js',
+    //     chunkFilename: '[name].chunk.js',
+    //     libraryTarget: 'commonjs2',
+    //     pathinfo: false,
+    //   },
+    // },
     config,
   )
 
@@ -30,7 +30,7 @@ export function getCompiler(config: Configuration): Compiler {
 
   const outputFileSystem = createFsFromVolume(new Volume())
 
-  compiler.outputFileSystem = Object.assign(outputFileSystem, { join: path.join.bind(path) })
+  compiler.outputFileSystem = Object.assign(outputFileSystem, { join: path.join.bind(path) }) as any
 
   return compiler
 }
@@ -66,12 +66,6 @@ export function getErrors(stats: Stats): string[] {
   return normalizeErrors(stats.compilation.errors)
 }
 
-export function getModuleSource(id: string, stats: Stats): string | undefined {
-  const { modules } = stats.toJson({ source: true })
-  const module = modules?.find(module => module.name.endsWith(id))
-  return module?.source
-}
-
 export function execute<T>(code: string): T {
   const resource = 'test.js'
   const module = new Module(resource)
@@ -87,7 +81,7 @@ export function execute<T>(code: string): T {
 
 export function readAsset(asset: string, compiler: Compiler, stats: Stats): string {
   const outFs = (compiler.outputFileSystem as any) as IFs
-  const outputPath: string = stats.compilation.outputOptions.path
+  const outputPath = stats.compilation.outputOptions.path || ''
 
   let data = ''
   let targetFile = asset

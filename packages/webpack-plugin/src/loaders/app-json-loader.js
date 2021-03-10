@@ -2,7 +2,7 @@ import { getOptions } from 'loader-utils'
 import path from 'path'
 import {
   addDependency,
-  addExternal,
+  addEntry,
   asyncLoaderWrapper,
   evalModuleBundleCode,
   getMpflowLoaders,
@@ -34,7 +34,7 @@ export default asyncLoaderWrapper(async function (source) {
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
       const chunkName = getPageOutputPath(this.rootContext, appContext, '/', componentRequest, resolvedComponentRequest)
 
-      await addExternal(
+      await addEntry(
         this,
         stringifyResource(
           resolvedComponentRequest,
@@ -50,8 +50,6 @@ export default asyncLoaderWrapper(async function (source) {
           ],
           { disabled: 'normal' },
         ),
-        'page',
-        chunkName,
         chunkName,
       )
     }
@@ -65,7 +63,7 @@ export default asyncLoaderWrapper(async function (source) {
       const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
       const chunkName = getPageOutputPath(this.rootContext, appContext, '/', pageRequest, resolvedPageRequest)
 
-      await addExternal(
+      await addEntry(
         this,
         stringifyResource(
           resolvedPageRequest,
@@ -83,14 +81,12 @@ export default asyncLoaderWrapper(async function (source) {
             disabled: 'normal',
           },
         ),
-        'page',
-        chunkName,
         chunkName,
       )
     }
   }
 
-  const subPackages = moduleContent.subPackages || moduleContent.subpackages;
+  const subPackages = moduleContent.subPackages || moduleContent.subpackages
   if (Array.isArray(subPackages)) {
     // 处理分包规则
     for (const pkg of subPackages) {
@@ -107,7 +103,7 @@ export default asyncLoaderWrapper(async function (source) {
         const resolvedPageRequest = await resolveWithType(this, 'miniprogram/page', pageRequest)
         const chunkName = getPageOutputPath(this.rootContext, appContext, '/', pageRequest, resolvedPageRequest)
 
-        await addExternal(
+        await addEntry(
           this,
           stringifyResource(
             resolvedPageRequest,
@@ -125,8 +121,6 @@ export default asyncLoaderWrapper(async function (source) {
               disabled: 'normal',
             },
           ),
-          'page',
-          chunkName,
           chunkName,
         )
       }
@@ -140,7 +134,7 @@ export default asyncLoaderWrapper(async function (source) {
     const resolvedTabBarRequest = await resolveWithType(this, 'miniprogram/page', tabBarRequest)
     const chunkName = 'custom-tab-bar/index'
 
-    await addExternal(
+    await addEntry(
       this,
       stringifyResource(
         resolvedTabBarRequest,
@@ -158,7 +152,6 @@ export default asyncLoaderWrapper(async function (source) {
           disabled: 'normal',
         },
       ),
-      'page',
       chunkName,
     )
 

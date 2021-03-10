@@ -1,1 +1,2 @@
-@import "./_commons/index~logs.wxss";
+@import 'utils_util_js.wxss';
+/**index.wxss**/

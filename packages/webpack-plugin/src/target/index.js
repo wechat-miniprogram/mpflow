@@ -1,11 +1,11 @@
-import FunctionModulePlugin from 'webpack/lib/FunctionModulePlugin'
-import LoaderTargetPlugin from 'webpack/lib/LoaderTargetPlugin'
-import ExternalsPlugin from 'webpack/lib/ExternalsPlugin'
-import MiniprogramTemplatePlugin from './MiniprogramTemplatePlugin'
+import MiniprogramChunkFormatPlugin from './MiniprogramChunkFormatPlugin'
 
-export default function MiniProgramTarget(compiler) {
-  new MiniprogramTemplatePlugin({ asyncChunkLoading: true }).apply(compiler)
-  new FunctionModulePlugin().apply(compiler)
-  new LoaderTargetPlugin('miniprogram').apply(compiler)
-  new ExternalsPlugin('commonjs2', [/^\/__wx__\//]).apply(compiler)
+/** @typedef {import('webpack').Compiler} Compiler */
+export default class MiniProgramTargetPlugin {
+  /**
+   * @param {Compiler} compiler
+   */
+  apply(compiler) {
+    new MiniprogramChunkFormatPlugin().apply(compiler)
+  }
 }

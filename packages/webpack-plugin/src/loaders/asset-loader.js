@@ -1,7 +1,21 @@
 import { getOptions } from 'loader-utils'
 import AssetDependency from '../AssetDependency'
-import { asyncLoaderWrapper, evalModuleBundleCode, getModuleIdentifier } from '../utils'
+import { asyncLoaderWrapper, evalModuleBundleCode } from '../utils'
 import path from 'path'
+
+/**
+ * @param {import('webpack').Compilation} compilation
+ * @param {*} id
+ */
+function getModuleIdentifier(compilation, id) {
+  const modules = compilation.modules
+  const chunkGraph = compilation.chunkGraph
+  for (const module of modules) {
+    const moduleId = chunkGraph.getModuleId(module)
+    if (moduleId === id) return module.identifier()
+  }
+  return null
+}
 
 export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}

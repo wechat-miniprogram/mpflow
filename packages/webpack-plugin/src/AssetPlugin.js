@@ -1,7 +1,11 @@
-import { ConcatSource, OriginalSource, RawSource, SourceMapSource } from 'webpack-sources'
 import AssetDependency from './AssetDependency'
-import AssetModule from './AssetModule'
 import AssetModuleFactory from './AssetModuleFactory'
+import webpack from 'webpack'
+import path from 'path'
+
+const {
+  sources: { RawSource, ConcatSource, OriginalSource, SourceMapSource },
+} = webpack
 
 const PLUGIN_NAME = 'Mpflow Asset Plugin'
 
@@ -16,52 +20,134 @@ class AssetPlugin {
 
   /**
    * 获取 manifests
+   * @param {import('webpack').Compilation} compilation
    * @param {string} type
    * @param {AssetModule[]} modules
    * @param {object} context
-   * @param {import('webpack').Compiler} context.compiler
-   * @param {import('webpack').compilation.Compilation} context.compilation
-   * @param {import('webpack').compilation.Chunk} context.chunk
+   * @param {import('webpack').Chunk} context.chunk
+   * @param {string} context.hash
+   * @param {string} context.fullHash
+   * @param {import('webpack').Output} context.outputOptions
+   * @param {import('webpack').CodeGenerationResults} context.codeGenerationResults
+   * @param {{ javascript: import('webpack').ModuleTemplate }} context.moduleTemplates
+   * @param {import('webpack').DependencyTemplates} context.dependencyTemplates
+   * @param {import('webpack').RuntimeTemplate} context.runtimeTemplate
+   * @param {import('webpack').ModuleGraph} context.moduleGraph
+   * @param {import('webpack').ChunkGraph} context.chunkGraph
    */
-  renderManifests(type, modules, { compiler, compilation, chunk }) {
+  renderManifests(compilation, type, modules, context) {
+    const { chunk } = context
+
     switch (type) {
       case 'miniprogram/json':
         // json 文件每个都独立输出到最终位置
         return modules.map(module => ({
-          render: () =>
-            this.renderContentAsset(compilation, chunk, [module], compilation.runtimeTemplate.requestShortener),
+          render: () => this.renderRawModule(compilation, module, context),
           pathOptions: { chunk },
           filenameTemplate: module.outputPath,
-          identifier: `${PLUGIN_NAME}.${type}.${module.id}`,
-          hash: module.hash,
+          identifier: module.identifier(),
         }))
       case 'miniprogram/wxss':
         // wxss 文件一起输出到 commons
         return [
           {
-            render: () =>
-              this.renderContentAsset(compilation, chunk, modules, compilation.runtimeTemplate.requestShortener),
-            filenameTemplate: '_commons/[id].wxss',
+            render: () => this.renderWxssChunk(compilation, modules, context),
+            filenameTemplate: '[id].wxss',
             pathOptions: {
               chunk,
             },
-            identifier: `${PLUGIN_NAME}.${type}.${chunk.id}`,
-            hash: chunk.hash, // TODO type hash
+            identifier: `${type}.${chunk.id}`,
           },
         ]
       case 'miniprogram/wxml':
         // wxml 文件每个都独立输出到最终位置
-        return modules.map((module, index) => ({
-          render: () =>
-            this.renderContentAsset(compilation, chunk, [module], compilation.runtimeTemplate.requestShortener),
+        return modules.map(module => ({
+          render: () => this.renderRawModule(compilation, module, context),
           pathOptions: { chunk },
           filenameTemplate: module.outputPath,
-          identifier: `${PLUGIN_NAME}.${type}.${module.id}`,
-          hash: module.hash,
+          identifier: module.identifier(),
         }))
       default:
         return []
     }
+  }
+
+  /**
+   * 获取 manifests
+   * @param {import('webpack').Compilation} compilation
+   * @param {AssetModule} module
+   * @param {object} context
+   * @param {import('webpack').Chunk} context.chunk
+   * @param {string} context.hash
+   * @param {string} context.fullHash
+   * @param {import('webpack').Output} context.outputOptions
+   * @param {import('webpack').CodeGenerationResults} context.codeGenerationResults
+   * @param {{ javascript: import('webpack').ModuleTemplate }} context.moduleTemplates
+   * @param {import('webpack').DependencyTemplates} context.dependencyTemplates
+   * @param {import('webpack').RuntimeTemplate} context.runtimeTemplate
+   * @param {import('webpack').ModuleGraph} context.moduleGraph
+   * @param {import('webpack').ChunkGraph} context.chunkGraph
+   */
+  renderRawModule(compilation, module, context) {
+    if (module.sourceMap) {
+      return new SourceMapSource(module.content, module.identifier(), module.sourceMap)
+    } else {
+      return new OriginalSource(module.content, module.identifier())
+    }
+  }
+
+  /**
+   * 获取 manifests
+   * @param {import('webpack').Compilation} compilation
+   * @param {AssetModule[]} modules
+   * @param {object} context
+   * @param {import('webpack').Chunk} context.chunk
+   * @param {string} context.hash
+   * @param {string} context.fullHash
+   * @param {import('webpack').Output} context.outputOptions
+   * @param {import('webpack').CodeGenerationResults} context.codeGenerationResults
+   * @param {{ javascript: import('webpack').ModuleTemplate }} context.moduleTemplates
+   * @param {import('webpack').DependencyTemplates} context.dependencyTemplates
+   * @param {import('webpack').RuntimeTemplate} context.runtimeTemplate
+   * @param {import('webpack').ModuleGraph} context.moduleGraph
+   * @param {import('webpack').ChunkGraph} context.chunkGraph
+   */
+  renderWxssChunk(compilation, modules, context) {
+    const getOutputName = chunk => {
+      return compilation.getPath('[id].wxss', {
+        chunk,
+        contentHashType: 'miniprogram/wxss',
+      })
+    }
+
+    const renderChunkModules = (modules, renderModule) => {
+      const { chunk, chunkGraph } = context
+
+      // 获取含有 wxss 的 chunk
+      const dependentChunks = Array.from(chunkGraph.getChunkEntryDependentChunksIterable(chunk)).filter(
+        dependentChunk =>
+          !!(chunkGraph.getChunkModulesIterableBySourceType(dependentChunk, 'miniprogram/wxss') || new Set()).size,
+      )
+
+      const source = new ConcatSource()
+
+      const selfOutputDir = path.dirname(getOutputName(chunk))
+
+      for (const chunk of dependentChunks) {
+        const outputName = getOutputName(chunk)
+        source.add(`@import '${path.relative(selfOutputDir, outputName)}';\n`)
+      }
+
+      for (const module of modules) {
+        source.add(renderModule(module, context))
+      }
+
+      return source
+    }
+
+    return (
+      renderChunkModules(modules, module => this.renderRawModule(compilation, module, context)) || new RawSource('')
+    )
   }
 
   /**
@@ -76,7 +162,7 @@ class AssetPlugin {
 
     const [chunkGroup] = chunk.groupsIterable
 
-    if (typeof chunkGroup.getModuleIndex2 === 'function') {
+    if (typeof chunkGroup.getModulePostOrderIndex === 'function') {
       // Store dependencies for modules
       const moduleDependencies = new Map(modules.map(m => [m, new Set()]))
       const moduleDependenciesReasons = new Map(modules.map(m => [m, new Map()]))
@@ -89,7 +175,7 @@ class AssetPlugin {
           .map(m => {
             return {
               module: m,
-              index: cg.getModuleIndex2(m),
+              index: cg.getModulePostOrderIndex(m),
             }
           })
           // eslint-disable-next-line no-undefined
@@ -211,43 +297,33 @@ class AssetPlugin {
     return source
   }
 
+  /**
+   *
+   * @param {import('webpack').Compiler} compiler
+   */
   apply(compiler) {
-    compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
+    compiler.hooks.thisCompilation.tap(PLUGIN_NAME, compilation => {
       compilation.dependencyFactories.set(AssetDependency, new AssetModuleFactory())
 
       compilation.dependencyTemplates.set(AssetDependency, new AssetDependency.Template())
 
-      compilation.mainTemplate.hooks.renderManifest.tap(PLUGIN_NAME, (result, { chunk }) => {
-        const assetModules = Array.from(chunk.modulesIterable).filter(module => module instanceof AssetModule)
+      compilation.hooks.renderManifest.tap(PLUGIN_NAME, (result, options) => {
+        const { chunk, chunkGraph } = options
 
-        if (!assetModules.length) return
+        const sourceTypes = ['miniprogram/json', 'miniprogram/wxml', 'miniprogram/wxss']
 
-        const assetModuleTypeMap = assetModules.reduce((assetModuleTypeMap, assetModule) => {
-          if (!assetModuleTypeMap[assetModule.type]) assetModuleTypeMap[assetModule.type] = []
-          assetModuleTypeMap[assetModule.type].push(assetModule)
-          return assetModuleTypeMap
-        }, {})
+        for (const sourceType of sourceTypes) {
+          const modules = Array.from(
+            chunkGraph.getOrderedChunkModulesIterableBySourceType(
+              chunk,
+              sourceType,
+              webpack.util.comparators.compareModulesById,
+            ) || [],
+          )
 
-        for (const type in assetModuleTypeMap) {
-          result.push(...this.renderManifests(type, assetModuleTypeMap[type], { compiler, compilation, chunk }))
-        }
+          if (!modules.length) continue
 
-        return result
-      })
-
-      compilation.chunkTemplate.hooks.renderManifest.tap(PLUGIN_NAME, (result, { chunk }) => {
-        const assetModules = Array.from(chunk.modulesIterable).filter(module => module instanceof AssetModule)
-
-        if (!assetModules.length) return
-
-        const assetModuleTypeMap = assetModules.reduce((assetModuleTypeMap, assetModule) => {
-          if (!assetModuleTypeMap[assetModule.type]) assetModuleTypeMap[assetModule.type] = []
-          assetModuleTypeMap[assetModule.type].push(assetModule)
-          return assetModuleTypeMap
-        }, {})
-
-        for (const type in assetModuleTypeMap) {
-          result.push(...this.renderManifests(type, assetModuleTypeMap[type], { compiler, compilation, chunk }))
+          result.push(...this.renderManifests(compilation, sourceType, modules, options))
         }
 
         return result

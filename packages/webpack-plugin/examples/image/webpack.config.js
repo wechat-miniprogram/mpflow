@@ -10,18 +10,29 @@ module.exports = {
     app: `${mpflowPlugin.appLoader}!./app`,
   },
 
-  devtool: 'none',
+  devtool: false,
 
   output: {
     path: path.resolve(__dirname, 'dist'),
     pathinfo: false,
-    filename: '_commons/[id].js',
-    chunkFilename: '_commons/[id].js',
-    libraryTarget: 'var',
+    filename: '[id].js',
+    chunkFilename: '[id].js',
+    globalObject: 'globalThis',
+    chunkFormat: 'commonjs',
+    chunkLoading: 'require',
+    environment: {
+      arrowFunction: false,
+      const: false,
+      destructuring: false,
+      forOf: false,
+      bigIntLiteral: false,
+      dynamicImport: false,
+      module: false,
+    },
   },
 
   optimization: {
-    namedModules: false,
+    moduleIds: 'natural',
   },
 
   module: {
@@ -72,8 +83,6 @@ module.exports = {
       },
     ],
   },
-
-  target: mpflowPlugin.target,
 
   plugins: [
     new mpflowPlugin({

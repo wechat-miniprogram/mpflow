@@ -1,7 +1,7 @@
 import { getOptions } from 'loader-utils'
 import path from 'path'
 import {
-  addExternal,
+  addEntry,
   asyncLoaderWrapper,
   evalModuleBundleCode,
   getMpflowLoaders,
@@ -47,7 +47,7 @@ export default asyncLoaderWrapper(async function (source) {
         resolvedComponentRequest,
       )
 
-      await addExternal(
+      await addEntry(
         this,
         stringifyResource(
           resolvedComponentRequest,
@@ -63,8 +63,6 @@ export default asyncLoaderWrapper(async function (source) {
           ],
           { disabled: 'normal' },
         ),
-        'page',
-        chunkName,
         chunkName,
       )
     }
