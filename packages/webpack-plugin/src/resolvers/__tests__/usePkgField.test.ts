@@ -12,7 +12,7 @@ describe('resolver usePkgField', () => {
         '/node_modules/a/mp_dist/dir/index': '',
         '/node_modules/a/index': '',
         '/node_modules/a/dir/index': '',
-        '/node_modules/a/package.json': '{"main":"index","miniprogram":"mp_dist"}',
+        '/node_modules/a/package.json': '{"main":"index","miniprogram":"mp_dist/"}',
         '/node_modules/b/miniprogram_dist/index': '',
         '/node_modules/b/miniprogram_dist/dir/index': '',
         '/node_modules/b/index': '',

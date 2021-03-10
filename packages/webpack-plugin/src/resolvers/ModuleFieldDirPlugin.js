@@ -27,7 +27,7 @@ export default class ModuleFieldDirPlugin {
       if (!miniprogramDistPath) return callback()
 
       const obj = Object.assign({}, request, {
-        path: path.join(request.descriptionFileRoot, miniprogramDistPath),
+        path: path.join(request.descriptionFileRoot, miniprogramDistPath).replace(/\/$/, ''),
         request: request.relativePath,
         alreadyTriedMiniprogramField: request.descriptionFilePath,
       })
