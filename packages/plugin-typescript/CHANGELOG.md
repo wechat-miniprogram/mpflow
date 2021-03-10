@@ -3,51 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.0.22](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.21...@mpflow/plugin-typescript@0.0.22) (2021-01-18)
+## [0.0.23](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.22...@mpflow/plugin-typescript@0.0.23) (2021-03-10)
 
 **Note:** Version bump only for package @mpflow/plugin-typescript
 
+## [0.0.22](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.21...@mpflow/plugin-typescript@0.0.22) (2021-01-18)
 
-
-
+**Note:** Version bump only for package @mpflow/plugin-typescript
 
 ## [0.0.21](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.20...@mpflow/plugin-typescript@0.0.21) (2020-12-28)
 
 **Note:** Version bump only for package @mpflow/plugin-typescript
 
-
-
-
-
 ## [0.0.20](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.19...@mpflow/plugin-typescript@0.0.20) (2020-12-23)
 
 **Note:** Version bump only for package @mpflow/plugin-typescript
 
-
-
-
-
 ## [0.0.19](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.18...@mpflow/plugin-typescript@0.0.19) (2020-12-16)
-
 
 ### Features
 
-* **plugin-typescript:** add proposal-export-ns ([a4ae831](https://github.com/wechat-miniprogram/mpflow/commit/a4ae83143ecd8af60cfa129b96eb0604989a9228))
-
-
-
-
+- **plugin-typescript:** add proposal-export-ns ([a4ae831](https://github.com/wechat-miniprogram/mpflow/commit/a4ae83143ecd8af60cfa129b96eb0604989a9228))
 
 ## [0.0.18](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.17...@mpflow/plugin-typescript@0.0.18) (2020-12-08)
 
-
 ### Bug Fixes
 
-* **plugin-typescript:** 添加 proposal plugins ([0e186fd](https://github.com/wechat-miniprogram/mpflow/commit/0e186fd5a6b412c49b5385cc91e47a55d91eaf63))
-
-
-
-
+- **plugin-typescript:** 添加 proposal plugins ([0e186fd](https://github.com/wechat-miniprogram/mpflow/commit/0e186fd5a6b412c49b5385cc91e47a55d91eaf63))
 
 ## [0.0.17](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.15...@mpflow/plugin-typescript@0.0.17) (2020-11-12)
 

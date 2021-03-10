@@ -3,55 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [0.0.22](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.21...@mpflow/service@0.0.22) (2021-01-18)
+## [0.0.23](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.22...@mpflow/service@0.0.23) (2021-03-10)
 
+**Note:** Version bump only for package @mpflow/service
+
+## [0.0.22](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.21...@mpflow/service@0.0.22) (2021-01-18)
 
 ### Features
 
-* **service:** 添加 sourceMappingURL ([7f47d63](https://github.com/wechat-miniprogram/mpflow/commit/7f47d63088ba6eb5433062152c7439c67e341b2d))
-
-
-
-
+- **service:** 添加 sourceMappingURL ([7f47d63](https://github.com/wechat-miniprogram/mpflow/commit/7f47d63088ba6eb5433062152c7439c67e341b2d))
 
 ## [0.0.21](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.20...@mpflow/service@0.0.21) (2020-12-28)
 
-
 ### Features
 
-* **service:** 优化日志输出格式 ([446adab](https://github.com/wechat-miniprogram/mpflow/commit/446adab677bd670c970ac1da2a3779c2b1a2c3eb))
-* add PrettyPlugin ([600aefe](https://github.com/wechat-miniprogram/mpflow/commit/600aefecfa9a54f2f7cce73fa080f1dd6a76e81a))
-
-
-
-
+- **service:** 优化日志输出格式 ([446adab](https://github.com/wechat-miniprogram/mpflow/commit/446adab677bd670c970ac1da2a3779c2b1a2c3eb))
+- add PrettyPlugin ([600aefe](https://github.com/wechat-miniprogram/mpflow/commit/600aefecfa9a54f2f7cce73fa080f1dd6a76e81a))
 
 ## [0.0.20](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.19...@mpflow/service@0.0.20) (2020-12-23)
 
-
 ### Bug Fixes
 
-* **service:** fix build from node_modules ([d16beeb](https://github.com/wechat-miniprogram/mpflow/commit/d16beeb3cc3c4e3c1e66d759527c744724da4755))
-
-
-
-
+- **service:** fix build from node_modules ([d16beeb](https://github.com/wechat-miniprogram/mpflow/commit/d16beeb3cc3c4e3c1e66d759527c744724da4755))
 
 ## [0.0.19](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.18...@mpflow/service@0.0.19) (2020-12-16)
 
 **Note:** Version bump only for package @mpflow/service
 
-
-
-
-
 ## [0.0.18](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.17...@mpflow/service@0.0.18) (2020-12-08)
 
 **Note:** Version bump only for package @mpflow/service
-
-
-
-
 
 ## [0.0.17](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.15...@mpflow/service@0.0.17) (2020-11-12)
 
