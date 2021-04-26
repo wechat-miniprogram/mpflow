@@ -139,7 +139,7 @@ const wxssLoader: loader.Loader = function wxssLoader(content, map) {
         ? []
         : [
             require('cssnano')({
-              preset: 'default',
+              preset: 'lite',
             }),
           ]),
     ]).process(content, {

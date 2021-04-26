@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "cssnano": "^4.1.10",
+    "cssnano-preset-lite": "^2.0.0",
     "loader-utils": "^2.0.0",
     "postcss": "^7.0.32",
     "postcss-value-parser": "^4.1.0",
@@ -34,6 +35,7 @@
     "source-map": "0.6.1"
   },
   "devDependencies": {
+    "@types/loader-utils": "^2.0.2",
     "@types/webpack": "^4.41.17",
     "file-loader": "^6.0.0",
     "less-loader": "^6.2.0"
