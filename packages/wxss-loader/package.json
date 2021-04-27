@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/loader-utils": "^2.0.2",
-    "@types/webpack": "^4.41.17",
+    "@types/webpack": "^4",
     "file-loader": "^6.0.0",
     "less-loader": "^6.2.0"
   }
