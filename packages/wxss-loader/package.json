@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "cssnano": "^4.1.10",
-    "cssnano-preset-lite": "^2.0.0",
+    "cssnano-preset-lite": "^1.0.1",
     "loader-utils": "^2.0.0",
     "postcss": "^7.0.32",
     "postcss-value-parser": "^4.1.0",
