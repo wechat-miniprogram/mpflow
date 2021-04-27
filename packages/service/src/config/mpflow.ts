@@ -53,6 +53,7 @@ const mpflow: Plugin = (api, config) => {
             .qcloudRoot(config.qcloudRoot)
             .pluginRoot(config.pluginRoot)
             .settings(config.settings)
+            .useExtendedLib(config.useExtendedLib)
 
           emitProjectConfig = false
         }

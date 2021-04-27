@@ -78,7 +78,7 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 
 > 若你的项目是使用原生写法，配合一些简单的 gulp 脚本做代码转换，但整体项目结构依然为原生，则可以接入 mpflow
 
-另外请注意 mpflow 暂时还不能覆盖小程序的所有使用场景，如分包，worker 等特性都暂时未支持
+另外请注意 mpflow 暂时还不能覆盖小程序的所有使用场景，如独立分包，worker 等特性都暂时未支持
 
 ### 步骤
 
@@ -146,6 +146,10 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
      app: 'src/app', // 小程序 app 入口路径，为按上述步骤迁移后的 app.js 所在位置相对项目根目录的路径
      compileType: 'miniprogram', // 小程序项目类型，与 project.config.json 中的 compileType 相同即可
      plugins: [], // 插件列表，留空
+     useExtendedLib: {
+       // 使用扩展库，和 app.json 中的 useExtendedLib 相同即可
+       weui: true,
+     },
      settings: {
        // 项目配置，与 project.config.json 中的 settings 相同即可
        es6: false,
@@ -162,19 +166,19 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
    ```
 
    然后在 `babel.config.js` 文件中加入以下内容：
+
    ```js
    module.exports = {
-      presets: [
-         '@mpflow/plugin-babel/preset'
-      ]
+     presets: ['@mpflow/plugin-babel/preset'],
    }
    ```
 
    最后将 `plugin-babel` 加入 `mpflow.config.js` 的插件列表
+
    ```js
    // mpflow.config.js
    module.exports = {
-      plugins: ["@mpflow/plugin-babel"]
+     plugins: ['@mpflow/plugin-babel'],
    }
    ```
 
@@ -189,23 +193,22 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
    ```
 
    然后在 `babel.config.js` 文件中加入以下内容：
+
    ```js
    module.exports = {
-      presets: [
-         '@mpflow/plugin-babel/preset',
-         '@mpflow/plugin-typescript/preset', // 注意要放到 babel preset 之后
-      ]
+     presets: [
+       '@mpflow/plugin-babel/preset',
+       '@mpflow/plugin-typescript/preset', // 注意要放到 babel preset 之后
+     ],
    }
    ```
 
    最后将 `plugin-typescript` 加入 `mpflow.config.js` 的插件列表
+
    ```js
    // mpflow.config.js
    module.exports = {
-      plugins: [
-         "@mpflow/plugin-babel",
-         "@mpflow/plugin-typescript",
-      ]
+     plugins: ['@mpflow/plugin-babel', '@mpflow/plugin-typescript'],
    }
    ```
 
@@ -223,31 +226,31 @@ mpflow add slim # 安装 @mpflow/plugin-slim 插件，可用于小程序瘦身
 
    ```json
    {
-      "scripts": {
-         "build": "mpflow-service build",
-         "dev": "mpflow-service dev",
-         "dev:open": "mpflow-service dev:open"
-      }
+     "scripts": {
+       "build": "mpflow-service build",
+       "dev": "mpflow-service dev",
+       "dev:open": "mpflow-service dev:open"
+     }
    }
    ```
 
 ## Packages
 
-| Name                                | description                                                   |
-| ----------------------------------- | ------------------------------------------------------------- |
-| @mpflow/cli                         | cli 工具主要模块，处理用户的 cli 交互                         |
-| @mpflow/plugin-babel                | babel 插件，提供 js 的转义能力                                |
-| @mpflow/plugin-css                  | 样式处理插件，提供 less sass stylus 等支持                    |
-| @mpflow/plugin-e2e-test             | e2e 测试插件，通过 jest + miniprogram-automator 提供 e2e 测试 |
-| @mpflow/plugin-slim                 | 瘦身插件，提供代码重复度检查以及图片压缩等能力集成            |
-| @mpflow/plugin-typescript           | typescript 插件，提供 typescript 支持                         |
-| @mpflow/plugin-unit-test            | 单元测试插件，通过 jest 提供单元测试                          |
-| @mpflow/service                     | 开发、构建、测试能力，安装到用户本地项目中，用户可选升级      |
-| @mpflow/service-core                | cli 和 service-core 共用的一些通用代码                        |
-| @mpflow/template-miniprogram        | 小程序创建模板                                                |
-| @mpflow/template-miniprogram-components | 小程序组件库项目模板                                        |
-| @mpflow/template-miniprogram-plugin | 小程序插件创建模板                                            |
-| @mpflow/test-utils                  | 测试工具（private)                                            |
-| @mpflow/webpack-plugin              | 通过 webpack 构建小程序的 webpack 插件                        |
-| @mpflow/wxml-loader                 | webpack 的 wxml loader                                        |
-| @mpflow/wxss-loader                 | webpack 的 wxss loader                                        |
+| Name                                    | description                                                   |
+| --------------------------------------- | ------------------------------------------------------------- |
+| @mpflow/cli                             | cli 工具主要模块，处理用户的 cli 交互                         |
+| @mpflow/plugin-babel                    | babel 插件，提供 js 的转义能力                                |
+| @mpflow/plugin-css                      | 样式处理插件，提供 less sass stylus 等支持                    |
+| @mpflow/plugin-e2e-test                 | e2e 测试插件，通过 jest + miniprogram-automator 提供 e2e 测试 |
+| @mpflow/plugin-slim                     | 瘦身插件，提供代码重复度检查以及图片压缩等能力集成            |
+| @mpflow/plugin-typescript               | typescript 插件，提供 typescript 支持                         |
+| @mpflow/plugin-unit-test                | 单元测试插件，通过 jest 提供单元测试                          |
+| @mpflow/service                         | 开发、构建、测试能力，安装到用户本地项目中，用户可选升级      |
+| @mpflow/service-core                    | cli 和 service-core 共用的一些通用代码                        |
+| @mpflow/template-miniprogram            | 小程序创建模板                                                |
+| @mpflow/template-miniprogram-components | 小程序组件库项目模板                                          |
+| @mpflow/template-miniprogram-plugin     | 小程序插件创建模板                                            |
+| @mpflow/test-utils                      | 测试工具（private)                                            |
+| @mpflow/webpack-plugin                  | 通过 webpack 构建小程序的 webpack 插件                        |
+| @mpflow/wxml-loader                     | webpack 的 wxml loader                                        |
+| @mpflow/wxss-loader                     | webpack 的 wxss loader                                        |
