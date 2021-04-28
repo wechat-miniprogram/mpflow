@@ -7,6 +7,7 @@ import ResolverPlugin from './ResolverPlugin'
 import target from './target'
 import TemplatePlugin from './TemplatePlugin'
 import VirtualPlugin from './VirtualPlugin'
+import RuntimeModulesPlugin from './RuntimeModulesPlugin'
 
 class MpflowWebpackPlugin {
   /**
@@ -24,6 +25,9 @@ class MpflowWebpackPlugin {
     new ExternalPlugin().apply(compiler)
     new ResolverPlugin(options.resolve).apply(compiler)
     new LoaderRulesPlugin(options.rules).apply(compiler)
+    new RuntimeModulesPlugin({
+      useExtendedLib: options.program.useExtendedLib,
+    }).apply(compiler)
 
     if (options.program) {
       options.program.outputPath = options.program.outputPath || 'project.config.json'

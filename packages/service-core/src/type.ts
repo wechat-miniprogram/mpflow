@@ -72,6 +72,10 @@ export interface MpflowConfig {
    * project.config.json 中的 settings
    */
   settings?: any
+  /**
+   * app.json 中的 useExtendedLib
+   */
+  useExtendedLib?: any
 }
 
 export interface Plugin<Options = any> {

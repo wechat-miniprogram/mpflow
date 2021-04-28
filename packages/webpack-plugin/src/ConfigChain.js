@@ -80,6 +80,7 @@ class ProgramConfig extends ChainedMap {
       'qcloudRoot',
       'pluginRoot',
       'settings',
+      'useExtendedLib',
     ])
   }
 

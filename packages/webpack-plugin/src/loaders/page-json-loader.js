@@ -17,6 +17,7 @@ import { pageLoader } from './index'
  */
 export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
+  const runtimeModules = this.__mpflowRuntimeModules
 
   this.cacheable(false) // 由于需要 addEntry 所以不能缓存
 
@@ -37,6 +38,7 @@ export default asyncLoaderWrapper(async function (source) {
     // 对 comp.json 中读取到的 usingComponents 分别设立为入口
     for (const componentRequest of Object.values(moduleContent.usingComponents)) {
       if (!isRequest(componentRequest)) continue // 跳过 plugins:// 等等
+      if (runtimeModules.includes(componentRequest)) continue
 
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
       const chunkName = getPageOutputPath(

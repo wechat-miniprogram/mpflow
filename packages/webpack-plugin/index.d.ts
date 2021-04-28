@@ -33,6 +33,7 @@ declare namespace MpflowPlugin {
     qcloudRoot(value: string | undefined): this
     pluginRoot(value: string | undefined): this
     settings(value: any): this
+    useExtendedLib(value: any): this
   }
 
   export class ConfigChain extends ChainedMap<void> {
