@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.19](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.18...@mpflow/webpack-plugin@0.0.19) (2021-04-28)
+
+### Features
+
+- support useExtendedLib.weui ([89d6aac](https://github.com/wechat-miniprogram/mpflow/commit/89d6aac7f28c4e1f233849dcafaa12c85abc9625))
+
 ## [0.0.18](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.17...@mpflow/webpack-plugin@0.0.18) (2021-03-10)
 
 ### Bug Fixes

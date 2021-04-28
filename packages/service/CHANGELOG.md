@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.24](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.23...@mpflow/service@0.0.24) (2021-04-28)
+
+### Features
+
+- support useExtendedLib.weui ([89d6aac](https://github.com/wechat-miniprogram/mpflow/commit/89d6aac7f28c4e1f233849dcafaa12c85abc9625))
+
 ## [0.0.23](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.22...@mpflow/service@0.0.23) (2021-03-10)
 
 **Note:** Version bump only for package @mpflow/service

@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.28](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-babel@0.0.27...@mpflow/plugin-babel@0.0.28) (2021-04-28)
+
+**Note:** Version bump only for package @mpflow/plugin-babel
+
 ## [0.0.27](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-babel@0.0.26...@mpflow/plugin-babel@0.0.27) (2021-03-10)
 
 **Note:** Version bump only for package @mpflow/plugin-babel

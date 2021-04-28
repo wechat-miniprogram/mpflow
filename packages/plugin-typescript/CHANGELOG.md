@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.24](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.23...@mpflow/plugin-typescript@0.0.24) (2021-04-28)
+
+**Note:** Version bump only for package @mpflow/plugin-typescript
+
 ## [0.0.23](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-typescript@0.0.22...@mpflow/plugin-typescript@0.0.23) (2021-03-10)
 
 **Note:** Version bump only for package @mpflow/plugin-typescript

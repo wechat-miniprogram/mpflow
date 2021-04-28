@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.13](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service-core@0.0.12...@mpflow/service-core@0.0.13) (2021-04-28)
+
+### Bug Fixes
+
+- **webpack-plugin:** fix app.json themeLocation ([bb8abd8](https://github.com/wechat-miniprogram/mpflow/commit/bb8abd8dc729efba3c3acf111b168be2181a8eb4))
+
+### Features
+
+- support useExtendedLib.weui ([89d6aac](https://github.com/wechat-miniprogram/mpflow/commit/89d6aac7f28c4e1f233849dcafaa12c85abc9625))
+
 ## [0.0.12](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service-core@0.0.10...@mpflow/service-core@0.0.12) (2020-11-12)
 
 ### Features
