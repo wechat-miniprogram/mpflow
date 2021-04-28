@@ -7,6 +7,7 @@ async function testBuild(fixtureName: string) {
   const fixtureRoot = path.resolve(__dirname, `./fixtures/${fixtureName}`)
   const fixtureDist = path.resolve(fixtureRoot, 'dist')
   const runner = new ServiceRunner(fixtureRoot, { outputFileSystem: fs as any })
+  // const runner = new ServiceRunner(fixtureRoot)
   ;(runner.config as any)._clean = false
   await runner.run(['build'])
   await webpackTestUtils.expectAssetToMatchDir(vol.toJSON(fixtureDist, {}, true) as any, fixtureDist)

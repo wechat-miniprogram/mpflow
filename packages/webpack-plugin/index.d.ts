@@ -71,6 +71,9 @@ declare namespace MpflowPlugin {
       qcloudRoot?: string
       pluginRoot?: string
       settings?: any
+      useExtendedLib?: {
+        weui?: boolean
+      }
     }
   }
 }

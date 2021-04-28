@@ -25,11 +25,11 @@ class MpflowWebpackPlugin {
     new ExternalPlugin().apply(compiler)
     new ResolverPlugin(options.resolve).apply(compiler)
     new LoaderRulesPlugin(options.rules).apply(compiler)
-    new RuntimeModulesPlugin({
-      useExtendedLib: options.program.useExtendedLib,
-    }).apply(compiler)
 
     if (options.program) {
+      new RuntimeModulesPlugin({
+        useExtendedLib: options.program.useExtendedLib,
+      }).apply(compiler)
       options.program.outputPath = options.program.outputPath || 'project.config.json'
       new TemplatePlugin({
         templatePath: require.resolve('../template/project.config.json.ejs'),

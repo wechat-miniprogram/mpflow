@@ -86,7 +86,7 @@ Object {
       ],
       Array [
         "./b.wxss",
-        ".b{color:#00f;background:url(\\"image.09a1a111.png\\")}",
+        ".b{color:blue;background:url(\\"image.09a1a111.png\\")}",
         undefined,
       ],
       Array [
