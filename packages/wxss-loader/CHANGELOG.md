@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.7](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxss-loader@0.0.6...@mpflow/wxss-loader@0.0.7) (2021-06-22)
+
+### Bug Fixes
+
+- fix unit tests ([04eec90](https://github.com/wechat-miniprogram/mpflow/commit/04eec90c9106015328db4682eee86b85f46a78b6))
+
 ## [0.0.6](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxss-loader@0.0.5...@mpflow/wxss-loader@0.0.6) (2021-04-28)
 
 ### Bug Fixes

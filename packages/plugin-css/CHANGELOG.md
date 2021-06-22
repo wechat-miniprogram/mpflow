@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.25](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-css@0.0.24...@mpflow/plugin-css@0.0.25) (2021-06-22)
+
+**Note:** Version bump only for package @mpflow/plugin-css
+
 ## [0.0.24](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/plugin-css@0.0.23...@mpflow/plugin-css@0.0.24) (2021-04-28)
 
 **Note:** Version bump only for package @mpflow/plugin-css
