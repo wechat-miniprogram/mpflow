@@ -32,6 +32,8 @@ describe('ConfigChain', () => {
       .use('stylus-loader')
       .loader('stylus-loader')
 
+    config.externals.add(/^weui-miniprogram\//)
+
     config.program.appId('wx123')
     config.program.compileType('miniprogram')
     config.program.projectName('test')

@@ -1,4 +1,4 @@
-import { Compiler, Resolve, RuleSetRule } from 'webpack'
+import { Compiler, Resolve, RuleSetRule, ExternalsElement } from 'webpack'
 import { ChainedMap, Resolve as ResolveChain, Rule as RuleChain, TypedChainedSet } from 'webpack-chain'
 
 declare namespace MpflowPlugin {
@@ -39,6 +39,7 @@ declare namespace MpflowPlugin {
   export class ConfigChain extends ChainedMap<void> {
     resolve: ResolveConfigChain<ConfigChain>
     rules: RulesConfigChain<ConfigChain>
+    externals: TypedChainedSet<this, ExternalsElement>
     program: ProgramConfigChain<ConfigChain>
 
     toConfig(): Options
@@ -62,6 +63,7 @@ declare namespace MpflowPlugin {
       wxml?: RuleSetRule[]
       wxss?: RuleSetRule[]
     }
+    externals?: ExternalsElement[]
     program?: {
       appId?: string
       outputPath?: string

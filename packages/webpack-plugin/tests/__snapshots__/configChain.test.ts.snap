@@ -2,6 +2,9 @@
 
 exports[`ConfigChain should work: toConfig 1`] = `
 Object {
+  "externals": Array [
+    /\\^weui-miniprogram\\\\//,
+  ],
   "program": Object {
     "appId": "wx123",
     "compileType": "miniprogram",
@@ -142,6 +145,9 @@ exports[`ConfigChain should work: toString 1`] = `
       }
     ]
   },
+  externals: [
+    /^weui-miniprogram\\\\//
+  ],
   program: {
     appId: 'wx123',
     compileType: 'miniprogram',

@@ -95,6 +95,7 @@ export class ConfigChain extends ChainedMap {
 
     this.resolve = new ResolveConfig(this)
     this.rules = new RulesConfig(this)
+    this.externals = new ChainedSet(this)
     this.program = new ProgramConfig(this)
   }
 
@@ -107,6 +108,7 @@ export class ConfigChain extends ChainedMap {
       ...(this.entries() || {}),
       resolve: this.resolve.toConfig(),
       rules: this.rules.toConfig(),
+      externals: this.externals.values(),
       program: this.program.toConfig(),
     })
   }

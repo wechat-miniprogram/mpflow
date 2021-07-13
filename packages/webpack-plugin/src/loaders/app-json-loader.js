@@ -20,7 +20,7 @@ import { assetLoader, pageLoader } from './index'
 export default asyncLoaderWrapper(async function (source) {
   const options = getOptions(this) || {}
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
-  const runtimeModules = this.__mpflowRuntimeModules
+  const isExternalModule = this.__mpflowIsExternalModule
 
   this.cacheable(false) // 由于需要 addEntry 所以不能缓存
 
@@ -31,7 +31,7 @@ export default asyncLoaderWrapper(async function (source) {
     // 对 app.json 中读取到的 usingComponents 分别设立为入口
     for (const componentRequest of Object.values(moduleContent.usingComponents)) {
       if (!isRequest(componentRequest)) continue
-      if (runtimeModules.includes(componentRequest)) continue
+      if (isExternalModule && isExternalModule(componentRequest)) continue
 
       const resolvedComponentRequest = await resolveWithType(this, 'miniprogram/page', componentRequest)
       const chunkName = getPageOutputPath(this.rootContext, appContext, '/', componentRequest, resolvedComponentRequest)

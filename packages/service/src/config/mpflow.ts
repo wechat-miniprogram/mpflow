@@ -37,6 +37,10 @@ const mpflow: Plugin = (api, config) => {
       webpackConfig.plugin('mpflow').tap(([mpflowConfig]: [ConfigChain]) => {
         mpflowConfig.resolve.roots.add(api.resolve(config.sourceDir || 'src'))
 
+        if (config.useExtendedLib?.weui) {
+          mpflowConfig.externals.add(/^weui-miniprogram\//)
+        }
+
         // 找一个 webpack 生成 project.config.json
         if (emitProjectConfig) {
           mpflowConfig.program
