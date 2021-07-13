@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.22](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.21...@mpflow/webpack-plugin@0.0.22) (2021-07-13)
+
+### Bug Fixes
+
+- fix useExtendLibs ([5ad4a74](https://github.com/wechat-miniprogram/mpflow/commit/5ad4a747d31e278f7aea80cf9bd2d6a3d11a212a))
+
 ## [0.0.21](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.20...@mpflow/webpack-plugin@0.0.21) (2021-06-22)
 
 **Note:** Version bump only for package @mpflow/webpack-plugin

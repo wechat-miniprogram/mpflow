@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.27](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.26...@mpflow/service@0.0.27) (2021-07-13)
+
+### Bug Fixes
+
+- fix useExtendLibs ([5ad4a74](https://github.com/wechat-miniprogram/mpflow/commit/5ad4a747d31e278f7aea80cf9bd2d6a3d11a212a))
+
 ## [0.0.26](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.25...@mpflow/service@0.0.26) (2021-06-22)
 
 **Note:** Version bump only for package @mpflow/service
