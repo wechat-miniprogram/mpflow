@@ -121,6 +121,9 @@ const base: Plugin = (api, config) => {
         .pre()
         .use('@mpflow/wxml-loader')
         .loader(require.resolve('@mpflow/wxml-loader'))
+        .options({
+          name: '/_commons/[name].[hash:8].[ext]',
+        })
 
       webpackConfig.module
         .rule('images')
@@ -186,8 +189,8 @@ const base: Plugin = (api, config) => {
             module: true,
             columns: mode === 'production' ? true : false,
             test: /\.(js)($|\?)/i,
-            append: "\n// # sourceMappingURL=[url]"
-          }
+            append: '\n// # sourceMappingURL=[url]',
+          },
         ])
 
         webpackConfig.plugin('source-map-wxss').use(SourceMapDevToolPlugin, [
@@ -196,8 +199,8 @@ const base: Plugin = (api, config) => {
             module: true,
             columns: mode === 'production' ? true : false,
             test: /\.(wxss)($|\?)/i,
-            append: "\n/* # sourceMappingURL=[url] */"
-          }
+            append: '\n/* # sourceMappingURL=[url] */',
+          },
         ])
       }
 
