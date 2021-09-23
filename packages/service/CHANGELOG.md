@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.28](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.27...@mpflow/service@0.0.28) (2021-09-23)
+
+### Bug Fixes
+
+- **service:** export common wxml to \_commons ([a2b4815](https://github.com/wechat-miniprogram/mpflow/commit/a2b48151cd5df9b5ceaff8ea11535d936fb133ef))
+
 ## [0.0.27](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/service@0.0.26...@mpflow/service@0.0.27) (2021-07-13)
 
 ### Bug Fixes

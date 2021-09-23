@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.23](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.22...@mpflow/webpack-plugin@0.0.23) (2021-09-23)
+
+### Bug Fixes
+
+- **webpack-plugin:** support absolute wxml ([e10a02e](https://github.com/wechat-miniprogram/mpflow/commit/e10a02eeab2698424d01da195fe16d846401eb29))
+
 ## [0.0.22](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.21...@mpflow/webpack-plugin@0.0.22) (2021-07-13)
 
 ### Bug Fixes
