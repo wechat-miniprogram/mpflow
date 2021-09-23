@@ -44,6 +44,8 @@ export default asyncLoaderWrapper(async function (source) {
             content,
             index === exports.length - 1 // 列表最后一个是最顶层 wxml, 直接使用 outputPath
               ? outputPath
+              : path.isAbsolute(url)
+              ? url
               : path.join(outputDir, url),
             sourceMap,
           ),
