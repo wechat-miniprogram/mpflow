@@ -37,7 +37,7 @@ class AssetModule extends Module {
   }
 
   updateHash(hash) {
-    super.updateHash(hash)
+    // super.updateHash(hash)
 
     hash.update(this.content)
   }
