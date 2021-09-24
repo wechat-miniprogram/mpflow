@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.24](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.23...@mpflow/webpack-plugin@0.0.24) (2021-09-24)
+
+### Bug Fixes
+
+- **webpack-plugin:** fix asset module hash ([fcf5af6](https://github.com/wechat-miniprogram/mpflow/commit/fcf5af659c0a6edf4d76819631a6544fbcc818c2))
+
 ## [0.0.23](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.22...@mpflow/webpack-plugin@0.0.23) (2021-09-23)
 
 ### Bug Fixes
