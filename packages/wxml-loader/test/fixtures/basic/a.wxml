@@ -13,5 +13,6 @@ module.exports = {
     <label>
   </form> -->
   <image src="./image.png" />
+  <image src="/img.png" />
   {{foo.msg}}
 </view>

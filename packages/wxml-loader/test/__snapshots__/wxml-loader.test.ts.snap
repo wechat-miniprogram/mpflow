@@ -32,6 +32,7 @@ module.exports = {
     <label>
   </form> -->
   <image src=\\"image.09a1a111.png\\"/>
+  <image src=\\"img.09a1a111.png\\"/>
   {{foo.msg}}
 </view>",
         "a.wxml",
@@ -81,6 +82,7 @@ module.exports = {
     <label>
   </form> -->
   <image src=\\"image.09a1a111.png\\"/>
+  <image src=\\"img.09a1a111.png\\"/>
   {{foo.msg}}
 </view>",
         "a.wxml",
@@ -117,7 +119,7 @@ var some_msg = \\"hello world\\";
 module.exports = {
   msg : some_msg,
 }
-</wxs><wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/>{{foo.msg}}</view>",
+</wxs><wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/><image src=\\"img.09a1a111.png\\"/>{{foo.msg}}</view>",
         "a.wxml",
         undefined,
       ],

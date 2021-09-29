@@ -24,9 +24,9 @@ function isUrlRequest(url: string, root = false) {
   // }
 
   // 4. It's also not an request if root isn't set and it's a root-relative url
-  if ((root === undefined || root === false) && /^\//.test(url)) {
-    return false
-  }
+  // if ((root === undefined || root === false) && /^\//.test(url)) {
+  //   return false
+  // }
 
   return true
 }
