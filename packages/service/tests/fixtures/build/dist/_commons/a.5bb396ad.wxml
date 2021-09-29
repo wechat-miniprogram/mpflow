@@ -1,4 +1,4 @@
-<import src="b.wxml"/><wxs module="foo">
+<import src="/_commons/b.bc6a56c4.wxml"/><wxs module="foo">
 var some_msg = "hello world";
 module.exports = {
   msg : some_msg,
