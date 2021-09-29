@@ -167,7 +167,9 @@ export function evalModuleCode(loaderContext, code, filename) {
   module.filename = filename
   module._compile(code, filename) // eslint-disable-line no-underscore-dangle
 
-  return module.exports
+  const exports = module.exports
+
+  return exports.__esModule ? exports.default : exports
 }
 
 // export function evalModuleBundleCode(loaderContext, code, filename, publicPath = '') {
