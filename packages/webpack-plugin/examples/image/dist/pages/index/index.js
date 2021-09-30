@@ -93,10 +93,7 @@ module.exports =
 /***/ (function(module, exports) {
 
 //index.js
-
-Page({
-
-})
+Page({})
 
 
 /***/ }),

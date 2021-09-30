@@ -4,6 +4,10 @@ exports[`webpack-plugin examples app: errors 1`] = `Array []`;
 
 exports[`webpack-plugin examples app: warnings 1`] = `Array []`;
 
+exports[`webpack-plugin examples image: errors 1`] = `Array []`;
+
+exports[`webpack-plugin examples image: warnings 1`] = `Array []`;
+
 exports[`webpack-plugin examples plugin: errors 1`] = `Array []`;
 
 exports[`webpack-plugin examples plugin: warnings 1`] = `Array []`;

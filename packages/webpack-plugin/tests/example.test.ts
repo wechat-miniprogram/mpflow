@@ -9,6 +9,13 @@ describe('webpack-plugin examples', () => {
     await expectToMatchExampleDist(result.assets, 'app')
   })
 
+  test('image', async () => {
+    const result = await runExample('image')
+    expect(result.errors).toMatchSnapshot('errors')
+    expect(result.warnings).toMatchSnapshot('warnings')
+    await expectToMatchExampleDist(result.assets, 'image')
+  })
+
   test('plugin', async () => {
     const result = await runExample('plugin')
     expect(result.errors).toMatchSnapshot('errors')
