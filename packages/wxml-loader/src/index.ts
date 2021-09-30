@@ -27,7 +27,7 @@ function getImportCode(
 
   for (const item of imports) {
     const { importName, url } = item
-    const request = stringifyRequest(loaderContext, url)
+    const request = path.isAbsolute(url) ? JSON.stringify(url) : stringifyRequest(loaderContext, url)
 
     code += esModule ? `import ${importName} from ${request};\n` : `var ${importName} = require(${request});\n`
   }
