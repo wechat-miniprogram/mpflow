@@ -15,6 +15,11 @@ export default async function compile(
   const compiler = webpackTestUtils.getCompiler({
     context: path.resolve(__dirname, '../fixtures', fixture),
     entry: path.resolve(__dirname, '../fixtures', fixture, 'entry.js'),
+    resolve: {
+      alias: {
+        '/img.png': path.resolve(__dirname, '../fixtures', fixture, 'img.png'),
+      },
+    },
     module: {
       rules: [
         {

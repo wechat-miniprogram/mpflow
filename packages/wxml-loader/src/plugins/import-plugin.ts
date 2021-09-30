@@ -328,7 +328,7 @@ export default function importPlugin(options: ImportPluginOptions = {}): Plugin 
         // 跳过带 {{ }} 花括号的 url
         if (!resolveMustache && isMustacheUrl) return
 
-        const importKey = urlToRequest(url)
+        const importKey = urlToRequest(url, '')
         let importName: string
 
         if (isMustacheUrl) {
