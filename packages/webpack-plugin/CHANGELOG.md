@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.25](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.24...@mpflow/webpack-plugin@0.0.25) (2021-10-11)
+
+### Features
+
+- **webpack-plugin:** add componentGenerics support ([b1f9012](https://github.com/wechat-miniprogram/mpflow/commit/b1f901273b6265d4836feefefa1dae305fe87f68))
+- **webpack-plugin:** add exports error when evalModuleCode ([f39fb2f](https://github.com/wechat-miniprogram/mpflow/commit/f39fb2fe7ac19751ba173826adf3279899c5d028))
+- **webpack-plugin:** support esModule in evalModuleCode ([10261b0](https://github.com/wechat-miniprogram/mpflow/commit/10261b0c97fc8da17c70550b3cddc57d8f45a1ff))
+
 ## [0.0.24](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.23...@mpflow/webpack-plugin@0.0.24) (2021-09-24)
 
 ### Bug Fixes

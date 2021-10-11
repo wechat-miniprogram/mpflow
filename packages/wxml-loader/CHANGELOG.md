@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.8](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxml-loader@0.0.7...@mpflow/wxml-loader@0.0.8) (2021-10-11)
+
+### Bug Fixes
+
+- **wxml-loader:** fix absolute url resolve ([006e496](https://github.com/wechat-miniprogram/mpflow/commit/006e496915760490836091cd74d413a911a2f4c5))
+- **wxml-loader:** fix absolute url resolve ([013579a](https://github.com/wechat-miniprogram/mpflow/commit/013579a1b8d5e09950875d96af1d7624b132ad5b))
+
+### Features
+
+- **wxml-loader:** add absolute url support ([55a2ac3](https://github.com/wechat-miniprogram/mpflow/commit/55a2ac3f9975cd207fbe5e322b2089fdfe0d521e))
+- **wxml-loader:** add importAttributes options ([5414b23](https://github.com/wechat-miniprogram/mpflow/commit/5414b235dd8a671ce6bba4ecc5bc880abd094b4b))
+
 ## [0.0.7](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxml-loader@0.0.6...@mpflow/wxml-loader@0.0.7) (2021-06-22)
 
 **Note:** Version bump only for package @mpflow/wxml-loader

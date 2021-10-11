@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.30](https://github.com/wechat-miniprogram/weflow/compare/@mpflow/plugin-unit-test@0.0.29...@mpflow/plugin-unit-test@0.0.30) (2021-10-11)
+
+**Note:** Version bump only for package @mpflow/plugin-unit-test
+
 ## [0.0.29](https://github.com/wechat-miniprogram/weflow/compare/@mpflow/plugin-unit-test@0.0.28...@mpflow/plugin-unit-test@0.0.29) (2021-09-24)
 
 **Note:** Version bump only for package @mpflow/plugin-unit-test
