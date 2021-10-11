@@ -10,6 +10,7 @@ import {
   PluginReplaceMessage,
   pluginRunner,
 } from './plugins'
+import { ImportAttribute } from './plugins/import-plugin'
 import * as parser from './wxml-parser'
 
 function getImportCode(
@@ -85,6 +86,7 @@ export interface Options {
   sourceMap?: boolean
   minimize?: boolean
   resolveMustache?: boolean
+  importAttributes?: ImportAttribute[]
 }
 
 const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
@@ -124,6 +126,10 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
             description: 'Should transform mustache url to require',
             type: 'boolean',
           },
+          importAttributes: {
+            description: 'Attributes that indicate how to resolve imports',
+            type: 'array',
+          },
         },
       },
       options,
@@ -143,6 +149,7 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
     const { messages } = await pluginRunner([
       importPlugin({
         resolveMustache: options.resolveMustache,
+        attributes: options.importAttributes,
       }),
     ]).process(ast, {
       messages: [],

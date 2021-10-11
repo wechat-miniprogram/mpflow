@@ -135,13 +135,13 @@ function resolveMustacheUrl(fs: typeof FS, rootContext: string, url: string): st
     .map(filePath => path.join(context, filePath + query))
 }
 
-export interface ImportAttributes {
+export interface ImportAttribute {
   tag: string
   attribute: string
   importType?: 'child' | 'inline'
 }
 
-const defaultImportAttributes: ImportAttributes[] = [
+const defaultImportAttributes: ImportAttribute[] = [
   {
     tag: 'import',
     attribute: 'src',
@@ -164,7 +164,7 @@ const defaultImportAttributes: ImportAttributes[] = [
 
 export interface ImportPluginOptions {
   resolveMustache?: boolean
-  attributes?: ImportAttributes[]
+  attributes?: ImportAttribute[]
 }
 
 const PLUGIN_NAME = 'wxml import plugin'
@@ -175,10 +175,10 @@ export default function importPlugin(options: ImportPluginOptions = {}): Plugin 
     ...options,
   }
 
-  const tagAttrMap = new Map<string, Map<string, ImportAttributes>>()
+  const tagAttrMap = new Map<string, Map<string, ImportAttribute>>()
 
   for (const item of attributes) {
-    const attrSet = tagAttrMap.get(item.tag) || new Map<string, ImportAttributes>()
+    const attrSet = tagAttrMap.get(item.tag) || new Map<string, ImportAttribute>()
     attrSet.set(item.attribute, item)
     tagAttrMap.set(item.tag, attrSet)
   }
