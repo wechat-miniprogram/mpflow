@@ -170,10 +170,7 @@ export interface ImportPluginOptions {
 const PLUGIN_NAME = 'wxml import plugin'
 
 export default function importPlugin(options: ImportPluginOptions = {}): Plugin {
-  const { attributes, resolveMustache } = {
-    attributes: defaultImportAttributes,
-    ...options,
-  }
+  const { attributes = defaultImportAttributes, resolveMustache } = options
 
   const tagAttrMap = new Map<string, Map<string, ImportAttribute>>()
 
