@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.11](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/template-miniprogram-plugin@0.0.10...@mpflow/template-miniprogram-plugin@0.0.11) (2021-10-13)
+
+**Note:** Version bump only for package @mpflow/template-miniprogram-plugin
+
 ## [0.0.10](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/template-miniprogram-plugin@0.0.9...@mpflow/template-miniprogram-plugin@0.0.10) (2021-06-22)
 
 **Note:** Version bump only for package @mpflow/template-miniprogram-plugin

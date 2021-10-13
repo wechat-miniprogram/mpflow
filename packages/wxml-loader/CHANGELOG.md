@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.9](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxml-loader@0.0.8...@mpflow/wxml-loader@0.0.9) (2021-10-13)
+
+**Note:** Version bump only for package @mpflow/wxml-loader
+
 ## [0.0.8](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxml-loader@0.0.7...@mpflow/wxml-loader@0.0.8) (2021-10-11)
 
 ### Bug Fixes

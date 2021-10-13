@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.31](https://github.com/wechat-miniprogram/weflow/compare/@mpflow/plugin-e2e-test@0.0.30...@mpflow/plugin-e2e-test@0.0.31) (2021-10-13)
+
+**Note:** Version bump only for package @mpflow/plugin-e2e-test
+
 ## [0.0.30](https://github.com/wechat-miniprogram/weflow/compare/@mpflow/plugin-e2e-test@0.0.29...@mpflow/plugin-e2e-test@0.0.30) (2021-10-11)
 
 **Note:** Version bump only for package @mpflow/plugin-e2e-test
