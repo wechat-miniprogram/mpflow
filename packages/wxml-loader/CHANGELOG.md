@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.10](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxml-loader@0.0.9...@mpflow/wxml-loader@0.0.10) (2021-10-13)
+
+### Bug Fixes
+
+- **wxml-loader:** fix attributes not iterable ([cf4701f](https://github.com/wechat-miniprogram/mpflow/commit/cf4701f906858710235f81c4e5be1bfbf8b3e4ab))
+
 ## [0.0.9](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/wxml-loader@0.0.8...@mpflow/wxml-loader@0.0.9) (2021-10-13)
 
 **Note:** Version bump only for package @mpflow/wxml-loader
