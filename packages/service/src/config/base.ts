@@ -149,6 +149,7 @@ const base: Plugin = (api, config) => {
       webpackConfig.optimization
         .namedChunks(false)
         .runtimeChunk('single')
+        .minimize(minimize)
         .splitChunks({
           chunks: 'all',
           minSize: 0,
