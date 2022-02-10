@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.28](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.27...@mpflow/webpack-plugin@0.0.28) (2022-02-10)
+
+### Features
+
+- 支持小程序插件功能页的构建 ([624b1bd](https://github.com/wechat-miniprogram/mpflow/commit/624b1bd048d5c84e9855c444e89e51539777e18e))
+
 ## [0.0.27](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.26...@mpflow/webpack-plugin@0.0.27) (2021-10-13)
 
 **Note:** Version bump only for package @mpflow/webpack-plugin
