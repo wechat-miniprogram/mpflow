@@ -8,7 +8,7 @@ class ExternalDependency extends ModuleDependency {
   }
 
   get type() {
-    return 'external entey'
+    return 'external entry'
   }
 }
 
