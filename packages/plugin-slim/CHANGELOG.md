@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.34](https://github.com/wechat-miniprogram/weflow/compare/@mpflow/plugin-slim@0.0.33...@mpflow/plugin-slim@0.0.34) (2023-05-25)
+
+**Note:** Version bump only for package @mpflow/plugin-slim
+
 ## [0.0.33](https://github.com/wechat-miniprogram/weflow/compare/@mpflow/plugin-slim@0.0.32...@mpflow/plugin-slim@0.0.33) (2022-02-10)
 
 **Note:** Version bump only for package @mpflow/plugin-slim

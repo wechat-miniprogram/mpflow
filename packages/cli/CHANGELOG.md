@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.35](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/cli@0.0.34...@mpflow/cli@0.0.35) (2023-05-25)
+
+**Note:** Version bump only for package @mpflow/cli
+
 ## [0.0.34](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/cli@0.0.33...@mpflow/cli@0.0.34) (2022-02-10)
 
 **Note:** Version bump only for package @mpflow/cli

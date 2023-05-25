@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.29](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.28...@mpflow/webpack-plugin@0.0.29) (2023-05-25)
+
+### Features
+
+- ignore independent subPackage ([6cf4691](https://github.com/wechat-miniprogram/mpflow/commit/6cf4691ac09ada5d51a0054d54aceccbb2e995e7))
+
 ## [0.0.28](https://github.com/wechat-miniprogram/mpflow/compare/@mpflow/webpack-plugin@0.0.27...@mpflow/webpack-plugin@0.0.28) (2022-02-10)
 
 ### Features
