@@ -97,7 +97,12 @@ export default asyncLoaderWrapper(async function (source) {
   if (Array.isArray(subPackages)) {
     // 处理分包规则
     for (const pkg of subPackages) {
-      const { root, pages } = pkg
+      const { root, pages, independent } = pkg
+
+      if (independent) {
+        console.warn(`ignoring independent subPackage ${root}`)
+        continue
+      }
 
       if (!root || !Array.isArray(pages)) continue
 
@@ -224,22 +229,22 @@ export default asyncLoaderWrapper(async function (source) {
     moduleContent.themeLocation = 'theme.json'
   }
 
-    // 小程序插件宿主小程序，主要是支付功能页和用户信息功能页（用户信息功能页只需要配置无需代码）
-    if (moduleContent.functionalPages) {
-      const fileName = 'functional-pages/request-payment'
-      if (!fs.existsSync(`${appContext}/${fileName}.js`)) return '//'
+  // 小程序插件宿主小程序，主要是支付功能页和用户信息功能页（用户信息功能页只需要配置无需代码）
+  if (moduleContent.functionalPages) {
+    const fileName = 'functional-pages/request-payment'
+    if (!fs.existsSync(`${appContext}/${fileName}.js`)) return '//'
 
-      const resolvedMainRequest = await resolveWithType(this, 'miniprogram/javascript', fileName)
-      await addExternal(
-        this,
-        stringifyResource(resolvedMainRequest, getMpflowLoaders(this, resolvedMainRequest, 'javascript'), {
-          disabled: 'normal',
-        }),
-        'main',
-        fileName,
-        fileName,
-      )
-    }
+    const resolvedMainRequest = await resolveWithType(this, 'miniprogram/javascript', fileName)
+    await addExternal(
+      this,
+      stringifyResource(resolvedMainRequest, getMpflowLoaders(this, resolvedMainRequest, 'javascript'), {
+        disabled: 'normal',
+      }),
+      'main',
+      fileName,
+      fileName,
+    )
+  }
 
   return '//'
 })
