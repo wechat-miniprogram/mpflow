@@ -6,6 +6,10 @@ module.exports = api => {
 
   return {
     presets: ['@babel/preset-typescript', '@babel/preset-env'],
-    plugins: [['@babel/plugin-proposal-class-properties', { loose: true }]],
+    plugins: [
+      ['@babel/plugin-proposal-class-properties', { loose: true }],
+      ['@babel/plugin-transform-private-methods', { loose: true }],
+      ['@babel/plugin-transform-private-property-in-object', { loose: true }],
+    ],
   }
 }

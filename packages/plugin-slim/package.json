@@ -30,10 +30,10 @@
     "imagemin-gifsicle": "^7.0.0",
     "imagemin-jpegtran": "^7.0.0",
     "imagemin-optipng": "^8.0.0",
-    "imagemin-pngquant": "^9.0.0",
+    "imagemin-pngquant": "^9.0.2",
     "imagemin-svgo": "^8.0.0",
     "imagemin-webpack": "^5.1.1",
-    "jscpd": "^3.3.13"
+    "jscpd": "^3.5.10"
   },
   "devDependencies": {
     "@mpflow/service": "workspace:*",

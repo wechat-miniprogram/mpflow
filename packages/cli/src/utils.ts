@@ -91,7 +91,7 @@ export async function mkdirp(fileSystem: FileSystem, dirname: string): Promise<v
  */
 export async function writeFile(fileSystem: FileSystem, filename: string, content: string): Promise<void> {
   await mkdirp(fileSystem, path.dirname(filename))
-  await new Promise((resolve, reject) =>
+  await new Promise<void>((resolve, reject) =>
     fileSystem.writeFile(filename, content, { encoding: 'utf8' }, err => (err ? reject(err) : resolve())),
   )
 }
@@ -119,7 +119,7 @@ export async function writeFiles(
 export async function removeFiles(fileSystem: FileSystem, context: string, files: Iterable<string>): Promise<void> {
   for (const name of files) {
     const filePath = path.join(context, name)
-    await new Promise((resolve, reject) => fileSystem.unlink(filePath, err => (err ? reject(err) : resolve())))
+    await new Promise<void>((resolve, reject) => fileSystem.unlink(filePath, err => (err ? reject(err) : resolve())))
   }
 }
 

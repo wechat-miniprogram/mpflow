@@ -26,18 +26,18 @@
     "build-ts": "node ../../scripts/build-ts"
   },
   "dependencies": {
-    "@babel/core": "^7.10.4",
-    "@babel/plugin-transform-runtime": "^7.11.5",
-    "@babel/preset-env": "^7.10.4",
-    "babel-loader": "^8.1.0",
+    "@babel/core": "^7.25.2",
+    "@babel/plugin-transform-runtime": "^7.25.4",
+    "@babel/preset-env": "^7.25.4",
+    "babel-loader": "^8.4.1",
     "regenerator-runtime": "0.13.1"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.11.2",
+    "@babel/runtime": "^7.25.6",
     "@mpflow/service": "workspace:*",
     "@mpflow/service-core": "workspace:*",
-    "core-js": "^2.6.11",
-    "webpack": "^4.43.0"
+    "core-js": "^2.6.12",
+    "webpack": "^4.47.0"
   },
   "peerDependencies": {
     "@mpflow/service": "*"

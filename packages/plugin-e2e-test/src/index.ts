@@ -80,7 +80,7 @@ const plugin: Plugin = (api, config) => {
           '--test-environment-options',
           JSON.stringify({ projectPath: api.resolve(config.outputDir || 'dist') }),
           ...args._.slice(1),
-        ],
+        ].map(String),
         api.getCwd(),
       )
     },

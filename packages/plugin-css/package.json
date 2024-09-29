@@ -26,18 +26,18 @@
   "dependencies": {
     "@mpflow/wxss-loader": "workspace:*",
     "css-loader": "^3.6.0",
-    "deepmerge": "^4.2.2",
+    "deepmerge": "^4.3.1",
     "less-loader": "^6.2.0",
-    "postcss": "^8.2.4",
-    "postcss-loader": "^4.1.0",
-    "sass-loader": "^9.0.2",
-    "stylus": "^0.54.7",
+    "postcss": "^8.4.47",
+    "postcss-loader": "^4.3.0",
+    "sass-loader": "^9.0.3",
+    "stylus": "^0.54.8",
     "stylus-loader": "^3.0.2"
   },
   "devDependencies": {
     "@mpflow/service": "workspace:*",
     "@mpflow/webpack-plugin": "workspace:*",
-    "webpack": "^4.43.0"
+    "webpack": "^4.47.0"
   },
   "peerDependencies": {
     "@mpflow/service": "*"

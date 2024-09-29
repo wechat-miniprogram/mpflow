@@ -29,21 +29,21 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "devDependencies": {
-    "@babel/helper-plugin-utils": "^7.10.4",
-    "@babel/types": "^7.12.6",
-    "@codemod/core": "^1.0.7",
-    "@types/babel__core": "^7.1.9",
-    "@types/ejs": "^3.0.4",
+    "@babel/helper-plugin-utils": "^7.24.8",
+    "@babel/types": "^7.25.6",
+    "@codemod/core": "^1.1.1",
+    "@types/babel__core": "^7.20.5",
+    "@types/ejs": "^3.1.5",
     "@types/mkdirp": "^0.5.2",
-    "@types/rimraf": "^3.0.0",
-    "@types/webpack": "^4.41.21",
-    "@types/yargs": "^15.0.5",
+    "@types/rimraf": "^3.0.2",
+    "@types/webpack": "^4.41.39",
+    "@types/yargs": "^15.0.19",
     "webpack-chain": "6.5.0"
   },
   "dependencies": {
-    "@babel/core": "^7.10.3",
-    "@codemod/matchers": "^1.0.11",
-    "chalk": "^4.1.0",
+    "@babel/core": "^7.25.2",
+    "@codemod/matchers": "^1.7.1",
+    "chalk": "^4.1.2",
     "mkdirp": "^1.0.4",
     "rimraf": "^3.0.2",
     "yargs": "^15.4.1"

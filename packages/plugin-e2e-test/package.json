@@ -26,15 +26,15 @@
     "build-ts": "node ../../scripts/build-ts"
   },
   "dependencies": {
-    "babel-plugin-istanbul": "^6.0.0",
-    "jest": "^26.3.0",
-    "jest-environment-node": "^26.3.0",
+    "babel-plugin-istanbul": "^6.1.1",
+    "jest": "^29.7.0",
+    "jest-environment-node": "^29.7.0",
     "miniprogram-automator": "^0.10.0"
   },
   "devDependencies": {
     "@mpflow/service": "workspace:*",
-    "@types/jest": "^26.0.9",
-    "@types/ws": "^7.2.6"
+    "@types/jest": "^29.5.13",
+    "@types/ws": "^7.4.7"
   },
   "peerDependencies": {
     "@mpflow/plugin-babel": "*",

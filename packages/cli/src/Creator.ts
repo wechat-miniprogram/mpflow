@@ -207,7 +207,7 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
 
       // 下载并解压到临时目录
       console.log(`下载 ${downloadUrl}`)
-      await new Promise((resolve, reject) => {
+      await new Promise<void>((resolve, reject) => {
         request.get(downloadUrl)
           .pipe(
             tar.x({
