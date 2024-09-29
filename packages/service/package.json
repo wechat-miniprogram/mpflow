@@ -34,10 +34,10 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
-    "@mpflow/service-core": "link:../service-core",
-    "@mpflow/webpack-plugin": "link:../webpack-plugin",
-    "@mpflow/wxml-loader": "link:../wxml-loader",
-    "@mpflow/wxss-loader": "link:../wxss-loader",
+    "@mpflow/service-core": "workspace:*",
+    "@mpflow/webpack-plugin": "workspace:*",
+    "@mpflow/wxml-loader": "workspace:*",
+    "@mpflow/wxss-loader": "workspace:*",
     "chalk": "^4.1.0",
     "check-node-version": "^4.0.3",
     "clean-webpack-plugin": "^3.0.0",
@@ -56,6 +56,7 @@
   },
   "devDependencies": {
     "@types/mkdirp": "^0.5.2",
+    "@types/tapable": "^1.0.7",
     "@types/webpack": "^4.41.21",
     "@types/yargs": "^15.0.5"
   }

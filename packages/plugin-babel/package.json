@@ -34,7 +34,8 @@
   },
   "devDependencies": {
     "@babel/runtime": "^7.11.2",
-    "@mpflow/service": "link:../service",
+    "@mpflow/service": "workspace:*",
+    "@mpflow/service-core": "workspace:*",
     "core-js": "^2.6.11",
     "webpack": "^4.43.0"
   },

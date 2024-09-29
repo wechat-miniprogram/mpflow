@@ -24,7 +24,7 @@
     "build-ts": "node ../../scripts/build-ts"
   },
   "dependencies": {
-    "@mpflow/wxss-loader": "link:../wxss-loader",
+    "@mpflow/wxss-loader": "workspace:*",
     "css-loader": "^3.6.0",
     "deepmerge": "^4.2.2",
     "less-loader": "^6.2.0",
@@ -35,7 +35,8 @@
     "stylus-loader": "^3.0.2"
   },
   "devDependencies": {
-    "@mpflow/service": "link:../service",
+    "@mpflow/service": "workspace:*",
+    "@mpflow/webpack-plugin": "workspace:*",
     "webpack": "^4.43.0"
   },
   "peerDependencies": {

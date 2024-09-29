@@ -29,7 +29,7 @@
     "jest": "^26.3.0"
   },
   "devDependencies": {
-    "@mpflow/service": "link:../service",
+    "@mpflow/service": "workspace:*",
     "@types/jest": "^26.0.9",
     "miniprogram-simulate": "^1.2.7"
   },

@@ -30,15 +30,22 @@
   },
   "devDependencies": {
     "@babel/helper-plugin-utils": "^7.10.4",
+    "@babel/types": "^7.12.6",
     "@codemod/core": "^1.0.7",
+    "@types/babel__core": "^7.1.9",
     "@types/ejs": "^3.0.4",
+    "@types/mkdirp": "^0.5.2",
+    "@types/rimraf": "^3.0.0",
     "@types/webpack": "^4.41.21",
-    "@types/webpack-chain": "^5.2.0",
-    "@types/yargs": "^15.0.5"
+    "@types/yargs": "^15.0.5",
+    "webpack-chain": "6.5.0"
   },
   "dependencies": {
+    "@babel/core": "^7.10.3",
     "@codemod/matchers": "^1.0.11",
     "chalk": "^4.1.0",
+    "mkdirp": "^1.0.4",
+    "rimraf": "^3.0.2",
     "yargs": "^15.4.1"
   }
 }

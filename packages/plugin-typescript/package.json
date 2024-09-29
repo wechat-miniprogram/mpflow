@@ -37,7 +37,8 @@
     "tsconfig-paths-webpack-plugin": "^3.2.0"
   },
   "devDependencies": {
-    "@mpflow/service": "link:../service",
+    "@mpflow/service": "workspace:*",
+    "@mpflow/webpack-plugin": "workspace:*",
     "@types/wechat-miniprogram": "^2.11.0",
     "typescript": "^3.9.7",
     "webpack": "^4.43.0"
