@@ -26,6 +26,7 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
+    "@babel/runtime": "^7.25.6",
     "cssnano": "^4.1.11",
     "cssnano-preset-lite": "^1.0.1",
     "loader-utils": "^2.0.4",
