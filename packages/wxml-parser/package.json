@@ -1,7 +1,7 @@
 {
   "name": "@mpflow/wxml-parser",
   "description": "a wxml ast parser based on the glass-easel-template-compiler",
-  "version": "0.0.1",
+  "version": "1.0.0-alpha",
   "keywords": [
     "glass-easel"
   ],

@@ -1,6 +1,6 @@
 {
   "name": "mpflow",
-  "version": "0.0.1",
+  "version": "1.0.0-alpha",
   "description": "enhanced cli tool for mp deveopers",
   "main": "index.js",
   "private": true,
