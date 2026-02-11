@@ -1,0 +1,23 @@
+{
+  "name": "@mpflow/wxml-parser",
+  "description": "a wxml ast parser based on the glass-easel-template-compiler",
+  "version": "0.0.1",
+  "keywords": [
+    "glass-easel"
+  ],
+  "author": "juvanhe <juvanhe@tencent.com>",
+  "license": "MIT",
+  "main": "main.js",
+  "module": "module.js",
+  "browser": "pkg/wxml_parser.js",
+  "types": "pkg/wxml_parser.d.ts",
+  "files": [
+    "pkg/wxml_parser*",
+    "/main.js",
+    "/module.js",
+    "/README.md"
+  ],
+  "scripts": {
+    "build": "wasm-pack build --target bundler && rm pkg/package.json"
+  }
+}

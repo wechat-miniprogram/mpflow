@@ -26,6 +26,7 @@
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ../../jest.config.js --runInBand"
   },
   "dependencies": {
+    "@mpflow/wxml-parser": "workspace:^",
     "fast-glob": "^3.3.2",
     "loader-utils": "^2.0.4",
     "schema-utils": "^2.7.1",

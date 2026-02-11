@@ -1,82 +1,9 @@
-import { getOptions, interpolateName, stringifyRequest } from 'loader-utils'
+import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
 import path from 'path'
 import validateOptions from 'schema-utils'
-import { SourceMapGenerator, RawSourceMap } from 'source-map'
+import { RawSourceMap } from 'source-map'
 import { loader } from 'webpack'
-import {
-  importPlugin,
-  PluginChildImportMessage,
-  PluginImportMessage,
-  PluginReplaceMessage,
-  pluginRunner,
-} from './plugins'
-import { ImportAttribute } from './plugins/import-plugin'
-import * as parser from './wxml-parser'
-
-function getImportCode(
-  loaderContext: loader.LoaderContext,
-  imports: PluginImportMessage['value'][],
-  esModule: boolean,
-) {
-  let code = ''
-
-  const apiUrl = stringifyRequest(loaderContext, require.resolve('./runtime/api'))
-
-  code += esModule
-    ? `import ___WXML_LOADER_API_IMPORT___ from ${apiUrl};\n`
-    : `var ___WXML_LOADER_API_IMPORT___ = require(${apiUrl})\n`
-
-  for (const item of imports) {
-    const { importName, url } = item
-    const request = path.isAbsolute(url) ? JSON.stringify(url) : stringifyRequest(loaderContext, url)
-
-    code += esModule ? `import ${importName} from ${request};\n` : `var ${importName} = require(${request});\n`
-  }
-
-  return code
-}
-
-function getModuleCode(
-  result: {
-    code: string
-    map: SourceMapGenerator | undefined
-  },
-  childImports: PluginChildImportMessage['value'][],
-  replacers: PluginReplaceMessage['value'][],
-  url: string,
-  esModule: boolean,
-  sourceMap: boolean,
-) {
-  let content = JSON.stringify(result.code)
-  const sourceMapContent = sourceMap && result.map ? result.map.toString() : ' undefined'
-  let beforeCode = ''
-
-  beforeCode += esModule
-    ? `var exports = ___WXML_LOADER_API_IMPORT___();\n`
-    : `exports = ___WXML_LOADER_API_IMPORT___();\n`
-
-  for (const item of childImports) {
-    const { importName } = item
-
-    beforeCode += `exports.i(${importName});\n`
-  }
-
-  for (const item of replacers) {
-    const { pattern, replacementName, target } = item
-
-    beforeCode += `var ${replacementName} = ${target};\n`
-
-    content = content.replace(pattern, () => `" + ${replacementName} + "`)
-  }
-
-  beforeCode += `exports.url = ${url};\n`
-
-  return `${beforeCode}\nexports.e(module.id, ${content}, ${url}, ${sourceMapContent});\n`
-}
-
-function getExportCode(esModule: boolean) {
-  return esModule ? 'export default exports;\n' : 'module.exports = exports;\n'
-}
+import { get_code } from '@mpflow/wxml-parser'
 
 export interface Options {
   context?: string
@@ -89,7 +16,40 @@ export interface Options {
   importAttributes?: ImportAttribute[]
 }
 
-const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
+export interface ImportAttribute {
+  tag: string
+  attribute: string
+  importType?: 'child' | 'inline'
+}
+
+const defaultImportAttributes: ImportAttribute[] = [
+  {
+    tag: 'import',
+    attribute: 'src',
+    importType: 'child',
+  },
+  {
+    tag: 'include',
+    attribute: 'src',
+    importType: 'child',
+  },
+  {
+    tag: 'wxs',
+    attribute: 'src',
+  },
+  {
+    tag: 'image',
+    attribute: 'src',
+  },
+]
+
+const RUNTIME_API_MODULE = '\0<MPFLOW_WXML_LOADER_RUNTIME_API_MODULE>\0'
+
+const wxmlLoader = function wxmlLoader(
+  this: loader.LoaderContext,
+  content: string | Buffer,
+  _map: RawSourceMap | null,
+) {
   this.async()
   ;(async (): Promise<[string | Buffer, RawSourceMap?]> => {
     const options: Options = getOptions(this) || {}
@@ -139,70 +99,39 @@ const wxmlLoader: loader.Loader = function wxmlLoader(content, map) {
       },
     )
 
-    // const sourceMap = typeof options.sourceMap === 'boolean' ? options.sourceMap : this.sourceMap
-    const sourceMap = false // do not generate sourceMap since wcc compiler don't recognize it
-    const minimize = typeof options.minimize === 'boolean' ? options.minimize : this.minimize
+    const minimize = typeof options.minimize === 'boolean' ? options.minimize : this.mode === 'production'
 
     const contentStr = typeof content === 'string' ? content : content.toString('utf8')
-    const ast = parser.parse(this.resourcePath, contentStr)
-
-    const { messages } = await pluginRunner([
-      importPlugin({
-        resolveMustache: options.resolveMustache,
-        attributes: options.importAttributes,
-      }),
-    ]).process(ast, {
-      messages: [],
-      fs: this.fs,
-      context: this.context,
-    })
-
-    const imports: PluginImportMessage['value'][] = []
-    const childImports: PluginChildImportMessage['value'][] = []
-    const replacers: PluginReplaceMessage['value'][] = []
-    for (const message of messages) {
-      switch (message.type) {
-        case 'import':
-          imports.push(message.value)
-          break
-        case 'child-import':
-          childImports.push(message.value)
-          break
-        case 'replacer':
-          replacers.push(message.value)
-          break
-      }
-    }
-
-    const result = parser.codegen(ast, {
-      sourceMap,
-      minimize,
-      prevMap: sourceMap ? map : undefined,
-    })
-
-    if (sourceMap && result.map) {
-      result.map.setSourceContent(this.resourcePath, contentStr)
-    }
-
     const context = options.context || this.rootContext
 
-    const url = interpolateName(this, options.name || '[name].[ext]', {
+    const url = interpolateName(this as loader.LoaderContext, options.name || '[name].[ext]', {
       context,
       content,
     })
 
     const outputPath = JSON.stringify(path.posix.join(options.outputPath || '', url))
     const publicPath = `__webpack_public_path__ + ${outputPath}`
-
-    const esModule = typeof options.esModule !== 'undefined' ? options.esModule : false
-
-    const importCode = getImportCode(this, imports, esModule)
-    const moduleCode = getModuleCode(result, childImports, replacers, publicPath, esModule, sourceMap)
-    const exportCode = getExportCode(esModule)
-
-    return [`${importCode}${moduleCode}${exportCode}`]
+    const rustStringifyRequest = (request: string) => {
+      return stringifyRequest(this, request === RUNTIME_API_MODULE ? require.resolve('./runtime/api') : request)
+    }
+    const rustUrlToRequest = (url: string) => urlToRequest(url, '')
+    return [
+      get_code(
+        this.resourcePath,
+        contentStr,
+        {
+          publicPath: publicPath,
+          esModule: options.esModule ?? false,
+          minimize: options.minimize ?? true,
+          resolveMustache: options.resolveMustache ?? false,
+          attributes: options.importAttributes ?? defaultImportAttributes,
+        },
+        rustStringifyRequest,
+        rustUrlToRequest,
+      ),
+    ]
   })().then(
-    ([content, sourceMap]: [string | Buffer, RawSourceMap?]) => {
+    ([content, sourceMap]) => {
       this.callback(null, content, sourceMap)
     },
     err => {
