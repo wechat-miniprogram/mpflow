@@ -224,7 +224,11 @@ pub fn get_code(
                         walk_node(child, processor);
                     }
                 }
-                ElementKind::If { branches, else_branch, .. } => {
+                ElementKind::If {
+                    branches,
+                    else_branch,
+                    ..
+                } => {
                     for branch in branches {
                         for child in &mut branch.2 {
                             walk_node(child, processor);
@@ -280,6 +284,12 @@ pub fn get_code(
             if let Value::Static { value, .. } = val {
                 src.name = value;
             }
+        }
+    }
+
+    for sub_tmpl in &mut tmpl_tree.globals.sub_templates {
+        for node in &mut sub_tmpl.content {
+            walk_node(node, &mut process_node);
         }
     }
 

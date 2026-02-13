@@ -90,9 +90,7 @@ pub(crate) fn get_module_code(
         // Replace the placeholder string in tmpl with JS string concatenation
         // e.g. "...___WXML_LOADER_PLACEHOLDER_0___..." -> "..." + ___WXML_LOADER_PLACEHOLDER_0___ + "..."
         let replacement = format!("\" + {} + \"", item.replacement_name);
-        let res = item
-            .re_pattern
-            .replace_all(&content, replacement.as_str());
+        let res = item.re_pattern.replace_all(&content, replacement.as_str());
         match res {
             Cow::Borrowed(_) => {}
             Cow::Owned(res) => {
