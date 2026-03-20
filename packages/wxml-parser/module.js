@@ -1,20 +1,13 @@
-import path from 'node:path'
-import fs from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import * as bg from './pkg/wxml_parser.js'
+import * as bg from './pkg/wxml_parser_bg.js'
+import wasmB64 from "./pkg/wxml_parser_bg.wasm";
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const wasmBuffer = Uint8Array.from(atob(wasmB64), (c) => c.charCodeAt(0)); // Convert base64 to Uint8Array.
 
-const bytes = fs.readFileSync(
-  path.resolve(__dirname, './pkg/wxml_parser.wasm'),
-)
-
-const wasmModule = new WebAssembly.Module(bytes)
+const wasmModule = new WebAssembly.Module(wasmBuffer)
 const wasmInstance = new WebAssembly.Instance(wasmModule, {
-  './wxml_parser.js': bg,
+  './wxml_parser_bg.js': bg,
 })
 
 bg.__wbg_set_wasm(wasmInstance.exports)
 
-export * from './pkg/wxml_parser.js'
+export * from './pkg/wxml_parser_bg.js'

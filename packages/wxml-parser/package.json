@@ -7,17 +7,22 @@
   ],
   "author": "juvanhe <juvanhe@tencent.com>",
   "license": "MIT",
-  "main": "main.js",
-  "module": "module.js",
+  "main": "pkg/main.js",
+  "module": "pkg/module.js",
   "browser": "pkg/wxml_parser.js",
   "types": "pkg/wxml_parser.d.ts",
   "files": [
+    "pkg/main.js",
+    "pkg/module.js",
     "pkg/wxml_parser*",
-    "/main.js",
-    "/module.js",
     "/README.md"
   ],
   "scripts": {
-    "build": "wasm-pack build --target bundler && rm pkg/package.json"
+    "build": "wasm-pack build --target bundler && rm pkg/package.json && rollup -c rollup.config.mjs"
+  },
+  "sideEffects": false,
+  "devDependencies": {
+    "rollup": "^4.0.0",
+    "rollup-plugin-base64": "^1.0.1"
   }
 }
