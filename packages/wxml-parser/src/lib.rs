@@ -299,6 +299,7 @@ pub fn get_code(
 
     let options = StringifyOptions {
         expression_string_single_quote: true,
+        minimize: option.minimize,
         ..Default::default()
     };
     let mut stringifier = Stringifier::new(String::new(), &wxml_path, None, options);
