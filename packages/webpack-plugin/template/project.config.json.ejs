@@ -2,6 +2,9 @@
 	"description": "项目配置文件",
 	"compileType": "<%- compileType %>",
 	"appid": "<%- appId %>",
+<% if (compileType === 'plugin') { -%>
+	"pluginAppid": "<%- appId %>",
+<% } -%>
   "projectname": "<%- projectName %>",
 <% if (miniprogramRoot) { -%>
 	"miniprogramRoot": "<%- miniprogramRoot %>",
