@@ -10,7 +10,8 @@
   "scripts": {
     "init": "pnpm i",
     "build": "pnpm -r run build",
-    "release": "npm run build && pnpm publish"
+    "release": "npm run build && pnpm publish",
+    "test": "jest --runInBand"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"
@@ -46,7 +47,9 @@
     "prettier": "^2.8.8",
     "rimraf": "^3.0.2",
     "ts-jest": "^29.2.5",
-    "typescript": "^5.6.2"
+    "typescript": "^5.6.2",
+    "@babel/plugin-transform-private-methods": "7.25.4",
+    "@babel/plugin-transform-private-property-in-object": "7.24.7"
   },
   "husky": {
     "hooks": {
@@ -57,5 +60,9 @@
   "lint-staged": {
     "*.{js,ts,md,html,css,json}": "prettier --write",
     "*.{js,ts}": "eslint --fix"
+  },
+  "packageManager": "pnpm@8.15.9",
+  "engines": {
+    "node": ">=22.11.0"
   }
 }

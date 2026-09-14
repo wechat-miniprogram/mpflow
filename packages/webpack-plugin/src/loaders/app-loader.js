@@ -1,9 +1,10 @@
-import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
+import { interpolateName } from 'loader-utils'
 import path from 'path'
 import {
   addDependency,
   asyncLoaderWrapper,
   getMpflowLoaders,
+  getSiblingRequest,
   markAsExternal,
   resolveWithType,
   stringifyResource,
@@ -14,14 +15,16 @@ import { appJsonLoader, appJsonRawLoader, assetLoader, extJsonLoader, extJsonRaw
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
-  const options = getOptions(this) || {}
+  const options = this.getOptions()
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable()
 
   markAsExternal(this._module, 'app', 'app')
 
-  const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
+  const resolveName = getSiblingRequest(
+    interpolateName(this, options.resolveName || '[name]', { context: this.context }),
+  )
 
   // 加载 wxss
   try {
@@ -151,7 +154,7 @@ export const pitch = asyncLoaderWrapper(async function () {
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
   const exports = stringifyResource(jsRequest, getMpflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
-  return `module.exports = require(${stringifyRequest(this, exports)})`
+  return `module.exports = require(${JSON.stringify(this.utils.contextify(this.context, exports))})`
 })
 
 export default () => {}

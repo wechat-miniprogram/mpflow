@@ -1,4 +1,3 @@
-import { stringifyRequest } from 'loader-utils'
 import { asyncLoaderWrapper } from '../utils'
 
 /**
@@ -9,7 +8,7 @@ import { asyncLoaderWrapper } from '../utils'
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function (remainRequest) {
-  return `module.exports = require(${stringifyRequest(this, '!!' + remainRequest)})`
+  return `module.exports = require(${JSON.stringify(this.utils.contextify(this.context, '!!' + remainRequest))})`
 })
 
 export default () => {}

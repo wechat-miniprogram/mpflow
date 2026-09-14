@@ -1,9 +1,10 @@
-import { getOptions, interpolateName, urlToRequest } from 'loader-utils'
+import { interpolateName } from 'loader-utils'
 import path from 'path'
 import {
   addDependency,
   asyncLoaderWrapper,
   getMpflowLoaders,
+  getSiblingRequest,
   markAsExternal,
   resolveWithType,
   stringifyResource,
@@ -15,14 +16,16 @@ import { assetLoader, pluginJsonLoader, pluginJsonRawLoader } from './index'
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
-  const options = getOptions(this) || {}
+  const options = this.getOptions()
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable()
 
   markAsExternal(this._module, 'plugin', 'plugin')
 
-  const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
+  const resolveName = getSiblingRequest(
+    interpolateName(this, options.resolveName || '[name]', { context: this.context }),
+  )
 
   // 加载 json
   const jsonRequest = await resolveWithType(this, 'miniprogram/json', resolveName)

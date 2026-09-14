@@ -1,4 +1,3 @@
-import { getOptions } from 'loader-utils'
 import { asyncLoaderWrapper, evalModuleBundleCode, isRequest, resolveWithType } from '../utils'
 
 const RAW_SYMBOL = Symbol('json raw')
@@ -101,7 +100,7 @@ const JsonStringify = value => {
  * 不负责收集 app.json 中的依赖
  */
 export default asyncLoaderWrapper(async function (source) {
-  const options = getOptions(this) || {}
+  const options = this.getOptions()
 
   this.cacheable()
 

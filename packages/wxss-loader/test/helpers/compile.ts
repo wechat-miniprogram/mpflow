@@ -33,6 +33,10 @@ export default async function compile(
             },
             {
               loader: require.resolve('less-loader'),
+              options: {
+                // Load the same peer implementation synchronously inside Jest's CommonJS VM.
+                implementation: require(require.resolve('less', { paths: [require.resolve('less-loader')] })),
+              },
             },
           ],
         },
@@ -44,7 +48,7 @@ export default async function compile(
       ],
     },
     optimization: {
-      namedModules: true,
+      moduleIds: 'named',
     },
   })
 

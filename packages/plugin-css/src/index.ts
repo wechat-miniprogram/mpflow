@@ -34,7 +34,8 @@ const plugin: Plugin = (api, config) => {
 
       addLoader('css')
       addLoader('less', 'less-loader')
-      addLoader('sass', 'sass-loader', { indentedSyntax: true })
+      // sass-loader selects indented syntax from the .sass extension.
+      addLoader('sass', 'sass-loader')
       addLoader('scss', 'sass-loader')
       addLoader('stylus', 'stylus-loader')
       addLoader('styl', 'stylus-loader')

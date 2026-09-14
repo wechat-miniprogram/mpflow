@@ -1,54 +1,43 @@
 import { ConcatSource } from 'webpack-sources'
-
-/** @typedef {import("../ChunkTemplate")} ChunkTemplate */
-
-const getEntryInfo = chunk => {
-  return [chunk.entryModule].filter(Boolean).map(m =>
-    [m.id].concat(
-      Array.from(chunk.groupsIterable)[0]
-        .chunks.filter(c => c !== chunk)
-        .map(c => c.id),
-    ),
-  )
-}
+import JavascriptModulesPlugin from 'webpack/lib/javascript/JavascriptModulesPlugin'
+import Template from 'webpack/lib/Template'
 
 const PLUGIN_NAME = 'Miniprogram Chunk Template Plugin'
 
-export default class ChunkTemplatePlugin {
-  /**
-   * @param {ChunkTemplate} chunkTemplate the chunk template
-   * @returns {void}
-   */
-  apply(chunkTemplate) {
-    chunkTemplate.hooks.render.tap(PLUGIN_NAME, (modules, chunk) => {
-      // const jsonpFunction = chunkTemplate.outputOptions.jsonpFunction;
-      // const globalObject = chunkTemplate.outputOptions.globalObject;
-      const source = new ConcatSource()
-      // const prefetchChunks = chunk.getChildIdsByOrders().prefetch;
+const getEntryInfo = (chunk, chunkGraph) =>
+  Array.from(chunkGraph.getChunkEntryModulesWithChunkGroupIterable(chunk), ([module, group]) =>
+    [chunkGraph.getModuleId(module)].concat(
+      group.chunks
+        .filter(
+          other => other !== chunk && (other.hasRuntime() || JavascriptModulesPlugin.chunkHasJs(other, chunkGraph)),
+        )
+        .map(other => other.id),
+    ),
+  )
 
-      source.add(`var globalThis = this, self = this;\n`)
-      source.add(`module.exports = {\n`)
-      source.add(`"ids": ${JSON.stringify(chunk.ids)},\n`)
-      source.add(`"modules":`)
-      source.add(modules)
-
-      const entries = getEntryInfo(chunk)
-      if (entries.length > 0) {
-        source.add(',\n')
-        source.add(`"entries": ${JSON.stringify(entries)}\n`)
+export default class MiniprogramChunkTemplatePlugin {
+  apply(compilation) {
+    const hooks = JavascriptModulesPlugin.getCompilationHooks(compilation)
+    hooks.renderChunk.tap(PLUGIN_NAME, (modules, renderContext) => {
+      const { chunk, chunkGraph } = renderContext
+      const source = new ConcatSource(
+        'var globalThis = this, self = this;\nmodule.exports = {\n',
+        `"ids": ${JSON.stringify(chunk.ids)},\n"modules":`,
+        modules,
+      )
+      const runtimeModules = chunkGraph.getChunkRuntimeModulesInOrder(chunk)
+      if (runtimeModules.length) {
+        source.add(',\n"runtime": ')
+        source.add(Template.renderChunkRuntimeModules(runtimeModules, renderContext))
       }
-
-      source.add(`};\n`)
-
+      const entries = getEntryInfo(chunk, chunkGraph)
+      if (entries.length) source.add(`,\n"entries": ${JSON.stringify(entries)}\n`)
+      source.add('};\n')
       return source
     })
-    chunkTemplate.hooks.hash.tap(PLUGIN_NAME, hash => {
+    hooks.chunkHash.tap(PLUGIN_NAME, (chunk, hash, { chunkGraph }) => {
       hash.update(PLUGIN_NAME)
-      hash.update('3')
-    })
-    chunkTemplate.hooks.hashForChunk.tap(PLUGIN_NAME, (hash, chunk) => {
-      hash.update(JSON.stringify(getEntryInfo(chunk)))
+      hash.update(JSON.stringify(getEntryInfo(chunk, chunkGraph)))
     })
   }
 }
-module.exports = ChunkTemplatePlugin

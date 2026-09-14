@@ -16,6 +16,7 @@ export default async function compile(
     context: path.resolve(__dirname, '../fixtures', fixture),
     entry: path.resolve(__dirname, '../fixtures', fixture, 'entry.js'),
     resolve: {
+      extensions: ['.js', '.json', '.wxml'],
       alias: {
         '/img.png': path.resolve(__dirname, '../fixtures', fixture, 'img.png'),
       },

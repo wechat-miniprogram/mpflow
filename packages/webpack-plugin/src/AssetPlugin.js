@@ -10,7 +10,7 @@ const PLUGIN_NAME = 'Mpflow Asset Plugin'
  * 渲染成独立文件
  */
 class AssetPlugin {
-  constructor(options) {
+  constructor(options = {}) {
     this.options = options
   }
 
@@ -32,8 +32,8 @@ class AssetPlugin {
             this.renderContentAsset(compilation, chunk, [module], compilation.runtimeTemplate.requestShortener),
           pathOptions: { chunk },
           filenameTemplate: module.outputPath,
-          identifier: `${PLUGIN_NAME}.${type}.${module.id}`,
-          hash: module.hash,
+          identifier: `${PLUGIN_NAME}.${type}.${compilation.chunkGraph.getModuleId(module)}`,
+          hash: compilation.chunkGraph.getModuleHash(module, chunk.runtime),
         }))
       case 'miniprogram/wxss':
         // wxss 文件一起输出到 commons
@@ -56,8 +56,8 @@ class AssetPlugin {
             this.renderContentAsset(compilation, chunk, [module], compilation.runtimeTemplate.requestShortener),
           pathOptions: { chunk },
           filenameTemplate: module.outputPath,
-          identifier: `${PLUGIN_NAME}.${type}.${module.id}`,
-          hash: module.hash,
+          identifier: `${PLUGIN_NAME}.${type}.${compilation.chunkGraph.getModuleId(module)}`,
+          hash: compilation.chunkGraph.getModuleHash(module, chunk.runtime),
         }))
       default:
         return []
@@ -76,7 +76,7 @@ class AssetPlugin {
 
     const [chunkGroup] = chunk.groupsIterable
 
-    if (typeof chunkGroup.getModuleIndex2 === 'function') {
+    if (typeof chunkGroup.getModulePostOrderIndex === 'function') {
       // Store dependencies for modules
       const moduleDependencies = new Map(modules.map(m => [m, new Set()]))
       const moduleDependenciesReasons = new Map(modules.map(m => [m, new Map()]))
@@ -89,7 +89,7 @@ class AssetPlugin {
           .map(m => {
             return {
               module: m,
-              index: cg.getModuleIndex2(m),
+              index: cg.getModulePostOrderIndex(m),
             }
           })
           // eslint-disable-next-line no-undefined
@@ -193,7 +193,9 @@ class AssetPlugin {
       // (to avoid a breaking change)
       // TODO remove this in next major version
       // and increase minimum webpack version to 4.12.0
-      modules.sort((a, b) => a.index2 - b.index2)
+      modules.sort(
+        (a, b) => compilation.moduleGraph.getPostOrderIndex(a) - compilation.moduleGraph.getPostOrderIndex(b),
+      )
       usedModules = modules
     }
 
@@ -217,39 +219,19 @@ class AssetPlugin {
 
       compilation.dependencyTemplates.set(AssetDependency, new AssetDependency.Template())
 
-      compilation.mainTemplate.hooks.renderManifest.tap(PLUGIN_NAME, (result, { chunk }) => {
-        const assetModules = Array.from(chunk.modulesIterable).filter(module => module instanceof AssetModule)
-
-        if (!assetModules.length) return
-
-        const assetModuleTypeMap = assetModules.reduce((assetModuleTypeMap, assetModule) => {
-          if (!assetModuleTypeMap[assetModule.type]) assetModuleTypeMap[assetModule.type] = []
-          assetModuleTypeMap[assetModule.type].push(assetModule)
-          return assetModuleTypeMap
-        }, {})
-
-        for (const type in assetModuleTypeMap) {
-          result.push(...this.renderManifests(type, assetModuleTypeMap[type], { compiler, compilation, chunk }))
+      compilation.hooks.renderManifest.tap(PLUGIN_NAME, (result, { chunk }) => {
+        const assetModules = Array.from(compilation.chunkGraph.getChunkModulesIterable(chunk)).filter(
+          module => module instanceof AssetModule,
+        )
+        const assetModuleTypeMap = new Map()
+        for (const module of assetModules) {
+          const modules = assetModuleTypeMap.get(module.type) || []
+          modules.push(module)
+          assetModuleTypeMap.set(module.type, modules)
         }
-
-        return result
-      })
-
-      compilation.chunkTemplate.hooks.renderManifest.tap(PLUGIN_NAME, (result, { chunk }) => {
-        const assetModules = Array.from(chunk.modulesIterable).filter(module => module instanceof AssetModule)
-
-        if (!assetModules.length) return
-
-        const assetModuleTypeMap = assetModules.reduce((assetModuleTypeMap, assetModule) => {
-          if (!assetModuleTypeMap[assetModule.type]) assetModuleTypeMap[assetModule.type] = []
-          assetModuleTypeMap[assetModule.type].push(assetModule)
-          return assetModuleTypeMap
-        }, {})
-
-        for (const type in assetModuleTypeMap) {
-          result.push(...this.renderManifests(type, assetModuleTypeMap[type], { compiler, compilation, chunk }))
+        for (const [type, modules] of assetModuleTypeMap) {
+          result.push(...this.renderManifests(type, modules, { compiler, compilation, chunk }))
         }
-
         return result
       })
     })

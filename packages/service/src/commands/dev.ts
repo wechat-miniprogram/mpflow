@@ -2,7 +2,7 @@ import { Plugin } from '@mpflow/service-core'
 import cp from 'child_process'
 import fs from 'fs'
 import path from 'path'
-import { compilation, MultiCompiler } from 'webpack'
+import { MultiStats, MultiCompiler } from 'webpack'
 import WebpackOutputFileSystem from '../utils/WebpackOutputFileSystem'
 
 const getDevtoolCliPath = async () => {
@@ -36,7 +36,7 @@ const openDevtool = async (path: string) => {
 
 interface DevContext {
   compiler: MultiCompiler
-  stats?: compilation.MultiStats
+  stats?: MultiStats
 }
 
 const setupHooks = (context: DevContext, firstDone: () => void) => {
@@ -46,7 +46,7 @@ const setupHooks = (context: DevContext, firstDone: () => void) => {
     context.stats = undefined
   }
 
-  const done = (stats: compilation.MultiStats) => {
+  const done = (stats: MultiStats) => {
     context.stats = stats
 
     process.nextTick(() => {
@@ -83,12 +83,6 @@ const dev: Plugin = (api, config) => {
         api.setMode('development')
 
         const { default: webpack } = await import('webpack')
-
-        api.configureWebpack(({ configure }) => {
-          configure(webpackConfig => {
-            webpackConfig.watch(true)
-          })
-        })
 
         // 开始构建前，清理输出目录
         await api.rmrf(path.join(api.resolve(config.outputDir || 'dist'), '*'))

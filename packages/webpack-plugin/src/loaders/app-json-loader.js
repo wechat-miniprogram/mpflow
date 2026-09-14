@@ -1,4 +1,3 @@
-import { getOptions } from 'loader-utils'
 import fs from 'fs'
 import path from 'path'
 import {
@@ -19,7 +18,7 @@ import { assetLoader, pageLoader } from './index'
  * 不负责生成最终的 app.json 文件
  */
 export default asyncLoaderWrapper(async function (source) {
-  const options = getOptions(this) || {}
+  const options = this.getOptions()
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
   const isExternalModule = this.__mpflowIsExternalModule
 

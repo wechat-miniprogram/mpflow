@@ -68,10 +68,11 @@ module.exports = {
     ],
   },
 
-  // 构建目标指定为 MpflowWebpackPlugin.target
-  target: mpflowPlugin.target,
+  // webpack 5 的自定义构建目标通过插件安装
+  target: false,
 
   plugins: [
+    mpflowPlugin.target,
     // 使用插件
     new mpflowPlugin(),
   ],

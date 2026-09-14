@@ -23,11 +23,22 @@ class AssetModule extends Module {
   }
 
   updateCacheModule(module) {
+    super.updateCacheModule(module)
     this.content = module.content
+    this.outputPath = module.outputPath
+    this.sourceMap = module.sourceMap
   }
 
-  needRebuild() {
-    return true
+  needBuild(context, callback) {
+    callback(null, true)
+  }
+
+  getSourceTypes() {
+    return new Set([this.type])
+  }
+
+  codeGeneration() {
+    return { sources: new Map(), runtimeRequirements: new Set() }
   }
 
   build(options, compilation, resolver, fileSystem, callback) {

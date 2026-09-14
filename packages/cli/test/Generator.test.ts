@@ -2,6 +2,16 @@ import { Generator } from '../src/Generator'
 import { Volume, createFsFromVolume } from 'memfs'
 import babel, { PluginObj } from '@babel/core'
 
+jest.mock('@codemod/core', () => {
+  const codemod = jest.requireActual('@codemod/core') as typeof import('@codemod/core')
+  return {
+    ...codemod,
+    // Running from the monorepo root must use the same transforms as the package-local test command.
+    transform: (code: string, options: Parameters<typeof codemod.transform>[1]) =>
+      codemod.transform(code, { configFile: false, babelrc: false, ...options }),
+  }
+})
+
 describe('Generator', () => {
   test('should extend package', async () => {
     const volume = new Volume()

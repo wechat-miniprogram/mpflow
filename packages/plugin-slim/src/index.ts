@@ -1,5 +1,7 @@
 import { Plugin } from '@mpflow/service-core'
 import path from 'path'
+import ImageMinimizerPlugin from 'image-minimizer-webpack-plugin'
+import { getImageminMinimizer, markMinimizedModuleAssets } from './imagemin'
 
 interface Options {
   imagemin?: {
@@ -38,85 +40,71 @@ const plugin: Plugin<Options> = (api, config, options) => {
 
   api.configureWebpack(({ configure }) => {
     configure(webpackConfig => {
-      const ImageminPlugin = require('imagemin-webpack')
+      const customPlugins = options.imagemin?.plugins || []
+      const loaderOptions: {
+        minimizer: ReturnType<typeof getImageminMinimizer> | ReturnType<typeof getImageminMinimizer>[]
+        severityError: 'warning' | 'error'
+      }[] = []
+      const optionsForLoader = (plugins: any[], precedingPlugins: any[] = []) => {
+        const minimizer = getImageminMinimizer(plugins)
+        const options = {
+          // Separate worker stages preserve the old loaders' recovery boundary:
+          // a failed stage returns its input, then the following stage still runs.
+          minimizer: precedingPlugins.length ? [getImageminMinimizer(precedingPlugins), minimizer] : minimizer,
+          severityError: 'warning' as 'warning' | 'error',
+        }
+        loaderOptions.push(options)
+        return options
+      }
+      const enabledFormats: RegExp[] = []
+      const addImageRule = (format: string, test: RegExp, plugins: any[]) => {
+        enabledFormats.push(test)
+        webpackConfig.module
+          .rule(`imagemin-${format}`)
+          .test(test)
+          .enforce('pre')
+          .use('imagemin-loader')
+          .loader(ImageMinimizerPlugin.loader)
+          .options(optionsForLoader(plugins, customPlugins))
+      }
 
       if (options.imagemin?.jpg)
-        webpackConfig.module
-          .rule('imagemin-jpg')
-          .test(/\.jpe?g$/i)
-          .enforce('pre')
-          .use('imagemin-loader')
-          .loader(ImageminPlugin.loader)
-          .options({
-            cache: true,
-            imageminOptions: {
-              plugins: [[require.resolve('imagemin-jpegtran'), { progressive: true }]],
-            },
-          })
+        addImageRule('jpg', /\.jpe?g$/i, [[require.resolve('imagemin-jpegtran'), { progressive: true }]])
 
       if (options.imagemin?.gif)
-        webpackConfig.module
-          .rule('imagemin-gif')
-          .test(/\.gif$/i)
-          .enforce('pre')
-          .use('imagemin-loader')
-          .loader(ImageminPlugin.loader)
-          .options({
-            cache: true,
-            imageminOptions: {
-              plugins: [[require.resolve('imagemin-gifsicle'), { interlaced: true }]],
-            },
-          })
+        addImageRule('gif', /\.gif$/i, [[require.resolve('imagemin-gifsicle'), { interlaced: true }]])
 
       if (options.imagemin?.png)
-        webpackConfig.module
-          .rule('imagemin-png')
-          .test(/\.png$/i)
-          .enforce('pre')
-          .use('imagemin-loader')
-          .loader(ImageminPlugin.loader)
-          .options({
-            cache: true,
-            imageminOptions: {
-              plugins: [[require.resolve('imagemin-optipng'), { optimizationLevel: 5 }]],
-            },
-          })
+        addImageRule('png', /\.png$/i, [[require.resolve('imagemin-optipng'), { optimizationLevel: 5 }]])
 
       if (options.imagemin?.svg)
-        webpackConfig.module
-          .rule('imagemin-svg')
-          .test(/\.svg$/i)
-          .enforce('pre')
-          .use('imagemin-loader')
-          .loader(ImageminPlugin.loader)
-          .options({
-            cache: true,
-            imageminOptions: {
-              plugins: [
-                [
-                  require('imagemin-svgo'),
-                  {
-                    plugins: [
-                      {
-                        removeViewBox: false,
-                      },
-                    ],
-                  },
-                ],
-              ],
-            },
-          })
+        addImageRule('svg', /\.svg$/i, [[require.resolve('imagemin-svgo'), { plugins: [{ removeViewBox: false }] }]])
 
-      if (options.imagemin?.plugins?.length) {
-        webpackConfig.plugin('imagemin').use(ImageminPlugin, [
-          {
-            cache: true,
-            imageminOptions: {
-              plugins: options.imagemin?.plugins,
-            },
-          },
-        ])
+      if (customPlugins.length) {
+        const test = /\.(jpe?g|png|gif|tif|webp|svg)$/i
+        const rule = webpackConfig.module.rule('imagemin-custom').test(test).enforce('pre')
+        for (const format of enabledFormats) rule.exclude.add(format)
+        rule.use('imagemin-loader').loader(ImageMinimizerPlugin.loader).options(optionsForLoader(customPlugins))
       }
+
+      if (loaderOptions.length)
+        webpackConfig.plugin('imagemin').use({
+          apply(compiler: import('webpack').Compiler) {
+            // User configureWebpack callbacks run after plugin configuration, so
+            // read bail from the final compiler options just as the old loader did.
+            const severityError = compiler.options.bail ? 'error' : 'warning'
+            for (const options of loaderOptions) options.severityError = severityError
+            if (customPlugins.length) {
+              new ImageMinimizerPlugin({
+                loader: false,
+                test: /\.(jpe?g|png|gif|tif|webp|svg)$/i,
+                minimizer: getImageminMinimizer(customPlugins),
+                severityError,
+              }).apply(compiler)
+              markMinimizedModuleAssets(compiler)
+            }
+          },
+        })
     })
   })
 }

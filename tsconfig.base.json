@@ -7,6 +7,7 @@
     "moduleResolution": "node",
     "allowJs": true,
     "strictNullChecks": true,
+    "skipLibCheck": true,
     "strictBindCallApply": true,
     "noImplicitThis": true,
     "noImplicitAny": true,

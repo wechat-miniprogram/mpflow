@@ -33,18 +33,21 @@
     "@babel/plugin-proposal-optional-chaining": "^7.21.0",
     "@babel/preset-typescript": "^7.24.7",
     "deepmerge": "^4.3.1",
-    "fork-ts-checker-webpack-plugin": "^5.2.1",
-    "tsconfig-paths-webpack-plugin": "^3.5.2"
+    "fork-ts-checker-webpack-plugin": "^9.1.0",
+    "tsconfig-paths-webpack-plugin": "^4.2.0"
   },
   "devDependencies": {
     "@mpflow/service": "workspace:*",
     "@mpflow/webpack-plugin": "workspace:*",
     "@types/wechat-miniprogram": "^2.11.0",
     "typescript": "^5.6.2",
-    "webpack": "^4.47.0"
+    "webpack": "^5.111.0"
   },
   "peerDependencies": {
     "@mpflow/plugin-babel": "*",
     "@mpflow/service": "*"
+  },
+  "engines": {
+    "node": ">=22.11.0"
   }
 }

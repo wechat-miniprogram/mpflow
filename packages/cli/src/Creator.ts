@@ -44,7 +44,8 @@ export class CreatorAPI<
       templatePath: string
     }) => Promise<{ projectName: string; appId: string; templatePath: string }>,
   ): void {
-    this.service.hooks.render.tapPromise(this.id, handler)
+    // Series hooks ignore resolved values; preserve the existing callback and public return type.
+    this.service.hooks.render.tapPromise(this.id, handler as (...args: Parameters<typeof handler>) => Promise<any>)
   }
 
   tapBeforeEmit(handler: () => Promise<void>): void {
@@ -101,40 +102,36 @@ export class Creator<P extends { creator?: any; generator?: any } = CreatorPlugi
     /**
      * 准备阶段, 收集必要的创建信息
      */
-    prepare: new AsyncSeriesWaterfallHook<{ projectName: string; appId: string; templateName: string }, never, never>([
-      'infos',
-    ]),
+    prepare: new AsyncSeriesWaterfallHook<[{ projectName: string; appId: string; templateName: string }]>(['infos']),
     /**
      * 解析输入的 template 模板
      */
-    resolveTemplate: new AsyncSeriesWaterfallHook<string, never, never>(['templateName']),
+    resolveTemplate: new AsyncSeriesWaterfallHook<[string]>(['templateName']),
     /**
      * 将模板渲染到内存中的虚拟文件系统
      */
     render: new AsyncSeriesHook<
-      { projectName: string; appId: string; templatePath: string },
-      Record<string, string>,
-      never
+      [{ projectName: string; appId: string; templatePath: string }, Record<string, string>]
     >(['infos', 'files']),
     /**
      * 将渲染模板输出前回调
      */
-    beforeEmit: new AsyncSeriesHook<Record<string, string>>(['files']),
+    beforeEmit: new AsyncSeriesHook<[Record<string, string>]>(['files']),
     /**
      * 将渲染模板真正输出到目录
      */
-    emit: new AsyncSeriesHook<string, Record<string, string>>(['context', 'files']),
+    emit: new AsyncSeriesHook<[string, Record<string, string>]>(['context', 'files']),
     /**
      * 初始化项目
      */
-    init: new AsyncSeriesHook<string, { projectName: string; appId: string; templatePath: string }>([
+    init: new AsyncSeriesHook<[string, { projectName: string; appId: string; templatePath: string }]>([
       'context',
       'infos',
     ]),
     /**
      * 初始化结束后
      */
-    afterInit: new AsyncSeriesHook<string, { projectName: string; appId: string; templatePath: string }>([
+    afterInit: new AsyncSeriesHook<[string, { projectName: string; appId: string; templatePath: string }]>([
       'context',
       'infos',
     ]),

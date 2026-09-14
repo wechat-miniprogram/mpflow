@@ -3,4 +3,6 @@ var some_msg = "hello world";
 module.exports = {
   msg : some_msg,
 }
-</wxs><view><template is="item"/><input type="password"/>{{foo.msg}}</view>
+</wxs><view><template is="item"/><input type="password"/>
+  {{foo.msg}}
+</view>

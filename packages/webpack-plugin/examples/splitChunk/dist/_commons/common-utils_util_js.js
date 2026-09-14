@@ -1,10 +1,10 @@
 var globalThis = this, self = this;
 module.exports = {
-"ids": ["index~logs"],
+"ids": ["common-utils_util_js"],
 "modules":{
 
 /***/ 6:
-/***/ (function(module, exports) {
+/***/ (function(module) {
 
 const formatTime = date => {
   const year = date.getFullYear()

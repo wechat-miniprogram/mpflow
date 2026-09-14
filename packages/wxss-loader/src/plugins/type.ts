@@ -1,6 +1,6 @@
-import { ResultMessage } from 'postcss'
+import { Message } from 'postcss'
 
-export interface PluginImportMessage extends ResultMessage {
+export interface PluginImportMessage extends Message {
   type: 'import'
   value: {
     importName: string
@@ -8,14 +8,14 @@ export interface PluginImportMessage extends ResultMessage {
   }
 }
 
-export interface PluginChildImportMessage extends ResultMessage {
+export interface PluginChildImportMessage extends Message {
   type: 'child-import'
   value: {
     importName: string
   }
 }
 
-export interface PluginReplaceMessage extends ResultMessage {
+export interface PluginReplaceMessage extends Message {
   type: 'replacer'
   value: {
     pattern: string | RegExp

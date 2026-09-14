@@ -25,21 +25,26 @@
   },
   "dependencies": {
     "@mpflow/wxss-loader": "workspace:*",
-    "css-loader": "^3.6.0",
+    "css-loader": "^7.1.5",
     "deepmerge": "^4.3.1",
-    "less-loader": "^6.2.0",
-    "postcss": "^8.4.47",
-    "postcss-loader": "^4.3.0",
-    "sass-loader": "^9.0.3",
+    "less-loader": "^13.0.0",
+    "postcss": "^8.5.28",
+    "postcss-loader": "^8.2.1",
+    "sass-loader": "^17.0.1",
     "stylus": "^0.54.8",
-    "stylus-loader": "^3.0.2"
+    "stylus-loader": "^9.0.0",
+    "less": "3.13.1"
   },
   "devDependencies": {
     "@mpflow/service": "workspace:*",
     "@mpflow/webpack-plugin": "workspace:*",
-    "webpack": "^4.47.0"
+    "webpack": "^5.111.0",
+    "sass": "^1.104.1"
   },
   "peerDependencies": {
     "@mpflow/service": "*"
+  },
+  "engines": {
+    "node": ">=22.11.0"
   }
 }

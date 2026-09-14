@@ -1,12 +1,13 @@
 import NativeModule from 'module'
+import Compilation from 'webpack/lib/Compilation'
 import path from 'path'
 import qs from 'querystring'
 import LibraryTemplatePlugin from 'webpack/lib/LibraryTemplatePlugin'
-import ModuleReason from 'webpack/lib/ModuleReason'
+import NormalModule from 'webpack/lib/NormalModule'
 import NodeTargetPlugin from 'webpack/lib/node/NodeTargetPlugin'
 import NodeTemplatePlugin from 'webpack/lib/node/NodeTemplatePlugin'
 import LimitChunkCountPlugin from 'webpack/lib/optimize/LimitChunkCountPlugin'
-import SingleEntryPlugin from 'webpack/lib/SingleEntryPlugin'
+import EntryPlugin from 'webpack/lib/EntryPlugin'
 import ExternalDependency from './ExternalDependency'
 import VirtualDependency from './VirtualDependency'
 
@@ -29,8 +30,8 @@ export function getMpflowLoaders(loaderContext, resource, type) {
     resource: resourcePath,
     realResource: resourcePath,
     resourceQuery,
-    issuer: loaderContext._module.issuer,
-    compiler: loaderContext._compiler,
+    issuer: loaderContext._compilation.moduleGraph.getIssuer(loaderContext._module)?.resource,
+    compiler: loaderContext._compiler.name,
   })
 
   const useLoadersPost = []
@@ -38,20 +39,23 @@ export function getMpflowLoaders(loaderContext, resource, type) {
   const useLoadersPre = []
 
   for (const r of result) {
-    if (r.type === 'use') {
-      if (r.enforce === 'post') {
-        useLoadersPost.push(r.value)
-      } else if (r.enforce === 'pre') {
-        useLoadersPre.push(r.value)
-      } else if (!r.enforce) {
-        useLoaders.push(r.value)
-      }
-    }
+    if (r.type === 'use-post') useLoadersPost.push(r.value)
+    else if (r.type === 'use-pre') useLoadersPre.push(r.value)
+    else if (r.type === 'use') useLoaders.push(r.value)
   }
 
   const loaders = useLoadersPost.concat(useLoaders, useLoadersPre)
 
   return loaders
+}
+
+/** Convert a configured sibling name into the request understood by the mini-program resolvers. */
+export function getSiblingRequest(name) {
+  if (name === '') return ''
+  const nativeWindowsPath = /^[a-z]:[/\\]|^\\\\/i.test(name)
+  const request = nativeWindowsPath || /^\.\.?\//.test(name) ? name : `./${name}`
+  // Keep the existing module-request marker, without treating a query's tilde as one.
+  return request.replace(/^[^?]*~/, '')
 }
 
 /**
@@ -81,17 +85,15 @@ export function stringifyResource(resource, loaders, options = {}) {
   return `${prefix}${segs.join('!')}`
 }
 
-const MODULE_EXTERNAL_SYMBOL = Symbol('Module External')
-
 /**
  * 检查一个 entryPoint 是否为小程序入口
  * @param {*} entryPoint
  * @return {{ type: string, outputPath: string } | undefined}
  */
-export function isExternalEntryPoint(entryPoint) {
+export function isExternalEntryPoint(entryPoint, compilation) {
   if (!entryPoint || !entryPoint.chunks) return false
   for (const chunk of entryPoint.chunks) {
-    const externalInfo = isExternalChunk(chunk)
+    const externalInfo = isExternalChunk(chunk, compilation)
     if (externalInfo) return externalInfo
   }
   return false
@@ -102,18 +104,14 @@ export function isExternalEntryPoint(entryPoint) {
  * @param {*} chunk
  * @return {{ type: string, outputPath: string } | undefined}
  */
-export function isExternalChunk(chunk) {
-  if (!chunk || !chunk.entryModule) return false
-  for (const module of Array.from(chunk.modulesIterable)) {
-    if (module && module.reasons) {
-      for (const reason of module.reasons) {
-        const dependency = reason.dependency
-        if (dependency && dependency instanceof ExternalDependency) {
-          return {
-            type: dependency.externalType,
-            outputPath: dependency.outputPath,
-          }
-        }
+export function isExternalChunk(chunk, compilation) {
+  if (!chunk) return false
+  for (const module of compilation.chunkGraph.getChunkEntryModulesIterable(chunk)) {
+    if (module.buildInfo && module.buildInfo.mpflowExternal) return module.buildInfo.mpflowExternal
+    for (const connection of compilation.moduleGraph.getIncomingConnections(module)) {
+      const dependency = connection.dependency
+      if (dependency instanceof ExternalDependency) {
+        return { type: dependency.externalType, outputPath: dependency.outputPath }
       }
     }
   }
@@ -127,9 +125,7 @@ export function isExternalChunk(chunk) {
  * @param {string} outputPath
  */
 export function markAsExternal(module, type, outputPath) {
-  const dependency = new ExternalDependency(module.request, type, outputPath)
-  const reason = new ModuleReason(module, dependency, 'weflow markAsExternal')
-  module.reasons.push(reason)
+  module.buildInfo.mpflowExternal = { type, outputPath }
 }
 
 /**
@@ -144,7 +140,7 @@ export async function addExternal(loaderContext, request, externalType, outputPa
   return new Promise((resolve, reject) => {
     const { _compilation: compilation, context } = loaderContext
     const dependency = new ExternalDependency(request, externalType, outputPath)
-    compilation.addEntry(context, dependency, name || String(compilation._preparedEntrypoints.length), err =>
+    compilation.addEntry(context, dependency, { name: name || String(compilation.entries.size) }, err =>
       err ? reject(err) : resolve(),
     )
   })
@@ -156,7 +152,6 @@ export async function addExternal(loaderContext, request, externalType, outputPa
  * @param {*} request
  */
 export function addDependency(loaderContext, request) {
-  loaderContext.addDependency(request)
   loaderContext._module.addDependency(new VirtualDependency(request))
 }
 
@@ -252,7 +247,7 @@ export function evalModuleCode(loaderContext, code, filename) {
 export function getModuleIdentifier(compilation, id) {
   const modules = compilation.modules
   for (const module of modules) {
-    if (module.id === id) return module.identifier()
+    if (compilation.chunkGraph.getModuleId(module) === id) return module.identifier()
   }
   return null
 }
@@ -279,12 +274,12 @@ export async function evalModuleBundleCode(loaderContext, code, filename, public
   new NodeTemplatePlugin(outputOptions).apply(childCompiler)
   new LibraryTemplatePlugin(null, 'commonjs2').apply(childCompiler)
   new NodeTargetPlugin().apply(childCompiler)
-  new SingleEntryPlugin(context, `!!${resource}`, resource).apply(childCompiler)
+  new EntryPlugin(context, `!!${resource}`, { name: resource }).apply(childCompiler)
   new LimitChunkCountPlugin({ maxChunks: 1 }).apply(childCompiler)
 
   // 设置 loader
   childCompiler.hooks.thisCompilation.tap(`eval module code loader`, compilation => {
-    compilation.hooks.normalModuleLoader.tap(`eval module code loader`, (context, module) => {
+    NormalModule.getCompilationHooks(compilation).loader.tap(`eval module code loader`, (context, module) => {
       context.emitFile = loaderContext.emitFile
 
       if (module.request === resource && loaders.length) {
@@ -302,17 +297,18 @@ export async function evalModuleBundleCode(loaderContext, code, filename, public
   let source
 
   // 截获 childCompiler 编译结果
-  childCompiler.hooks.afterCompile.tap('eval module code', compilation => {
-    if (compilation.compiler !== childCompiler) return
-
-    source = compilation.assets[childFilename] && compilation.assets[childFilename].source()
-
-    // Remove all chunk assets
-    compilation.chunks.forEach(chunk => {
-      chunk.files.forEach(file => {
-        delete compilation.assets[file] // eslint-disable-line no-param-reassign
-      })
-    })
+  childCompiler.hooks.thisCompilation.tap('eval module code', compilation => {
+    compilation.hooks.processAssets.tap(
+      { name: 'eval module code', stage: Compilation.PROCESS_ASSETS_STAGE_REPORT },
+      () => {
+        source = compilation.getAsset(childFilename)?.source.source()
+        // The evaluation bundle is private to this loader. Assets explicitly
+        // emitted by its loaders are forwarded through context.emitFile above.
+        for (const chunk of compilation.chunks) {
+          for (const file of chunk.files) compilation.deleteAsset(file)
+        }
+      },
+    )
   })
 
   return await new Promise((resolve, reject) => {
@@ -386,7 +382,7 @@ export function getPageOutputPath(rootContext, appContext, currentOutputPath, ra
 export function getJSONContent(loaderContext, source) {
   if (typeof source !== 'string') source = source.toString('utf-8')
   if (source.trim().startsWith('{')) return JSON.parse(source)
-  return loaderContext.exec(source, loaderContext.resourcePath)
+  return evalModuleCode(loaderContext, source, loaderContext.resourcePath)
 }
 
 /**

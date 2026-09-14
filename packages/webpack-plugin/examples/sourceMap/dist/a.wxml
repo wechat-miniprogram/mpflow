@@ -1,10 +1,3 @@
-<import src="b.wxml"/>
-
-<wxs module="foo" src="foo.cfe3f705.wxs"/>
-<view>
-  <template is="item"/>
-  <input type="password"/>
-  <image src="image.09a1a111.png"/>
+<import src="b.wxml"/><wxs module="foo" src="foo.cfe3f705.wxs"/><view><template is="item"/><input type="password"/><image src="image.09a1a111.png"/>
   {{foo.msg}}
 </view>
-

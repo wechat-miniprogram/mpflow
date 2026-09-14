@@ -1,10 +1,9 @@
-import { getOptions } from 'loader-utils'
 import AssetDependency from '../AssetDependency'
 import { asyncLoaderWrapper, evalModuleBundleCode, getModuleIdentifier } from '../utils'
 import path from 'path'
 
 export default asyncLoaderWrapper(async function (source) {
-  const options = getOptions(this) || {}
+  const options = this.getOptions()
   const { type, outputPath, outputDir } = options
 
   this.cacheable()

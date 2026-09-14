@@ -15,6 +15,8 @@
 
 ### 安装
 
+运行构建工具需要 Node.js 22.11 或更高版本。
+
 ![demo-1](img/mpflow-demo-1-min.gif?raw=true)
 
 ```bash

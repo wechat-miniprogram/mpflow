@@ -22,20 +22,22 @@
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
-    "test": "jest ./test --config ../../jest.config.js",
+    "test": "jest packages/wxml-loader/ --config ../../jest.config.js",
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ../../jest.config.js --runInBand"
   },
   "dependencies": {
     "@mpflow/wxml-parser": "workspace:^",
     "@babel/runtime": "^7.25.6",
     "fast-glob": "^3.3.2",
-    "loader-utils": "^2.0.4",
-    "schema-utils": "^2.7.1",
+    "loader-utils": "^3.3.1",
     "source-map": "0.6.1"
   },
   "devDependencies": {
-    "@types/loader-utils": "^2.0.6",
-    "@types/webpack": "^4.41.39",
-    "file-loader": "^6.2.0"
+    "@types/loader-utils": "^3.0.0",
+    "file-loader": "^6.2.0",
+    "webpack": "^5.111.0"
+  },
+  "engines": {
+    "node": ">=22.11.0"
   }
 }

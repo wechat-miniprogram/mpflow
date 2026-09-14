@@ -1,5 +1,13 @@
 import NormalModule from 'webpack/lib/NormalModule'
 
-export default class VirtualModule extends NormalModule {}
+// Keep dependency traversal and loader execution without emitting a JS factory.
+export default class VirtualModule extends NormalModule {
+  getSourceTypes() {
+    if (this._sourceTypes === undefined) this._sourceTypes = new Set()
+    return this._sourceTypes
+  }
 
-VirtualModule.prototype.source = null
+  codeGeneration() {
+    return { sources: new Map(), runtimeRequirements: new Set() }
+  }
+}

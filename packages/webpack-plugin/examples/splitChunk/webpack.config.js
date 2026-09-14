@@ -11,28 +11,25 @@ module.exports = {
     logs: `${mpflowPlugin.pageLoader}!./pages/logs/logs.js`,
   },
 
-  devtool: 'none',
+  devtool: false,
 
   output: {
     path: path.resolve(__dirname, 'dist'),
     pathinfo: false,
     filename: '_commons/[id].js',
     chunkFilename: '_commons/[id].js',
-    libraryTarget: 'var',
   },
 
   optimization: {
-    namedModules: false,
+    moduleIds: 'natural',
+    chunkIds: 'named',
     runtimeChunk: 'single',
     splitChunks: {
       chunks: 'all',
       minSize: 0,
-      maxSize: 0,
       minChunks: 1,
       maxAsyncRequests: 100,
       maxInitialRequests: 100,
-      automaticNameDelimiter: '~',
-      name: true,
       cacheGroups: {
         vendors: {
           test: /[\\/]node_modules[\\/]/,
@@ -70,6 +67,7 @@ module.exports = {
       },
       {
         test: /\.wxml$/,
+        resolve: { extensions: ['.wxml'] },
         enforce: 'pre',
         use: [
           {
@@ -96,9 +94,10 @@ module.exports = {
     ],
   },
 
-  target: mpflowPlugin.target,
+  target: false,
 
   plugins: [
+    mpflowPlugin.target,
     new mpflowPlugin({
       resolve: {
         roots: [__dirname],

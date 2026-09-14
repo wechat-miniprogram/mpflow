@@ -31,8 +31,9 @@ export default class MiniprogramResolverPlugin {
     }
 
     if (roots && roots.length) {
-      // 当作为绝对路径查找无法找到时，作为小程序的绝对路径处理
-      plugins.push(new RootsPlugin('after-described-resolve', new Set(roots), 'relative'))
+      // 小程序根路径优先于文件系统的绝对路径。
+      // enhanced-resolve 5 在 normal-resolve 阶段处理模块及绝对路径；保留 alias 优先、roots 次之的顺序。
+      plugins.push(new RootsPlugin('after-normal-resolve', new Set(roots), 'relative'))
     }
 
     if (usePkgField) {
