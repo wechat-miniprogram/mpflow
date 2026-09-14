@@ -1,4 +1,3 @@
-import { getOptions } from 'loader-utils'
 import path from 'path'
 import {
   addExternal,
@@ -17,7 +16,7 @@ import { pageLoader } from './index'
  * @type {import('webpack').loader.Loader}
  */
 export default asyncLoaderWrapper(async function (source) {
-  const options = getOptions(this) || {}
+  const options = this.getOptions()
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
 
   this.cacheable(false) // 由于需要 addEntry 所以不能缓存

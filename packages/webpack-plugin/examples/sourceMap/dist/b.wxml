@@ -1,4 +1,1 @@
-<template name="item">
-  <text>{{text}}</text>
-</template>
-
+<template name="item"><text>{{text}}</text></template>

@@ -19,13 +19,13 @@
     "url": "git@github.com:wechat-miniprogram/mpflow.git"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=22.11.0"
   },
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
-    "test": "jest . --config ../../jest.config.js",
+    "test": "jest packages/service-core/ --config ../../jest.config.js",
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "devDependencies": {
@@ -36,9 +36,9 @@
     "@types/ejs": "^3.1.5",
     "@types/mkdirp": "^0.5.2",
     "@types/rimraf": "^3.0.2",
-    "@types/webpack": "^4.41.39",
     "@types/yargs": "^15.0.19",
-    "webpack-chain": "6.5.0"
+    "webpack-chain": "^6.5.1",
+    "webpack": "^5.111.0"
   },
   "dependencies": {
     "@babel/core": "^7.25.2",

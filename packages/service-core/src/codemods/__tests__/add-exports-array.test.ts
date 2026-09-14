@@ -12,7 +12,11 @@ const transformShouldEqual = (
   const sourceContent = fs.readFileSync(path.join(fixtureDir, source), 'utf8')
   const expectedContent = fs.readFileSync(path.join(fixtureDir, expected ?? source), 'utf8')
   const result = transform(sourceContent, {
-    plugins: [[plugin, options]]
+    // The fixture is a codemod input, independent of the repository's compilation presets.
+    configFile: false,
+    babelrc: false,
+    filename: path.join(fixtureDir, source),
+    plugins: [[plugin, options]],
   })
   expect(result.code).toEqual(expectedContent)
 }

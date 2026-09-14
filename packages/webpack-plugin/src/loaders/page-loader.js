@@ -1,10 +1,11 @@
-import { getOptions, interpolateName, stringifyRequest, urlToRequest } from 'loader-utils'
+import { interpolateName } from 'loader-utils'
 import path from 'path'
 import {
   addDependency,
   asyncLoaderWrapper,
   getPageOutputPath,
   getMpflowLoaders,
+  getSiblingRequest,
   markAsExternal,
   resolveWithType,
   stringifyResource,
@@ -15,7 +16,7 @@ import { assetLoader, pageJsonLoader, pageJsonRawLoader, stubLoader } from './in
  * @type {import('webpack').loader.Loader}
  */
 export const pitch = asyncLoaderWrapper(async function () {
-  const options = getOptions(this) || {}
+  const options = this.getOptions()
   const appContext = options.appContext ?? path.relative(this.rootContext, this.context)
   const outputPath =
     options.outputPath ??
@@ -31,7 +32,9 @@ export const pitch = asyncLoaderWrapper(async function () {
 
   markAsExternal(this._module, 'page', outputPath)
 
-  const resolveName = urlToRequest(interpolateName(this, options.resolveName || '[name]', { context: this.context }))
+  const resolveName = getSiblingRequest(
+    interpolateName(this, options.resolveName || '[name]', { context: this.context }),
+  )
 
   // 加载 wxml
   const wxmlRequest = await resolveWithType(this, 'miniprogram/wxml', resolveName)
@@ -136,7 +139,7 @@ export const pitch = asyncLoaderWrapper(async function () {
   const jsRequest = await resolveWithType(this, 'miniprogram/javascript', resolveName)
   const exports = stringifyResource(jsRequest, getMpflowLoaders(this, jsRequest, 'javascript'), { disabled: 'normal' })
 
-  return `module.exports = require(${stringifyRequest(this, exports)})`
+  return `module.exports = require(${JSON.stringify(this.utils.contextify(this.context, exports))})`
 })
 
 export default () => {}

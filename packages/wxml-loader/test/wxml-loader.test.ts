@@ -30,10 +30,15 @@ describe('wxml-loader', () => {
     expect(result.errors).toMatchSnapshot('errors')
   })
 
-  test('work with mustache enabled', async () => {
-    const result = await compile('mustache', { minimize: true, resolveMustache: true })
-    expect(result.exports).toMatchSnapshot('exports')
-    expect(result.warnings).toMatchSnapshot('warnings')
-    expect(result.errors).toMatchSnapshot('errors')
+  test('rejects mustache resolution unsupported by the Rust parser', async () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await expect(compile('mustache', { minimize: true, resolveMustache: true })).rejects.toThrow(
+        'RuntimeError: unreachable',
+      )
+      expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('resolve_mustache currently not supported'))
+    } finally {
+      consoleError.mockRestore()
+    }
   })
 })

@@ -2,7 +2,7 @@
  * https://github.com/webpack-contrib/css-loader/blob/master/src/plugins/postcss-url-parser.js
  */
 
-import { plugin } from 'postcss'
+import { Plugin } from 'postcss'
 import valueParser, { ParsedValue, Node, FunctionNode } from 'postcss-value-parser'
 
 import { normalizeUrl } from '../utils'
@@ -65,84 +65,89 @@ function walkUrls(
   })
 }
 
-export default plugin(
-  pluginName,
-  (options: { filter?: (url: string) => boolean; urlHandler?: (url: string) => string }) => (css, result) => {
-    const importsMap = new Map()
-    const replacementsMap = new Map()
+export default function urlPlugin(options: {
+  filter?: (url: string) => boolean
+  urlHandler?: (url: string) => string
+}): Plugin {
+  return {
+    postcssPlugin: pluginName,
+    Once(css, { result }) {
+      const importsMap = new Map()
+      const replacementsMap = new Map()
 
-    css.walkDecls(decl => {
-      if (!needParseDecl.test(decl.value)) {
-        return
-      }
-
-      const parsed = valueParser(decl.value)
-
-      walkUrls(parsed, (node, url, needQuotes, isStringValue) => {
-        // https://www.w3.org/TR/css-syntax-3/#typedef-url-token
-        /* istanbul ignore next */
-        if (url.replace(/^[\s]+|[\s]+$/g, '').length === 0) {
-          result.warn(`Unable to find uri in '${decl ? decl.toString() : decl}'`, { node: decl })
-
+      css.walkDecls(decl => {
+        if (!needParseDecl.test(decl.value)) {
           return
         }
 
-        /* istanbul ignore next */
-        if (options.filter && !options.filter(url)) {
-          return
-        }
+        const parsed = valueParser(decl.value)
 
-        const splittedUrl = url.split(/(\?)?#/)
-        const [urlWithoutHash, singleQuery, hashValue] = splittedUrl
-        const hash = singleQuery || hashValue ? `${singleQuery ? '?' : ''}${hashValue ? `#${hashValue}` : ''}` : ''
+        walkUrls(parsed, (node, url, needQuotes, isStringValue) => {
+          // https://www.w3.org/TR/css-syntax-3/#typedef-url-token
+          /* istanbul ignore next */
+          if (url.replace(/^[\s]+|[\s]+$/g, '').length === 0) {
+            result.warn(`Unable to find uri in '${decl ? decl.toString() : decl}'`, { node: decl })
 
-        const normalizedUrl = normalizeUrl(urlWithoutHash, isStringValue)
-
-        const importKey = normalizedUrl
-        let importName = importsMap.get(importKey)
-
-        if (!importName) {
-          importName = `___WXSS_LOADER_URL_IMPORT_${importsMap.size}___`
-          importsMap.set(importKey, importName)
-
-          const importMessage: PluginImportMessage = {
-            type: 'import',
-            plugin: pluginName,
-            value: {
-              importName,
-              url: options.urlHandler ? options.urlHandler(normalizedUrl) : normalizedUrl,
-            },
+            return
           }
 
-          result.messages.push(importMessage)
-        }
-
-        const replacementKey = JSON.stringify({ importKey, hash })
-        let replacementName = replacementsMap.get(replacementKey)
-
-        if (!replacementName) {
-          const replacerName = `___CSS_LOADER_URL_REPLACER_${replacementsMap.size}___`
-          replacementName = `___CSS_LOADER_URL_PLACEHOLDER_${replacementsMap.size}___`
-          replacementsMap.set(replacementKey, replacementName)
-
-          const replaceMessage: PluginReplaceMessage = {
-            type: 'replacer',
-            plugin: pluginName,
-            value: {
-              pattern: new RegExp(replacementName, 'g'),
-              target: `exports.u(${importName}, { hash: ${JSON.stringify(hash)} })`,
-              replacerName,
-            },
+          /* istanbul ignore next */
+          if (options.filter && !options.filter(url)) {
+            return
           }
 
-          result.messages.push(replaceMessage)
-        }
+          const splittedUrl = url.split(/(\?)?#/)
+          const [urlWithoutHash, singleQuery, hashValue] = splittedUrl
+          const hash = singleQuery || hashValue ? `${singleQuery ? '?' : ''}${hashValue ? `#${hashValue}` : ''}` : ''
 
-        node.type = 'word'
-        node.value = replacementName
+          const normalizedUrl = normalizeUrl(urlWithoutHash, isStringValue)
+
+          const importKey = normalizedUrl
+          let importName = importsMap.get(importKey)
+
+          if (!importName) {
+            importName = `___WXSS_LOADER_URL_IMPORT_${importsMap.size}___`
+            importsMap.set(importKey, importName)
+
+            const importMessage: PluginImportMessage = {
+              type: 'import',
+              plugin: pluginName,
+              value: {
+                importName,
+                url: options.urlHandler ? options.urlHandler(normalizedUrl) : normalizedUrl,
+              },
+            }
+
+            result.messages.push(importMessage)
+          }
+
+          const replacementKey = JSON.stringify({ importKey, hash })
+          let replacementName = replacementsMap.get(replacementKey)
+
+          if (!replacementName) {
+            const replacerName = `___CSS_LOADER_URL_REPLACER_${replacementsMap.size}___`
+            replacementName = `___CSS_LOADER_URL_PLACEHOLDER_${replacementsMap.size}___`
+            replacementsMap.set(replacementKey, replacementName)
+
+            const replaceMessage: PluginReplaceMessage = {
+              type: 'replacer',
+              plugin: pluginName,
+              value: {
+                pattern: new RegExp(replacementName, 'g'),
+                target: `exports.u(${importName}, { hash: ${JSON.stringify(hash)} })`,
+                replacerName,
+              },
+            }
+
+            result.messages.push(replaceMessage)
+          }
+
+          node.type = 'word'
+          node.value = replacementName
+        })
+
+        decl.value = parsed.toString()
       })
-
-      decl.value = parsed.toString()
-    })
-  },
-)
+    },
+  }
+}

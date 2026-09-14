@@ -1,10 +1,9 @@
-import { getOptions, isUrlRequest, stringifyRequest } from 'loader-utils'
 import postcss from 'postcss'
-import validateOptions from 'schema-utils'
 import { RawSourceMap } from 'source-map'
-import { loader } from 'webpack'
+import { LoaderContext, LoaderDefinitionFunction } from 'webpack'
 import { importPlugin, urlPlugin } from './plugins'
 import { PluginChildImportMessage, PluginImportMessage, PluginReplaceMessage } from './plugins/type'
+import { isUrlRequest } from './utils'
 
 class Warning extends Error {
   constructor(warning: postcss.Warning) {
@@ -28,13 +27,13 @@ class Warning extends Error {
 }
 
 function getImportCode(
-  loaderContext: loader.LoaderContext,
+  loaderContext: LoaderContext<Options>,
   imports: PluginImportMessage['value'][],
   esModule: boolean,
 ) {
   let code = ''
 
-  const apiUrl = stringifyRequest(loaderContext, require.resolve('./runtime/api'))
+  const apiUrl = JSON.stringify(loaderContext.utils.contextify(loaderContext.context, require.resolve('./runtime/api')))
 
   code += esModule
     ? `import ___WXSS_LOADER_API_IMPORT___ from ${apiUrl};\n`
@@ -42,7 +41,7 @@ function getImportCode(
 
   for (const item of imports) {
     const { importName, url } = item
-    const request = stringifyRequest(loaderContext, url)
+    const request = JSON.stringify(loaderContext.utils.contextify(loaderContext.context, url))
 
     code += esModule ? `import ${importName} from ${request};\n` : `var ${importName} = require(${request});\n`
   }
@@ -54,7 +53,7 @@ function getModuleCode(
   result: postcss.Result,
   childImports: PluginChildImportMessage['value'][],
   replacers: PluginReplaceMessage['value'][],
-  sourceMap: boolean,
+  sourceMap: boolean | undefined,
   esModule: boolean,
 ) {
   const { css, map } = result
@@ -93,47 +92,41 @@ export interface Options {
   minimize?: boolean
 }
 
-const wxssLoader: loader.Loader = function wxssLoader(content, map) {
+const wxssLoader: LoaderDefinitionFunction<Options> = function wxssLoader(content, map) {
   this.async()
   ;(async (): Promise<[string, RawSourceMap?]> => {
-    const options: Options = getOptions(this) || {}
-
-    validateOptions(
-      {
-        additionalProperties: false,
-        properties: {
-          sourceMap: {
-            description: 'Enables/Disables generation of source maps',
-            type: 'boolean',
-          },
-          esModule: {
-            description: 'Use the ES modules syntax',
-            type: 'boolean',
-          },
-          minimize: {
-            description: 'Minimize the output',
-            type: 'boolean',
-          },
+    const options = this.getOptions({
+      title: 'WXSS Loader options',
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        sourceMap: {
+          description: 'Enables/Disables generation of source maps',
+          type: 'boolean',
+        },
+        esModule: {
+          description: 'Use the ES modules syntax',
+          type: 'boolean',
+        },
+        minimize: {
+          description: 'Minimize the output',
+          type: 'boolean',
         },
       },
-      options,
-      {
-        name: 'WXSS Loader',
-        baseDataPath: 'options',
-      },
-    )
+    })
 
     const sourceMap = typeof options.sourceMap === 'boolean' ? options.sourceMap : this.sourceMap
-    const minimize = typeof options.minimize === 'boolean' ? options.minimize : this.minimize
+    const minimize =
+      typeof options.minimize === 'boolean'
+        ? options.minimize
+        : (this as LoaderContext<Options> & { minimize?: boolean }).minimize
 
     const result = await postcss([
       importPlugin({
-        filter: url => isUrlRequest(url, this.rootContext),
-        // urlHandler: url => stringifyRequest(this, url),
+        filter: url => isUrlRequest(url, true),
       }),
       urlPlugin({
-        filter: url => isUrlRequest(url, this.rootContext),
-        // urlHandler: url => stringifyRequest(this, url),
+        filter: url => isUrlRequest(url, true),
       }),
       ...(!minimize
         ? []

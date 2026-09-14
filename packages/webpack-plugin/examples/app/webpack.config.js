@@ -10,18 +10,18 @@ module.exports = {
     app: `${mpflowPlugin.appLoader}!./app`,
   },
 
-  devtool: 'none',
+  devtool: false,
 
   output: {
     path: path.resolve(__dirname, 'dist'),
     pathinfo: false,
     filename: '_commons/[id].js',
     chunkFilename: '_commons/[id].js',
-    libraryTarget: 'var',
   },
 
   optimization: {
-    namedModules: false,
+    moduleIds: 'natural',
+    chunkIds: 'named',
   },
 
   module: {
@@ -47,6 +47,7 @@ module.exports = {
       },
       {
         test: /\.wxml$/,
+        resolve: { extensions: ['.wxml'] },
         enforce: 'pre',
         use: [
           {
@@ -73,9 +74,10 @@ module.exports = {
     ],
   },
 
-  target: mpflowPlugin.target,
+  target: false,
 
   plugins: [
+    mpflowPlugin.target,
     new mpflowPlugin({
       resolve: {
         roots: [__dirname],

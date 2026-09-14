@@ -1,9 +1,9 @@
 import chalk from 'chalk'
-import { Plugin, Compiler } from 'webpack'
+import { Compiler, WebpackPluginInstance } from 'webpack'
 
 const pluginName = 'PrettyPlugin'
 
-export default class PrettyPlugin implements Plugin {
+export default class PrettyPlugin implements WebpackPluginInstance {
   apply(compiler: Compiler) {
     compiler.hooks.done.tap(pluginName, stats => {
       if (stats.hasErrors()) {

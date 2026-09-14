@@ -1,5 +1,7 @@
-import { Compiler, Resolve, RuleSetRule, ExternalsElement } from 'webpack'
+import { Compiler, ResolveOptions, RuleSetRule, Configuration } from 'webpack'
 import { ChainedMap, Resolve as ResolveChain, Rule as RuleChain, TypedChainedSet } from 'webpack-chain'
+
+type External = Exclude<Configuration['externals'], undefined | any[]>
 
 declare namespace MpflowPlugin {
   class ResolveConfigChain<T> extends ChainedMap<T> {
@@ -39,7 +41,7 @@ declare namespace MpflowPlugin {
   export class ConfigChain extends ChainedMap<void> {
     resolve: ResolveConfigChain<ConfigChain>
     rules: RulesConfigChain<ConfigChain>
-    externals: TypedChainedSet<this, ExternalsElement>
+    externals: TypedChainedSet<this, External>
     program: ProgramConfigChain<ConfigChain>
 
     toConfig(): Options
@@ -48,12 +50,12 @@ declare namespace MpflowPlugin {
   export interface Options {
     resolve?: {
       roots?: string[]
-      sitemap?: Resolve
-      page?: Resolve
-      json?: Resolve
-      javascript?: Resolve
-      wxml?: Resolve
-      wxss?: Resolve
+      sitemap?: ResolveOptions
+      page?: ResolveOptions
+      json?: ResolveOptions
+      javascript?: ResolveOptions
+      wxml?: ResolveOptions
+      wxss?: ResolveOptions
     }
     rules?: {
       sitemap?: RuleSetRule[]
@@ -63,7 +65,7 @@ declare namespace MpflowPlugin {
       wxml?: RuleSetRule[]
       wxss?: RuleSetRule[]
     }
-    externals?: ExternalsElement[]
+    externals?: External[]
     program?: {
       appId?: string
       outputPath?: string

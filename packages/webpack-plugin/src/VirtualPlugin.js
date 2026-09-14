@@ -17,10 +17,10 @@ class VirtualPlugin {
       compilation.dependencyFactories.set(VirtualDependency, normalModuleFactory)
       compilation.dependencyTemplates.set(VirtualDependency, new VirtualDependency.Template())
 
-      normalModuleFactory.hooks.createModule.tap(PLUGIN_NAME, createOptions => {
+      normalModuleFactory.hooks.createModule.tap(PLUGIN_NAME, (createOptions, resolveData) => {
         const {
           dependencies: [dependency],
-        } = createOptions
+        } = resolveData
         if (dependency instanceof VirtualDependency) return new VirtualModule(createOptions)
       })
     })

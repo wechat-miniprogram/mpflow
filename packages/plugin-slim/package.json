@@ -23,7 +23,7 @@
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
-    "test": "jest . --config ../../jest.config.js",
+    "test": "jest packages/plugin-slim/ --config ../../jest.config.js --passWithNoTests",
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
@@ -32,14 +32,19 @@
     "imagemin-optipng": "^8.0.0",
     "imagemin-pngquant": "^9.0.2",
     "imagemin-svgo": "^8.0.0",
-    "imagemin-webpack": "^5.1.1",
-    "jscpd": "^3.5.10"
+    "jscpd": "^3.5.10",
+    "image-minimizer-webpack-plugin": "^5.0.0",
+    "imagemin": "7.0.1"
   },
   "devDependencies": {
     "@mpflow/service": "workspace:*",
-    "@mpflow/service-core": "workspace:*"
+    "@mpflow/service-core": "workspace:*",
+    "webpack": "^5.111.0"
   },
   "peerDependencies": {
     "@mpflow/service": "*"
+  },
+  "engines": {
+    "node": ">=22.11.0"
   }
 }

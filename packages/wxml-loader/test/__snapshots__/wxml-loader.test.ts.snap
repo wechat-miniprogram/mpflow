@@ -8,31 +8,18 @@ Object {
     "exports": Array [
       Array [
         3,
-        "<template name=\\"item\\">
-  <text>{{text}}</text>
-</template>
-",
+        "<template name=\\"item\\"><text>{{text}}</text></template>",
         "b.wxml",
         undefined,
       ],
       Array [
         1,
-        "<import src=\\"b.wxml\\"/>
-
-<wxs module=\\"foo\\">
+        "<import src=\\"b.wxml\\"/><wxs module=\\"foo\\">
 var some_msg = \\"hello world\\";
 module.exports = {
   msg : some_msg,
 }
-</wxs>
-<wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/>
-<view>
-  <input type=\\"password\\"/>
-  <!-- <form>
-    <label>
-  </form> -->
-  <image src=\\"image.09a1a111.png\\"/>
-  <image src=\\"img.09a1a111.png\\"/>
+</wxs><wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/><image src=\\"img.09a1a111.png\\"/>
   {{foo.msg}}
 </view>",
         "a.wxml",
@@ -58,31 +45,18 @@ Object {
     "exports": Array [
       Array [
         3,
-        "<template name=\\"item\\">
-  <text>{{text}}</text>
-</template>
-",
+        "<template name=\\"item\\"><text>{{text}}</text></template>",
         "b.wxml",
         undefined,
       ],
       Array [
         1,
-        "<import src=\\"b.wxml\\"/>
-
-<wxs module=\\"foo\\">
+        "<import src=\\"b.wxml\\"/><wxs module=\\"foo\\">
 var some_msg = \\"hello world\\";
 module.exports = {
   msg : some_msg,
 }
-</wxs>
-<wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/>
-<view>
-  <input type=\\"password\\"/>
-  <!-- <form>
-    <label>
-  </form> -->
-  <image src=\\"image.09a1a111.png\\"/>
-  <image src=\\"img.09a1a111.png\\"/>
+</wxs><wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/><image src=\\"img.09a1a111.png\\"/>
   {{foo.msg}}
 </view>",
         "a.wxml",
@@ -119,7 +93,9 @@ var some_msg = \\"hello world\\";
 module.exports = {
   msg : some_msg,
 }
-</wxs><wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/><image src=\\"img.09a1a111.png\\"/>{{foo.msg}}</view>",
+</wxs><wxs module=\\"c\\" src=\\"c.adca9fdd.wxs\\"/><view><input type=\\"password\\"/><image src=\\"image.09a1a111.png\\"/><image src=\\"img.09a1a111.png\\"/>
+  {{foo.msg}}
+</view>",
         "a.wxml",
         undefined,
       ],
@@ -157,26 +133,3 @@ Object {
 `;
 
 exports[`wxml-loader work with mustache disabled: warnings 1`] = `Array []`;
-
-exports[`wxml-loader work with mustache enabled: errors 1`] = `Array []`;
-
-exports[`wxml-loader work with mustache enabled: exports 1`] = `
-Object {
-  "default": WxmlModule {
-    "exports": Array [
-      Array [
-        1,
-        "<wxs module=\\"___WXML_LOADER_WXS_0___\\">module.exports={\\"./img/m-a.png\\":\\"m-a.31d6cfe0.png\\",\\"./img/m-b.png\\":\\"m-b.31d6cfe0.png\\"}</wxs><image src=\\"{{___WXML_LOADER_WXS_0___['./img/m-'+id+'.png']}}\\"/>",
-        "a.wxml",
-        undefined,
-      ],
-    ],
-    "imported": Set {
-      1,
-    },
-    "url": "a.wxml",
-  },
-}
-`;
-
-exports[`wxml-loader work with mustache enabled: warnings 1`] = `Array []`;

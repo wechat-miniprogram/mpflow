@@ -1,6 +1,6 @@
 import { Plugin } from '@mpflow/service-core'
 import path from 'path'
-import { compilation } from 'webpack'
+import { MultiStats } from 'webpack'
 import WebpackOutputFileSystem from '../utils/WebpackOutputFileSystem'
 
 const build: Plugin = (api, config) => {
@@ -42,8 +42,15 @@ const build: Plugin = (api, config) => {
 
         ;(compiler as any).outputFileSystem = new WebpackOutputFileSystem((api as any).service.outputFileSystem)
 
-        const stats = await new Promise<compilation.MultiStats>((resolve, reject) => {
-          compiler.run((err, stats) => (err ? reject(err) : resolve(stats)))
+        const stats = await new Promise<MultiStats>((resolve, reject) => {
+          compiler.run((err, stats) => {
+            // Webpack 5 needs close() to finish cache writes and release compiler resources.
+            compiler.close(closeErr => {
+              if (err || closeErr) return reject(err || closeErr)
+              if (!stats) return reject(new Error('Webpack did not return build statistics.'))
+              resolve(stats)
+            })
+          })
         })
 
         if (stats.hasErrors()) throw new Error('Webpack build with errors.')

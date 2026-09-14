@@ -12,6 +12,8 @@ class WebpackOutputFileSystem {
     this.rmdir = fileSystem.rmdir.bind(fileSystem)
     this.unlink = fileSystem.unlink.bind(fileSystem)
     this.writeFile = fileSystem.writeFile.bind(fileSystem)
+    this.readFile = fileSystem.readFile.bind(fileSystem)
+    this.stat = fileSystem.stat.bind(fileSystem)
     this.join = path.join.bind(path)
   }
 
@@ -19,6 +21,8 @@ class WebpackOutputFileSystem {
   rmdir: typeof fs['rmdir']
   unlink: typeof fs['unlink']
   writeFile: typeof fs['writeFile']
+  readFile: typeof fs['readFile']
+  stat: typeof fs['stat']
   join: typeof path['join']
 
   mkdirp(dir: string, cb: (err: NodeJS.ErrnoException, made: mkdirp.Made) => void): void

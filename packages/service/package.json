@@ -24,13 +24,13 @@
     "url": "git@github.com:wechat-miniprogram/mpflow.git"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": ">=22.11.0"
   },
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
     "build-ts": "node ../../scripts/build-ts",
-    "test": "jest . --config ../../jest.config.js",
+    "test": "jest packages/service/ --config ../../jest.config.js",
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "dependencies": {
@@ -40,24 +40,25 @@
     "@mpflow/wxss-loader": "workspace:*",
     "chalk": "^4.1.2",
     "check-node-version": "^4.2.1",
-    "clean-webpack-plugin": "^3.0.0",
+    "clean-webpack-plugin": "^4.0.0",
     "cli-highlight": "^2.1.11",
-    "copy-webpack-plugin": "^6.4.1",
+    "copy-webpack-plugin": "^14.0.0",
     "deepmerge": "^4.3.1",
     "file-loader": "^6.2.0",
     "json-loader": "^0.5.7",
     "mkdirp": "^0.5.6",
     "url-loader": "^4.1.1",
-    "webpack": "^4.47.0",
-    "webpack-bundle-analyzer": "^3.9.0",
+    "webpack": "^5.111.0",
+    "webpack-bundle-analyzer": "^5.3.3",
     "webpack-chain": "^6.5.1",
-    "webpack-merge": "^5.10.0",
-    "yargs": "^15.4.1"
+    "webpack-merge": "^6.0.1",
+    "yargs": "^15.4.1",
+    "minimizer-webpack-plugin": "^5.10.1"
   },
   "devDependencies": {
     "@types/mkdirp": "^0.5.2",
-    "@types/tapable": "^1.0.12",
-    "@types/webpack": "^4.41.39",
-    "@types/yargs": "^15.0.19"
+    "@types/yargs": "^15.0.19",
+    "webpack": "^5.111.0",
+    "memfs": "^4.78.0"
   }
 }

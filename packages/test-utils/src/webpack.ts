@@ -1,7 +1,7 @@
 import { createFsFromVolume, Volume, IFs } from 'memfs'
 import path from 'path'
 import webpack, { Compiler, Configuration, Stats } from 'webpack'
-import merge from 'webpack-merge'
+import { merge } from 'webpack-merge'
 import Module from 'module'
 import glob from 'glob'
 import fs from 'fs'
@@ -14,7 +14,8 @@ export function getCompiler(config: Configuration): Compiler {
       target: 'node',
       optimization: {
         minimize: false,
-        namedModules: false,
+        moduleIds: 'natural',
+        chunkIds: 'natural',
       },
       output: {
         filename: '[name].bundle.js',
@@ -37,7 +38,13 @@ export function getCompiler(config: Configuration): Compiler {
 
 export function compile(compiler: Compiler): Promise<Stats> {
   return new Promise((resolve, reject) => {
-    compiler.run((error, stats) => (error ? reject(error) : resolve(stats)))
+    compiler.run((error, stats) => {
+      compiler.close(closeError => {
+        if (error || closeError) reject(error || closeError)
+        else if (!stats) reject(new Error('Webpack completed without compilation stats'))
+        else resolve(stats)
+      })
+    })
   })
 }
 
@@ -86,7 +93,7 @@ export function execute<T>(code: string): T {
 }
 
 export function readAsset(asset: string, compiler: Compiler, stats: Stats): string {
-  const outFs = (compiler.outputFileSystem as any) as IFs
+  const outFs = compiler.outputFileSystem as any as IFs
   const outputPath: string = stats.compilation.outputOptions.path
 
   let data = ''
@@ -122,6 +129,16 @@ export function getExecutedCode<T = any>(asset: string, compiler: Compiler, stat
 }
 
 export async function expectAssetToMatchDir(assets: Record<string, string>, dirname: string): Promise<void> {
+  // Capture actual output for a migration audit without weakening assertions.
+  if (process.env.MPFLOW_ASSET_CAPTURE_DIR) {
+    const relative = path.relative(path.resolve(__dirname, '../../..'), dirname)
+    const captureDir = path.join(process.env.MPFLOW_ASSET_CAPTURE_DIR, relative)
+    for (const [fileName, content] of Object.entries(assets)) {
+      const file = path.join(captureDir, fileName)
+      fs.mkdirSync(path.dirname(file), { recursive: true })
+      fs.writeFileSync(file, content)
+    }
+  }
   const fileNameList = Object.keys(assets).sort()
   const realFileNameList = await new Promise<string[]>((resolve, reject) =>
     glob('**/*', { cwd: dirname, nodir: true }, (err, fileNameList) =>

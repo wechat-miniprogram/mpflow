@@ -1,20 +1,20 @@
 var globalThis = this, self = this;
 module.exports =
 require("./_commons/runtime.js")([
-require("./_commons/index~logs.js"),
-{
+require("./_commons/common-utils_util_js.js"),
+ {
 "ids": ["index"],
 "modules":{
 
 /***/ 0:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
 module.exports = __webpack_require__(5)
 
 /***/ }),
 
 /***/ 5:
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
 //index.js
 const util = __webpack_require__(6)
@@ -90,6 +90,6 @@ Page({
 /***/ })
 
 },
-"entries": [[0,"runtime","index~logs"]]
+"entries": [[0,"runtime","common-utils_util_js"]]
 },
 ]);

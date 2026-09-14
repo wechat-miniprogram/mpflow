@@ -1,3 +1,5 @@
+import NormalModule from 'webpack/lib/NormalModule'
+
 const PLUGIN_NAME = 'Mpflow Runtime Modules Plugin'
 
 /**
@@ -11,7 +13,7 @@ class RuntimeModulesPlugin {
   apply(compiler) {
     const externals = this.externals
     compiler.hooks.compilation.tap(PLUGIN_NAME, compilation => {
-      compilation.hooks.normalModuleLoader.tap(PLUGIN_NAME, context => {
+      NormalModule.getCompilationHooks(compilation).loader.tap(PLUGIN_NAME, context => {
         context.__mpflowIsExternalModule = request => {
           for (const external of externals) {
             if (external instanceof RegExp) {

@@ -125,6 +125,9 @@ const base: Plugin = (api, config) => {
           name: '/_commons/[name].[hash:8].[ext]',
         })
 
+      // The WXML parser normalizes import/include requests by removing the .wxml extension.
+      webpackConfig.module.rule('wxml').resolve.extensions.add('.wxml')
+
       webpackConfig.module
         .rule('images')
         .test(/\.(png|jpg|jpeg|gif|svg|cer|mp3|aac|m4a|mp4|wav|ogg|silk)$/i)
@@ -143,22 +146,26 @@ const base: Plugin = (api, config) => {
         .use('url-loader')
         .loader(require.resolve('url-loader'))
 
-      webpackConfig.target(MpflowPlugin.target as any)
+      // Webpack 5 installs custom targets as plugins instead of accepting a target function.
+      webpackConfig.set('target', false)
+      webpackConfig.plugin('mpflow-target').use({ apply: MpflowPlugin.target })
 
       // 生产模式，抽取公共代码
       webpackConfig.optimization
-        .namedChunks(false)
+        .set('moduleIds', mode === 'production' ? 'size' : 'named')
+        .set('chunkIds', mode === 'production' ? 'total-size' : 'natural')
+        // Webpack 4 tracks used exports globally and removes modules already supplied by parent chunks.
+        .set('usedExports', mode === 'production' ? 'global' : false)
+        .removeAvailableModules(mode === 'production')
         .runtimeChunk('single')
         .minimize(minimize)
         .splitChunks({
           chunks: 'all',
+          usedExports: false,
           minSize: 0,
-          maxSize: 0,
           minChunks: 1,
           maxAsyncRequests: 100,
           maxInitialRequests: 100,
-          automaticNameDelimiter: '~',
-          name: true,
           cacheGroups: {
             defaultVendors: false,
             default: false,
@@ -173,6 +180,15 @@ const base: Plugin = (api, config) => {
 
       if (minimize) {
         const { LoaderOptionsPlugin } = require('webpack') as typeof import('webpack')
+        webpackConfig.optimization.minimizer('terser').use(require('minimizer-webpack-plugin'), [
+          {
+            extractComments: false,
+            terserOptions: {
+              compress: { passes: 1 },
+              format: { comments: /^\**!|@preserve|@license|@cc_on/i },
+            },
+          },
+        ])
         // 生产模式，压缩代码
         webpackConfig.plugin('loader-minimize').use(LoaderOptionsPlugin, [
           {

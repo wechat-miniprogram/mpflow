@@ -8,7 +8,7 @@
   "main": "lib/index.js",
   "types": "index.d.ts",
   "engines": {
-    "node": ">= 10"
+    "node": ">=22.11.0"
   },
   "files": [
     "lib",
@@ -22,30 +22,29 @@
   "scripts": {
     "build": "node ../../scripts/build",
     "build-js": "node ../../scripts/build-js",
-    "test": "jest . --config ../../jest.config.js",
+    "test": "jest packages/webpack-plugin/ --config ../../jest.config.js",
     "test-debug": "node --inspect-brk ../../node_modules/.bin/jest --config ./example/webpack.config.js --runInBand"
   },
   "devDependencies": {
     "@mpflow/wxml-loader": "workspace:*",
     "@mpflow/wxss-loader": "workspace:*",
-    "@types/enhanced-resolve": "^3.0.7",
-    "@types/webpack": "4.41.21",
-    "enhanced-resolve": "^4.5.0",
+    "enhanced-resolve": "^5.25.1",
     "file-loader": "^6.2.0",
     "json-loader": "^0.5.7",
-    "memfs": "^3.5.3",
-    "webpack": "^4.47.0",
-    "webpack-cli": "^3.3.12"
+    "memfs": "^4.78.0",
+    "webpack": "^5.111.0",
+    "webpack-cli": "^7.2.3"
   },
   "peerDependencies": {
-    "enhanced-resolve": "^4.2.0",
-    "webpack": "^4.43.0"
+    "enhanced-resolve": "^5.25.1",
+    "webpack": "^5.111.0"
   },
   "dependencies": {
     "@babel/runtime": "^7.25.6",
     "deepmerge": "^4.3.1",
     "ejs": "^3.1.10",
     "webpack-chain": "^6.5.1",
-    "webpack-sources": "^1.4.3"
+    "webpack-sources": "^3.5.1",
+    "loader-utils": "^3.3.1"
   }
 }

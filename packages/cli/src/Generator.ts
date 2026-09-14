@@ -89,21 +89,21 @@ export class Generator<P extends Plugin = Plugin> extends BaseService<P> {
     /**
      * 加载阶段，加载文件系统中的文件
      */
-    load: new AsyncSeriesHook<string, ProcessFileInfo[]>(['context', 'queue']),
+    load: new AsyncSeriesHook<[string, ProcessFileInfo[]]>(['context', 'queue']),
     /**
      * 生成阶段
      */
-    generate: new AsyncSeriesHook<Record<string, string>, (() => Promise<Record<string, string>>)[], ProcessFileInfo[]>(
-      ['files', 'renderQueue', 'processQueue'],
-    ),
+    generate: new AsyncSeriesHook<
+      [Record<string, string>, (() => Promise<Record<string, string>>)[], ProcessFileInfo[]]
+    >(['files', 'renderQueue', 'processQueue']),
     /**
      * 处理阶段，根据已有文件进行对应处理
      */
-    process: new AsyncSeriesWaterfallHook<ProcessFileInfo | null, never, never>(['info']),
+    process: new AsyncSeriesWaterfallHook<[ProcessFileInfo | null]>(['info']),
     /**
      * 写入阶段，将新生成的或处理后的文件写入文件系统
      */
-    write: new AsyncSeriesHook<Record<string, string>>(['files']),
+    write: new AsyncSeriesHook<[Record<string, string>]>(['files']),
   }
 
   constructor(context: string, { depSources, files: innerFiles, ...options }: GeneratorOptions = {}) {
@@ -128,7 +128,7 @@ export class Generator<P extends Plugin = Plugin> extends BaseService<P> {
           Object.keys(files).forEach(path => processQueue.push({ path, source: files[path] }))
         }
         while (processQueue.length) {
-          const fileInfo = processQueue.shift()
+          const fileInfo = processQueue.shift()!
           const processedFileInfo = await this.hooks.process.promise(fileInfo)
 
           if (processedFileInfo) {
