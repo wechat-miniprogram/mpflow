@@ -17,6 +17,10 @@
     "pkg/wxml_parser*",
     "/README.md"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wechat-miniprogram/mpflow.git"
+  },
   "scripts": {
     "build": "wasm-pack build --target bundler && rm pkg/package.json && rollup -c rollup.config.mjs"
   },
